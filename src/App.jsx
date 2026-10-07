@@ -11,7 +11,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">
-  <img src="/logo.jpg" alt="EKHONI LAGBE logo" />
+            <img src="/logo.png" alt="EKHONI LAGBE logo" />
 </div>
 
           <div className="brand-text">
@@ -167,9 +167,8 @@ function App() {
               ×
             </button>
  <div className="modal-logo">
-  <img src="/logo.jpg" alt="EKHONI LAGBE logo" />
+  <img src="/logo.png" alt="EKHONI LAGBE logo" />
 </div>
-
             <h2>Welcome Back</h2>
 
             <p>Login to your EKHONI LAGBE account.</p>
