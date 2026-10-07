@@ -166,8 +166,7 @@ function App() {
             >
               ×
             </button>
-
-            <div className="modal-logo">
+ <div className="modal-logo">
   <img src="/logo.jpg" alt="EKHONI LAGBE logo" />
 </div>
 
