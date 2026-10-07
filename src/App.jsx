@@ -11,8 +11,8 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">
-            <span>🍃</span>
-          </div>
+  <img src="/logo.jpg" alt="EKHONI LAGBE logo" />
+</div>
 
           <div className="brand-text">
             <strong>এখনই লাগবে</strong>
@@ -167,7 +167,9 @@ function App() {
               ×
             </button>
 
-            <div className="modal-logo">🍃</div>
+            <div className="modal-logo">
+  <img src="/logo.jpg" alt="EKHONI LAGBE logo" />
+</div>
 
             <h2>Welcome Back</h2>
 
