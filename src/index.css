@@ -24,12 +24,18 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .app {
@@ -69,9 +75,15 @@ button {
   place-items: center;
   background: linear-gradient(145deg, #dcfce7, #bbf7d0);
   box-shadow: 0 8px 20px rgba(22, 163, 74, 0.12);
+  overflow: hidden;
 }
 
-
+.brand-mark img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  display: block;
+}
 
 .brand-text {
   display: flex;
@@ -85,12 +97,6 @@ button {
   color: #14532d;
 }
 
-.brand-mark img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  display: block;
-}
 .brand-text small {
   margin-top: 3px;
   font-size: 9px;
@@ -541,6 +547,12 @@ button {
   font-size: 22px;
 }
 
+.modal-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
 .modal-logo img {
   width: 52px;
   height: 52px;
@@ -586,6 +598,269 @@ button {
   margin-top: 14px;
   color: #9aa49d;
   font-size: 9px;
+}
+
+/* =========================
+   CREATE ACCOUNT PAGE
+========================= */
+
+.account-page {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow-y: auto;
+  padding: 35px 20px 50px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(74, 222, 128, 0.12), transparent 28%),
+    radial-gradient(circle at 90% 90%, rgba(34, 197, 94, 0.08), transparent 30%),
+    #f7fbf7;
+}
+
+.account-card {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  position: relative;
+  padding: 38px 42px 30px;
+  border: 1px solid #e2ece5;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 25px 70px rgba(31, 80, 45, 0.10);
+}
+
+.account-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  color: #536158;
+  background: #f2f7f3;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.account-close:hover {
+  background: #e7f4ea;
+  color: #166534;
+}
+
+.account-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.account-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+}
+
+.account-heading {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.account-heading h2 {
+  color: #16321e;
+  font-size: 30px;
+  letter-spacing: -0.8px;
+}
+
+.account-heading p {
+  margin-top: 7px;
+  color: #748177;
+  font-size: 13px;
+}
+
+.account-section {
+  display: flex;
+  gap: 14px;
+  padding: 18px 0;
+  border-top: 1px solid #edf2ee;
+}
+
+.section-number {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #15803d;
+  background: #ecfdf3;
+  border: 1px solid #d1fae5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.section-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-content h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #23432c;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.section-content input,
+.section-content textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 14px;
+  border: 1px solid #dce7df;
+  border-radius: 13px;
+  outline: none;
+  color: #24342a;
+  background: #fbfdfb;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.section-content input {
+  height: 50px;
+}
+
+.section-content textarea {
+  min-height: 92px;
+  padding-top: 13px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.section-content input:focus,
+.section-content textarea:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.10);
+}
+
+.section-note {
+  margin-top: 5px;
+  color: #87938a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.account-action {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: #16a34a;
+  font-weight: 800;
+  box-shadow: 0 9px 20px rgba(22, 163, 74, 0.17);
+}
+
+.account-action:hover {
+  background: #15803d;
+}
+
+.active-section {
+  animation: accountSectionIn 0.25s ease;
+}
+
+@keyframes accountSectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verified-message {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  color: #166534;
+  background: #ecfdf3;
+  border: 1px solid #d1fae5;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.error-message {
+  margin-top: 8px;
+  color: #dc2626;
+  font-size: 11px;
+}
+
+.optional-label {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #6b7d70;
+  background: #f2f5f3;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.create-account-button {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: #16a34a;
+  font-weight: 850;
+  box-shadow: 0 12px 25px rgba(22, 163, 74, 0.20);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.create-account-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #15803d;
+}
+
+.create-account-button span {
+  font-size: 20px;
+}
+
+.address-info {
+  margin-top: 13px;
+  text-align: center;
+  color: #7d8a81;
+  font-size: 10px;
+}
+
+.account-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #edf2ee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  color: #7a867d;
+  font-size: 11px;
+}
+
+.account-footer button {
+  border: 0;
+  background: transparent;
+  color: #15803d;
+  font-weight: 800;
 }
 
 /* =========================
@@ -639,8 +914,9 @@ button {
     border-radius: 12px;
   }
 
-  .brand-mark span {
-    font-size: 22px;
+  .brand-mark img {
+    width: 34px;
+    height: 34px;
   }
 
   .brand-text strong {
@@ -731,6 +1007,68 @@ button {
   .login-modal {
     padding: 30px 20px;
   }
+
+  /* Create Account Mobile */
+
+  .account-page {
+    padding: 18px 12px 30px;
+  }
+
+  .account-card {
+    padding: 30px 18px 24px;
+    border-radius: 22px;
+  }
+
+  .account-close {
+    top: 12px;
+    right: 12px;
+  }
+
+  .account-logo img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .account-heading {
+    margin-bottom: 18px;
+  }
+
+  .account-heading h2 {
+    font-size: 25px;
+  }
+
+  .account-heading p {
+    font-size: 12px;
+  }
+
+  .account-section {
+    gap: 10px;
+    padding: 15px 0;
+  }
+
+  .section-number {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    font-size: 11px;
+  }
+
+  .section-content h3 {
+    font-size: 13px;
+  }
+
+  .section-content input {
+    height: 48px;
+  }
+
+  .section-content textarea {
+    min-height: 86px;
+  }
+
+  .account-footer {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 
 @media (max-width: 380px) {
@@ -747,4 +1085,13 @@ button {
     margin-top: -20px;
     margin-bottom: -45px;
   }
+
+  .account-card {
+    padding-left: 14px;
+    padding-right: 14px;
   }
+
+  .account-heading h2 {
+    font-size: 23px;
+  }
+}
