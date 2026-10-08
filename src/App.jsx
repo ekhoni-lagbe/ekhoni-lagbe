@@ -34,12 +34,14 @@ function App() {
   };
 
   const handleSendOtp = () => {
-    if (!name.trim() || mobile.length < 10) {
-      return;
-    }
+  const validBangladeshMobile = /^01\d{9}$/.test(mobile);
 
-    setAccountStep(2);
-  };
+  if (!name.trim() || !validBangladeshMobile) {
+    return;
+  }
+
+  setAccountStep(2);
+};
 
   const handleVerifyOtp = () => {
     if (otp.length < 4) {
@@ -402,16 +404,19 @@ function App() {
                 <h3>Mobile Number</h3>
 
                 <input
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  inputMode="numeric"
-                  value={mobile}
-                  onChange={(e) =>
-                    setMobile(
-                      e.target.value.replace(/\D/g, "")
-                    )
-                  }
-                />
+  type="tel"
+  placeholder="01XXXXXXXXX"
+  inputMode="numeric"
+  maxLength={11}
+  value={mobile}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "");
+
+    if (value.length <= 11) {
+      setMobile(value);
+    }
+  }}
+/>
 
                 {accountStep === 1 && (
                   <button
