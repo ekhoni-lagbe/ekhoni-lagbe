@@ -34,9 +34,13 @@ function App() {
   };
 
   const handleSendOtp = () => {
-  const validBangladeshMobile = /^01\d{9}$/.test(mobile);
+  if (!name.trim()) {
+    alert("Please enter your name.");
+    return;
+  }
 
-  if (!name.trim() || !validBangladeshMobile) {
+  if (!/^01\d{9}$/.test(mobile)) {
+    alert("Please enter a valid 11-digit Bangladesh mobile number.");
     return;
   }
 
@@ -411,6 +415,14 @@ function App() {
   value={mobile}
   onChange={(e) => {
     const value = e.target.value.replace(/\D/g, "");
+
+    if (value.length >= 1 && value[0] !== "0") {
+      return;
+    }
+
+    if (value.length >= 2 && value.slice(0, 2) !== "01") {
+      return;
+    }
 
     if (value.length <= 11) {
       setMobile(value);
