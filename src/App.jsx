@@ -33,19 +33,33 @@ function App() {
     setPage("welcome");
   };
 
+  // =========================
+  // SEND OTP
+  // =========================
+
   const handleSendOtp = () => {
-  if (!name.trim()) {
-    alert("Please enter your name.");
-    return;
-  }
+    if (!name.trim()) {
+      alert("Please enter your name.");
+      return;
+    }
 
-  if (!/^01\d{9}$/.test(mobile)) {
-    alert("Please enter a valid 11-digit Bangladesh mobile number.");
-    return;
-  }
+    // Bangladesh mobile number:
+    // Must start with 01 and contain exactly 11 digits.
+    const validBangladeshMobile = /^01\d{9}$/.test(mobile);
 
-  setAccountStep(2);
-};
+    if (!validBangladeshMobile) {
+      alert(
+        "Please enter a valid 11-digit Bangladesh mobile number starting with 01."
+      );
+      return;
+    }
+
+    setAccountStep(2);
+  };
+
+  // =========================
+  // VERIFY OTP
+  // =========================
 
   const handleVerifyOtp = () => {
     if (otp.length < 4) {
@@ -55,6 +69,10 @@ function App() {
     setOtpVerified(true);
     setAccountStep(3);
   };
+
+  // =========================
+  // CREATE ACCOUNT
+  // =========================
 
   const handleCreateAccount = () => {
     if (!password || password !== confirmPassword) {
@@ -408,27 +426,36 @@ function App() {
                 <h3>Mobile Number</h3>
 
                 <input
-  type="tel"
-  placeholder="01XXXXXXXXX"
-  inputMode="numeric"
-  maxLength={11}
-  value={mobile}
-  onChange={(e) => {
-    const value = e.target.value.replace(/\D/g, "");
+                  type="tel"
+                  placeholder="01XXXXXXXXX"
+                  inputMode="numeric"
+                  maxLength={11}
+                  value={mobile}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
 
-    if (value.length >= 1 && value[0] !== "0") {
-      return;
-    }
+                    // First digit must be 0
+                    if (
+                      value.length >= 1 &&
+                      value[0] !== "0"
+                    ) {
+                      return;
+                    }
 
-    if (value.length >= 2 && value.slice(0, 2) !== "01") {
-      return;
-    }
+                    // Second digit must be 1
+                    if (
+                      value.length >= 2 &&
+                      value.slice(0, 2) !== "01"
+                    ) {
+                      return;
+                    }
 
-    if (value.length <= 11) {
-      setMobile(value);
-    }
-  }}
-/>
+                    // Maximum 11 digits
+                    if (value.length <= 11) {
+                      setMobile(value);
+                    }
+                  }}
+                />
 
                 {accountStep === 1 && (
                   <button
