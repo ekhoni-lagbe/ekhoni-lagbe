@@ -1,9 +1,49 @@
-import { useState } from "react";
+  import { useState } from "react";
 
 const SERVICE_AREA = "Kamrangirchar";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showCreateAccount, setShowCreateAccount] = useState(false);
+
+  const [accountStep, setAccountStep] = useState(1);
+  const [otpVerified, setOtpVerified] = useState(false);
+
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [address, setAddress] = useState("");
+
+  const openCreateAccount = () => {
+    setShowCreateAccount(true);
+    setShowLogin(false);
+    setAccountStep(1);
+    setOtpVerified(false);
+  };
+
+  const closeCreateAccount = () => {
+    setShowCreateAccount(false);
+  };
+
+  const handleSendOtp = () => {
+    if (!name.trim() || mobile.length < 10) return;
+    setAccountStep(2);
+  };
+
+  const handleVerifyOtp = () => {
+    if (otp.length < 4) return;
+    setOtpVerified(true);
+    setAccountStep(3);
+  };
+
+  const handleCreateAccount = () => {
+    if (!password || password !== confirmPassword) return;
+
+    alert("Account created successfully!");
+    setShowCreateAccount(false);
+  };
 
   return (
     <div className="app">
@@ -12,7 +52,7 @@ function App() {
         <div className="brand">
           <div className="brand-mark">
             <img src="/logo.png" alt="EKHONI LAGBE logo" />
-</div>
+          </div>
 
           <div className="brand-text">
             <strong>এখনই লাগবে</strong>
@@ -52,13 +92,20 @@ function App() {
               <span className="location-icon">📍</span>
 
               <div>
-                <strong>Currently available in {SERVICE_AREA} only.</strong>
-                <p>আপনার ঠিকানা এই এলাকার মধ্যে হলে অর্ডার করতে পারবেন।</p>
+                <strong>
+                  Currently available in {SERVICE_AREA} only.
+                </strong>
+                <p>
+                  আপনার ঠিকানা এই এলাকার মধ্যে হলে অর্ডার করতে পারবেন।
+                </p>
               </div>
             </div>
 
             <div className="actions">
-              <button className="primary-button">
+              <button
+                className="primary-button"
+                onClick={openCreateAccount}
+              >
                 Create Account
                 <span>→</span>
               </button>
@@ -152,9 +199,12 @@ function App() {
         <div>15-Minute Delivery — Right to Your Hands</div>
       </footer>
 
-      {/* Simple Login Modal */}
+      {/* Login Modal */}
       {showLogin && (
-        <div className="modal-overlay" onClick={() => setShowLogin(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowLogin(false)}
+        >
           <div
             className="login-modal"
             onClick={(event) => event.stopPropagation()}
@@ -166,9 +216,11 @@ function App() {
             >
               ×
             </button>
- <div className="modal-logo">
-  <img src="/logo.png" alt="EKHONI LAGBE logo" />
-</div>
+
+            <div className="modal-logo">
+              <img src="/logo.png" alt="EKHONI LAGBE logo" />
+            </div>
+
             <h2>Welcome Back</h2>
 
             <p>Login to your EKHONI LAGBE account.</p>
@@ -179,7 +231,10 @@ function App() {
               inputMode="numeric"
             />
 
-            <input type="password" placeholder="Password" />
+            <input
+              type="password"
+              placeholder="Password"
+            />
 
             <button className="primary-button modal-login-button">
               Log In
@@ -191,8 +246,214 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Create Account Page */}
+      {showCreateAccount && (
+        <div className="account-page">
+          <div className="account-card">
+            <button
+              className="account-close"
+              onClick={closeCreateAccount}
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            <div className="account-logo">
+              <img src="/logo.png" alt="EKHONI LAGBE logo" />
+            </div>
+
+            <div className="account-heading">
+              <h2>Create Account</h2>
+              <p>
+                আপনার EKHONI LAGBE account তৈরি করুন
+              </p>
+            </div>
+
+            {/* Step 1 */}
+            <div className="account-section">
+              <div className="section-number">1</div>
+
+              <div className="section-content">
+                <h3>Your Name</h3>
+
+                <input
+                  type="text"
+                  placeholder="আপনার নাম লিখুন"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Mobile */}
+            <div className="account-section">
+              <div className="section-number">2</div>
+
+              <div className="section-content">
+                <h3>Mobile Number</h3>
+
+                <input
+                  type="tel"
+                  placeholder="01XXXXXXXXX"
+                  inputMode="numeric"
+                  value={mobile}
+                  onChange={(e) =>
+                    setMobile(e.target.value.replace(/\D/g, ""))
+                  }
+                />
+
+                {accountStep === 1 && (
+                  <button
+                    className="account-action"
+                    onClick={handleSendOtp}
+                  >
+                    Send OTP
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* OTP */}
+            {accountStep >= 2 && (
+              <div className="account-section active-section">
+                <div className="section-number">3</div>
+
+                <div className="section-content">
+                  <h3>OTP Verification</h3>
+
+                  <p className="section-note">
+                    আপনার মোবাইলে পাঠানো OTP দিন
+                  </p>
+
+                  <input
+                    type="text"
+                    placeholder="Enter OTP"
+                    inputMode="numeric"
+                    maxLength="6"
+                    value={otp}
+                    onChange={(e) =>
+                      setOtp(e.target.value.replace(/\D/g, ""))
+                    }
+                  />
+
+                  {!otpVerified && (
+                    <button
+                      className="account-action"
+                      onClick={handleVerifyOtp}
+                    >
+                      Verify OTP
+                    </button>
+                  )}
+
+                  {otpVerified && (
+                    <div className="verified-message">
+                      ✓ Mobile number verified
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Password */}
+            {otpVerified && (
+              <>
+                <div className="account-section active-section">
+                  <div className="section-number">4</div>
+
+                  <div className="section-content">
+                    <h3>Create Password</h3>
+
+                    <input
+                      type="password"
+                      placeholder="Create password"
+                      value={password}
+                      onChange={(e) =>
+                        setPassword(e.target.value)
+                      }
+                    />
+
+                    <input
+                      type="password"
+                      placeholder="Confirm password"
+                      value={confirmPassword}
+                      onChange={(e) =>
+                        setConfirmPassword(e.target.value)
+                      }
+                    />
+
+                    {confirmPassword &&
+                      password !== confirmPassword && (
+                        <p className="error-message">
+                          Password দুটো একই হতে হবে।
+                        </p>
+                      )}
+                  </div>
+                </div>
+
+                {/* Optional Address */}
+                <div className="account-section">
+                  <div className="section-number">5</div>
+
+                  <div className="section-content">
+                    <h3>
+                      Delivery Address
+                      <span className="optional-label">
+                        Optional
+                      </span>
+                    </h3>
+
+                    <p className="section-note">
+                      এখন না দিলেও পরে order করার সময় দিতে পারবেন।
+                    </p>
+
+                    <textarea
+                      placeholder="আপনার delivery address লিখুন"
+                      value={address}
+                      onChange={(e) =>
+                        setAddress(e.target.value)
+                      }
+                      rows="3"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="create-account-button"
+                  onClick={handleCreateAccount}
+                  disabled={
+                    !password ||
+                    !confirmPassword ||
+                    password !== confirmPassword
+                  }
+                >
+                  Create Account
+                  <span>→</span>
+                </button>
+
+                <p className="address-info">
+                  📍 বর্তমানে শুধু {SERVICE_AREA}-এ delivery দেওয়া হচ্ছে।
+                </p>
+              </>
+            )}
+
+            <div className="account-footer">
+              <span>Already have an account?</span>
+
+              <button
+                onClick={() => {
+                  setShowCreateAccount(false);
+                  setShowLogin(true);
+                }}
+              >
+                Log In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default App;
+export default App;  
