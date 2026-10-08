@@ -1095,3 +1095,19 @@ button:disabled {
     font-size: 23px;
   }
 }
+.create-account-main-button {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.actions {
+  position: relative;
+  z-index: 20;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
