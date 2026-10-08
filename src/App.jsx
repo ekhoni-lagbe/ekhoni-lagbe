@@ -103,12 +103,18 @@ function App() {
 
             <div className="actions">
               <button
-                className="primary-button"
-                onClick={openCreateAccount}
-              >
-                Create Account
-                <span>→</span>
-              </button>
+  type="button"
+  className="primary-button create-account-main-button"
+  onClick={() => {
+    setShowLogin(false);
+    setShowCreateAccount(true);
+    setAccountStep(1);
+    setOtpVerified(false);
+  }}
+>
+  Create Account
+  <span>→</span>
+</button>
 
               <button className="secondary-button">
                 Continue as Guest
