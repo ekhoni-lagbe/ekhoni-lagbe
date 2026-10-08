@@ -15,24 +15,10 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [address, setAddress] = useState("");
 
-  const [nameError, setNameError] = useState("");
-  const [mobileError, setMobileError] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  // -----------------------------
-  // PAGE NAVIGATION
-  // -----------------------------
-
   const openCreateAccount = () => {
     setPage("create-account");
     setAccountStep(1);
     setOtpVerified(false);
-
-    setNameError("");
-    setMobileError("");
-    setOtpError("");
-    setPasswordError("");
   };
 
   const closeCreateAccount = () => {
@@ -47,38 +33,22 @@ function App() {
     setPage("welcome");
   };
 
-  // -----------------------------
-  // SEND OTP
-  // -----------------------------
-
   const handleSendOtp = () => {
-    setNameError("");
-    setMobileError("");
-
     if (!name.trim()) {
-      setNameError("Please enter your name.");
+      alert("Please enter your name.");
       return;
     }
 
     if (!/^01\d{9}$/.test(mobile)) {
-      setMobileError(
-        "Please enter a valid 11-digit Bangladesh mobile number."
-      );
+      alert("Please enter a valid 11-digit Bangladesh mobile number.");
       return;
     }
 
     setAccountStep(2);
   };
 
-  // -----------------------------
-  // VERIFY OTP
-  // -----------------------------
-
   const handleVerifyOtp = () => {
-    setOtpError("");
-
     if (otp.length < 4) {
-      setOtpError("Please enter the OTP.");
       return;
     }
 
@@ -86,187 +56,318 @@ function App() {
     setAccountStep(3);
   };
 
-  // -----------------------------
-  // CREATE ACCOUNT
-  // -----------------------------
-
   const handleCreateAccount = () => {
-    setPasswordError("");
-
-    if (!password) {
-      setPasswordError("Please create a password.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
+    if (!password || password !== confirmPassword) {
       return;
     }
 
     alert("Account created successfully!");
-
     setPage("welcome");
-    setAccountStep(1);
-    setOtpVerified(false);
-
-    setName("");
-    setMobile("");
-    setOtp("");
-    setPassword("");
-    setConfirmPassword("");
-    setAddress("");
-
-    setNameError("");
-    setMobileError("");
-    setOtpError("");
-    setPasswordError("");
   };
 
-  // -----------------------------
-  // WELCOME PAGE
-  // -----------------------------
+  return (
+    <div className="app">
 
-  if (page === "welcome") {
-    return (
-      <div className="app">
-        <section className="hero-section">
-          <div className="hero-content">
+      {/* =========================
+          WELCOME PAGE
+      ========================= */}
 
-            <div className="brand-area">
-              <img
-                src="/logo.png"
-                alt="EKHONI LAGBE"
-                className="main-logo"
-              />
+      {page === "welcome" && (
+        <>
+          <header className="topbar">
+            <div className="brand">
+              <div className="brand-mark">
+                <img
+                  src="/logo.png"
+                  alt="EKHONI LAGBE logo"
+                />
+              </div>
 
-              <h1 className="brand-title">এখনই লাগবে</h1>
-
-              <p className="brand-english">
-                EKHONI LAGBE
-              </p>
+              <div className="brand-text">
+                <strong>এখনই লাগবে</strong>
+                <small>EKHONI LAGBE</small>
+              </div>
             </div>
 
             <div className="service-badge">
               <span>📍</span>
-              Currently serving {SERVICE_AREA} only
+              <span>Serving {SERVICE_AREA} Only</span>
+            </div>
+          </header>
+
+          <main className="welcome">
+            <section className="hero-card">
+
+              <div className="hero-content">
+
+                <div className="delivery-pill">
+                  <span className="pulse-dot"></span>
+                  Grocery delivery in 15 minutes
+                </div>
+
+                <h1>
+                  আপনার প্রয়োজনীয়
+                  <span> Grocery,</span>
+                  <br />
+                  এখন আরও দ্রুত।
+                </h1>
+
+                <p className="hero-description">
+                  দৈনন্দিন প্রয়োজনীয় grocery পণ্য এখন সহজেই
+                  অর্ডার করুন। আমরা বর্তমানে শুধু{" "}
+                  <strong>{SERVICE_AREA}</strong> এলাকায়
+                  delivery দিচ্ছি।
+                </p>
+
+                <div className="location-notice">
+                  <span className="location-icon">📍</span>
+
+                  <div>
+                    <strong>
+                      Currently available in {SERVICE_AREA} only.
+                    </strong>
+
+                    <p>
+                      আপনার ঠিকানা এই এলাকার মধ্যে হলে
+                      অর্ডার করতে পারবেন।
+                    </p>
+                  </div>
+                </div>
+
+                <div className="actions">
+
+                  <button
+                    type="button"
+                    className="primary-button create-account-main-button"
+                    onClick={openCreateAccount}
+                  >
+                    Create Account
+                    <span>→</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="secondary-button"
+                  >
+                    Continue as Guest
+                  </button>
+
+                </div>
+
+                <div className="login-row">
+                  <span>
+                    Already have an account?
+                  </span>
+
+                  <button
+                    type="button"
+                    className="login-button"
+                    onClick={openLogin}
+                  >
+                    Log In
+                  </button>
+                </div>
+
+              </div>
+
+              {/* Grocery Visual */}
+
+              <div className="hero-visual">
+
+                <div className="visual-glow"></div>
+
+                <div className="grocery-basket">
+
+                  <div className="basket-handle"></div>
+
+                  <div className="grocery-item item-one">
+                    🥬
+                  </div>
+
+                  <div className="grocery-item item-two">
+                    🥛
+                  </div>
+
+                  <div className="grocery-item item-three">
+                    🍎
+                  </div>
+
+                  <div className="grocery-item item-four">
+                    🥖
+                  </div>
+
+                  <div className="grocery-item item-five">
+                    🥕
+                  </div>
+
+                  <div className="basket-body">
+                    <div className="basket-line"></div>
+                    <div className="basket-line"></div>
+                    <div className="basket-line"></div>
+                  </div>
+
+                </div>
+
+                <div className="floating-card fast-card">
+                  <span>⚡</span>
+
+                  <div>
+                    <strong>15 min</strong>
+                    <small>Fast delivery</small>
+                  </div>
+                </div>
+
+                <div className="floating-card fresh-card">
+                  <span>✓</span>
+
+                  <div>
+                    <strong>Fresh & Easy</strong>
+                    <small>Everyday groceries</small>
+                  </div>
+                </div>
+
+              </div>
+
+            </section>
+
+            <section className="benefits">
+
+              <div className="benefit">
+                <span>⚡</span>
+
+                <div>
+                  <strong>Fast Delivery</strong>
+                  <small>
+                    15-minute grocery delivery
+                  </small>
+                </div>
+              </div>
+
+              <div className="benefit">
+                <span>🛒</span>
+
+                <div>
+                  <strong>Everyday Grocery</strong>
+                  <small>
+                    Your daily essentials in one place
+                  </small>
+                </div>
+              </div>
+
+              <div className="benefit">
+                <span>📍</span>
+
+                <div>
+                  <strong>Kamrangirchar</strong>
+                  <small>
+                    Currently serving this area
+                  </small>
+                </div>
+              </div>
+
+            </section>
+          </main>
+
+          <footer className="footer">
+            <div>
+              © {new Date().getFullYear()} EKHONI LAGBE
             </div>
 
-            <h2 className="hero-title">
-              Your Groceries.
-              <br />
-              Delivered in 15 Minutes.
-            </h2>
-
-            <p className="hero-subtitle">
-              Daily groceries delivered quickly,
-              easily and right to your hands.
-            </p>
-
-            <div className="hero-actions">
-              <button
-                type="button"
-                className="create-account-main-button"
-                onClick={openCreateAccount}
-              >
-                Create Account
-              </button>
-
-              <button
-                type="button"
-                className="guest-button"
-                onClick={() => alert("Guest shopping will be available soon.")}
-              >
-                Continue as Guest
-              </button>
-
-              <button
-                type="button"
-                className="login-link-button"
-                onClick={openLogin}
-              >
-                Already have an account? <strong>Login</strong>
-              </button>
-            </div>
-
-            <div className="grocery-visual">
-              <div className="grocery-card">
-                <span>🥬</span>
-                <span>🍅</span>
-                <span>🥛</span>
-                <span>🍞</span>
-                <span>🍎</span>
-                <span>🥚</span>
-              </div>
-            </div>
-
-            <div className="benefits-row">
-              <div className="benefit-item">
-                <strong>15 Min</strong>
-                <span>Fast Delivery</span>
-              </div>
-
-              <div className="benefit-item">
-                <strong>Fresh</strong>
-                <span>Quality Groceries</span>
-              </div>
-
-              <div className="benefit-item">
-                <strong>Easy</strong>
-                <span>Simple Ordering</span>
-              </div>
-            </div>
-
-            <p className="hero-footer">
+            <div>
               15-Minute Delivery — Right to Your Hands
+            </div>
+          </footer>
+        </>
+      )}
+
+      {/* =========================
+          LOGIN PAGE
+      ========================= */}
+
+      {page === "login" && (
+        <div className="modal-overlay">
+
+          <div className="login-modal">
+
+            <button
+              type="button"
+              className="close-button"
+              onClick={closeLogin}
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            <div className="modal-logo">
+              <img
+                src="/logo.png"
+                alt="EKHONI LAGBE logo"
+              />
+            </div>
+
+            <h2>Welcome Back</h2>
+
+            <p>
+              Login to your EKHONI LAGBE account.
             </p>
+
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              inputMode="numeric"
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+            />
+
+            <button
+              type="button"
+              className="primary-button modal-login-button"
+            >
+              Log In
+            </button>
+
+            <small className="modal-note">
+              Account authentication will be connected later.
+            </small>
 
           </div>
-        </section>
-      </div>
-    );
-  }
+        </div>
+      )}
 
-  // -----------------------------
-  // CREATE ACCOUNT PAGE
-  // -----------------------------
+      {/* =========================
+          CREATE ACCOUNT PAGE
+      ========================= */}
 
-  if (page === "create-account") {
-    return (
-      <div className="app">
-
+      {page === "create-account" && (
         <div className="account-page">
 
           <div className="account-card">
 
             <button
               type="button"
-              className="account-close-button"
+              className="account-close"
               onClick={closeCreateAccount}
               aria-label="Close"
             >
               ×
             </button>
 
-            <div className="account-header">
-
+            <div className="account-logo">
               <img
                 src="/logo.png"
-                alt="EKHONI LAGBE"
-                className="account-logo"
+                alt="EKHONI LAGBE logo"
               />
+            </div>
 
-              <h1>Create Your Account</h1>
+            <div className="account-heading">
+              <h2>Create Account</h2>
 
               <p>
-                Join EKHONI LAGBE and get your groceries
-                delivered in just 15 minutes.
+                আপনার EKHONI LAGBE account তৈরি করুন
               </p>
-
-              <div className="account-service-note">
-                📍 Delivery currently available in{" "}
-                <strong>{SERVICE_AREA}</strong> only
-              </div>
-
             </div>
 
             {/* NAME */}
@@ -279,23 +380,16 @@ function App() {
 
               <div className="section-content">
 
-                <h3>Name</h3>
+                <h3>Your Name</h3>
 
                 <input
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="আপনার নাম লিখুন"
                   value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setNameError("");
-                  }}
+                  onChange={(e) =>
+                    setName(e.target.value)
+                  }
                 />
-
-                {nameError && (
-                  <p className="error-message">
-                    {nameError}
-                  </p>
-                )}
 
               </div>
 
@@ -320,16 +414,9 @@ function App() {
                   maxLength={11}
                   value={mobile}
                   onChange={(e) => {
-
                     let value = e.target.value
                       .replace(/\D/g, "")
                       .slice(0, 11);
-
-                    /*
-                     * Bangladesh mobile numbers must begin with 01.
-                     * Keep the field easy to type without allowing
-                     * invalid prefixes.
-                     */
 
                     if (value.length === 1 && value !== "0") {
                       value = "";
@@ -343,19 +430,8 @@ function App() {
                     }
 
                     setMobile(value);
-                    setMobileError("");
                   }}
                 />
-
-                <div className="input-hint">
-                  Enter an 11-digit number starting with 01
-                </div>
-
-                {mobileError && (
-                  <p className="error-message">
-                    {mobileError}
-                  </p>
-                )}
 
                 {accountStep === 1 && (
                   <button
@@ -374,7 +450,7 @@ function App() {
             {/* OTP */}
 
             {accountStep >= 2 && (
-              <div className="account-section">
+              <div className="account-section active-section">
 
                 <div className="section-number">
                   3
@@ -382,33 +458,26 @@ function App() {
 
                 <div className="section-content">
 
-                  <h3>OTP Verification</h3>
+                  <h3>
+                    OTP Verification
+                  </h3>
 
-                  <p className="section-description">
-                    Enter the verification code sent to your mobile number.
+                  <p className="section-note">
+                    আপনার মোবাইলে পাঠানো OTP দিন
                   </p>
 
                   <input
-                    type="tel"
+                    type="text"
                     placeholder="Enter OTP"
                     inputMode="numeric"
-                    maxLength={6}
+                    maxLength="6"
                     value={otp}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 6);
-
-                      setOtp(value);
-                      setOtpError("");
-                    }}
+                    onChange={(e) =>
+                      setOtp(
+                        e.target.value.replace(/\D/g, "")
+                      )
+                    }
                   />
-
-                  {otpError && (
-                    <p className="error-message">
-                      {otpError}
-                    </p>
-                  )}
 
                   {!otpVerified && (
                     <button
@@ -421,7 +490,7 @@ function App() {
                   )}
 
                   {otpVerified && (
-                    <div className="success-message">
+                    <div className="verified-message">
                       ✓ Mobile number verified
                     </div>
                   )}
@@ -435,7 +504,7 @@ function App() {
 
             {otpVerified && (
               <>
-                <div className="account-section">
+                <div className="account-section active-section">
 
                   <div className="section-number">
                     4
@@ -443,33 +512,34 @@ function App() {
 
                   <div className="section-content">
 
-                    <h3>Password</h3>
+                    <h3>Create Password</h3>
 
                     <input
                       type="password"
                       placeholder="Create password"
                       value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setPasswordError("");
-                      }}
+                      onChange={(e) =>
+                        setPassword(e.target.value)
+                      }
                     />
 
                     <input
                       type="password"
                       placeholder="Confirm password"
                       value={confirmPassword}
-                      onChange={(e) => {
-                        setConfirmPassword(e.target.value);
-                        setPasswordError("");
-                      }}
+                      onChange={(e) =>
+                        setConfirmPassword(
+                          e.target.value
+                        )
+                      }
                     />
 
-                    {passwordError && (
-                      <p className="error-message">
-                        {passwordError}
-                      </p>
-                    )}
+                    {confirmPassword &&
+                      password !== confirmPassword && (
+                        <p className="error-message">
+                          Password দুটো একই হতে হবে।
+                        </p>
+                      )}
 
                   </div>
 
@@ -485,23 +555,25 @@ function App() {
 
                     <h3>
                       Delivery Address
+
                       <span className="optional-label">
                         Optional
                       </span>
                     </h3>
 
-                    <textarea
-                      placeholder="Enter your delivery address"
-                      rows="3"
-                      value={address}
-                      onChange={(e) => {
-                        setAddress(e.target.value);
-                      }}
-                    />
+                    <p className="section-note">
+                      এখন না দিলেও পরে order করার সময়
+                      দিতে পারবেন।
+                    </p>
 
-                    <div className="input-hint">
-                      You can add or change your address later.
-                    </div>
+                    <textarea
+                      placeholder="আপনার delivery address লিখুন"
+                      value={address}
+                      onChange={(e) =>
+                        setAddress(e.target.value)
+                      }
+                      rows="3"
+                    />
 
                   </div>
 
@@ -509,136 +581,46 @@ function App() {
 
                 <button
                   type="button"
-                  className="account-action create-account-final-button"
+                  className="create-account-button"
                   onClick={handleCreateAccount}
+                  disabled={
+                    !password ||
+                    !confirmPassword ||
+                    password !== confirmPassword
+                  }
                 >
                   Create Account
+                  <span>→</span>
                 </button>
+
+                <p className="address-info">
+                  📍 বর্তমানে শুধু {SERVICE_AREA}-এ
+                  delivery দেওয়া হচ্ছে।
+                </p>
               </>
             )}
 
-            <div className="account-bottom-note">
-              By creating an account, you agree to use
-              EKHONI LAGBE according to our service rules.
+            <div className="account-footer">
+
+              <span>
+                Already have an account?
+              </span>
+
+              <button
+                type="button"
+                onClick={openLogin}
+              >
+                Log In
+              </button>
+
             </div>
 
           </div>
-
         </div>
+      )}
 
-      </div>
-    );
-  }
-
-  // -----------------------------
-  // LOGIN PAGE
-  // -----------------------------
-
-  if (page === "login") {
-    return (
-      <div className="app">
-
-        <div className="account-page">
-
-          <div className="account-card login-card">
-
-            <button
-              type="button"
-              className="account-close-button"
-              onClick={closeLogin}
-              aria-label="Close"
-            >
-              ×
-            </button>
-
-            <div className="account-header">
-
-              <img
-                src="/logo.png"
-                alt="EKHONI LAGBE"
-                className="account-logo"
-              />
-
-              <h1>Welcome Back</h1>
-
-              <p>
-                Login to continue shopping with
-                EKHONI LAGBE.
-              </p>
-
-            </div>
-
-            <div className="account-section">
-
-              <div className="section-number">
-                1
-              </div>
-
-              <div className="section-content">
-
-                <h3>Mobile Number</h3>
-
-                <input
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  inputMode="numeric"
-                  maxLength={11}
-                />
-
-              </div>
-
-            </div>
-
-            <div className="account-section">
-
-              <div className="section-number">
-                2
-              </div>
-
-              <div className="section-content">
-
-                <h3>Password</h3>
-
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                />
-
-              </div>
-
-            </div>
-
-            <button
-              type="button"
-              className="account-action"
-              onClick={() =>
-                alert("Login system will be connected with Firebase later.")
-              }
-            >
-              Login
-            </button>
-
-            <button
-              type="button"
-              className="back-to-account-button"
-              onClick={openCreateAccount}
-            >
-              Create a new account
-            </button>
-
-            <div className="account-bottom-note">
-              Guest shopping is also available without an account.
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
 
 export default App;
