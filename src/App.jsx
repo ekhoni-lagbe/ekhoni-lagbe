@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import Home from "./Home";
 
 const SERVICE_AREA = "Kamrangirchar";
 
@@ -15,10 +17,15 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [address, setAddress] = useState("");
 
+  // Login form
+  const [loginMobile, setLoginMobile] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
   const openCreateAccount = () => {
     setPage("create-account");
     setAccountStep(1);
     setOtpVerified(false);
+    setOtp("");
   };
 
   const closeCreateAccount = () => {
@@ -44,43 +51,75 @@ function App() {
       return;
     }
 
+    // Prototype only: real OTP sending is not connected yet.
     setAccountStep(2);
+    alert("Demo mode: OTP sending is not connected yet.");
   };
 
   const handleVerifyOtp = () => {
     if (otp.length < 4) {
+      alert("Please enter at least 4 digits.");
       return;
     }
 
+    // Prototype only: this does not verify a real OTP.
     setOtpVerified(true);
     setAccountStep(3);
+    alert("Demo mode: OTP accepted for this prototype.");
   };
 
   const handleCreateAccount = () => {
     if (!password || password !== confirmPassword) {
+      alert("Please enter matching passwords.");
       return;
     }
 
-    alert("Account created successfully!");
-    setPage("welcome");
+    if (!otpVerified) {
+      alert("Please complete OTP verification first.");
+      return;
+    }
+
+    alert("Demo account created! Real account storage is not connected yet.");
+    setPage("home");
+  };
+
+  const handleLogin = () => {
+    if (!/^01\d{9}$/.test(loginMobile)) {
+      alert("Please enter a valid 11-digit Bangladesh mobile number.");
+      return;
+    }
+
+    if (!loginPassword.trim()) {
+      alert("Please enter your password.");
+      return;
+    }
+
+    // Prototype only: no real account/password verification yet.
+    alert("Demo login: real account authentication is not connected yet.");
+    setPage("home");
+  };
+
+  const handleHomeNavigate = (destination) => {
+    if (destination === "home") {
+      setPage("home");
+    } else if (destination === "account") {
+      openLogin();
+    } else {
+      alert("এই স্ক্রিনটি পরবর্তী ধাপে তৈরি হবে।");
+    }
   };
 
   return (
     <div className="app">
 
-      {/* =========================
-          WELCOME PAGE
-      ========================= */}
+      {/* WELCOME PAGE */}
 
       {page === "welcome" && (
         <>
           <header className="topbar">
             <div className="brand">
               <div className="brand-mark">
-                <img
-                  src="/logo.png"
-                  alt="EKHONI LAGBE logo"
-                />
+                <img src="/logo.png" alt="EKHONI LAGBE logo" />
               </div>
 
               <div className="brand-text">
@@ -97,9 +136,7 @@ function App() {
 
           <main className="welcome">
             <section className="hero-card">
-
               <div className="hero-content">
-
                 <div className="delivery-pill">
                   <span className="pulse-dot"></span>
                   Grocery delivery in 15 minutes
@@ -135,7 +172,6 @@ function App() {
                 </div>
 
                 <div className="actions">
-
                   <button
                     type="button"
                     className="primary-button create-account-main-button"
@@ -148,16 +184,14 @@ function App() {
                   <button
                     type="button"
                     className="secondary-button"
+                    onClick={() => setPage("home")}
                   >
                     Continue as Guest
                   </button>
-
                 </div>
 
                 <div className="login-row">
-                  <span>
-                    Already have an account?
-                  </span>
+                  <span>Already have an account?</span>
 
                   <button
                     type="button"
@@ -167,45 +201,27 @@ function App() {
                     Log In
                   </button>
                 </div>
-
               </div>
 
               {/* Grocery Visual */}
 
               <div className="hero-visual">
-
                 <div className="visual-glow"></div>
 
                 <div className="grocery-basket">
-
                   <div className="basket-handle"></div>
 
-                  <div className="grocery-item item-one">
-                    🥬
-                  </div>
-
-                  <div className="grocery-item item-two">
-                    🥛
-                  </div>
-
-                  <div className="grocery-item item-three">
-                    🍎
-                  </div>
-
-                  <div className="grocery-item item-four">
-                    🥖
-                  </div>
-
-                  <div className="grocery-item item-five">
-                    🥕
-                  </div>
+                  <div className="grocery-item item-one">🥬</div>
+                  <div className="grocery-item item-two">🥛</div>
+                  <div className="grocery-item item-three">🍎</div>
+                  <div className="grocery-item item-four">🥖</div>
+                  <div className="grocery-item item-five">🥕</div>
 
                   <div className="basket-body">
                     <div className="basket-line"></div>
                     <div className="basket-line"></div>
                     <div className="basket-line"></div>
                   </div>
-
                 </div>
 
                 <div className="floating-card fast-card">
@@ -221,25 +237,20 @@ function App() {
                   <span>✓</span>
 
                   <div>
-                    <strong>Fresh & Easy</strong>
+                    <strong>Fresh &amp; Easy</strong>
                     <small>Everyday groceries</small>
                   </div>
                 </div>
-
               </div>
-
             </section>
 
             <section className="benefits">
-
               <div className="benefit">
                 <span>⚡</span>
 
                 <div>
                   <strong>Fast Delivery</strong>
-                  <small>
-                    15-minute grocery delivery
-                  </small>
+                  <small>15-minute grocery delivery</small>
                 </div>
               </div>
 
@@ -248,9 +259,7 @@ function App() {
 
                 <div>
                   <strong>Everyday Grocery</strong>
-                  <small>
-                    Your daily essentials in one place
-                  </small>
+                  <small>Your daily essentials in one place</small>
                 </div>
               </div>
 
@@ -259,19 +268,14 @@ function App() {
 
                 <div>
                   <strong>Kamrangirchar</strong>
-                  <small>
-                    Currently serving this area
-                  </small>
+                  <small>Currently serving this area</small>
                 </div>
               </div>
-
             </section>
           </main>
 
           <footer className="footer">
-            <div>
-              © {new Date().getFullYear()} EKHONI LAGBE
-            </div>
+            <div>© {new Date().getFullYear()} EKHONI LAGBE</div>
 
             <div>
               15-Minute Delivery — Right to Your Hands
@@ -280,15 +284,11 @@ function App() {
         </>
       )}
 
-      {/* =========================
-          LOGIN PAGE
-      ========================= */}
+      {/* LOGIN PAGE */}
 
       {page === "login" && (
         <div className="modal-overlay">
-
           <div className="login-modal">
-
             <button
               type="button"
               className="close-button"
@@ -299,53 +299,57 @@ function App() {
             </button>
 
             <div className="modal-logo">
-              <img
-                src="/logo.png"
-                alt="EKHONI LAGBE logo"
-              />
+              <img src="/logo.png" alt="EKHONI LAGBE logo" />
             </div>
 
             <h2>Welcome Back</h2>
 
-            <p>
-              Login to your EKHONI LAGBE account.
-            </p>
+            <p>Login to your EKHONI LAGBE account.</p>
 
             <input
               type="tel"
               placeholder="Mobile Number"
               inputMode="numeric"
+              maxLength={11}
+              value={loginMobile}
+              onChange={(e) =>
+                setLoginMobile(
+                  e.target.value.replace(/\D/g, "").slice(0, 11)
+                )
+              }
             />
 
             <input
               type="password"
               placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleLogin();
+              }}
             />
 
             <button
               type="button"
               className="primary-button modal-login-button"
+              onClick={handleLogin}
             >
               Log In
             </button>
 
             <small className="modal-note">
-              Account authentication will be connected later.
+              Demo login only. Real account authentication will be
+              connected later.
             </small>
-
           </div>
         </div>
       )}
 
-      {/* =========================
-          CREATE ACCOUNT PAGE
-      ========================= */}
+      {/* CREATE ACCOUNT PAGE */}
 
       {page === "create-account" && (
         <div className="account-page">
-
           <div className="account-card">
-
             <button
               type="button"
               className="account-close"
@@ -356,55 +360,37 @@ function App() {
             </button>
 
             <div className="account-logo">
-              <img
-                src="/logo.png"
-                alt="EKHONI LAGBE logo"
-              />
+              <img src="/logo.png" alt="EKHONI LAGBE logo" />
             </div>
 
             <div className="account-heading">
               <h2>Create Account</h2>
-
-              <p>
-                আপনার EKHONI LAGBE account তৈরি করুন
-              </p>
+              <p>আপনার EKHONI LAGBE account তৈরি করুন</p>
             </div>
 
             {/* NAME */}
 
             <div className="account-section">
-
-              <div className="section-number">
-                1
-              </div>
+              <div className="section-number">1</div>
 
               <div className="section-content">
-
                 <h3>Your Name</h3>
 
                 <input
                   type="text"
                   placeholder="আপনার নাম লিখুন"
                   value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
+                  onChange={(e) => setName(e.target.value)}
                 />
-
               </div>
-
             </div>
 
             {/* MOBILE */}
 
             <div className="account-section">
-
-              <div className="section-number">
-                2
-              </div>
+              <div className="section-number">2</div>
 
               <div className="section-content">
-
                 <h3>Mobile Number</h3>
 
                 <input
@@ -442,25 +428,17 @@ function App() {
                     Send OTP
                   </button>
                 )}
-
               </div>
-
             </div>
 
             {/* OTP */}
 
             {accountStep >= 2 && (
               <div className="account-section active-section">
-
-                <div className="section-number">
-                  3
-                </div>
+                <div className="section-number">3</div>
 
                 <div className="section-content">
-
-                  <h3>
-                    OTP Verification
-                  </h3>
+                  <h3>OTP Verification</h3>
 
                   <p className="section-note">
                     আপনার মোবাইলে পাঠানো OTP দিন
@@ -470,12 +448,10 @@ function App() {
                     type="text"
                     placeholder="Enter OTP"
                     inputMode="numeric"
-                    maxLength="6"
+                    maxLength={6}
                     value={otp}
                     onChange={(e) =>
-                      setOtp(
-                        e.target.value.replace(/\D/g, "")
-                      )
+                      setOtp(e.target.value.replace(/\D/g, ""))
                     }
                   />
 
@@ -491,12 +467,10 @@ function App() {
 
                   {otpVerified && (
                     <div className="verified-message">
-                      ✓ Mobile number verified
+                      ✓ Demo verification complete
                     </div>
                   )}
-
                 </div>
-
               </div>
             )}
 
@@ -505,22 +479,16 @@ function App() {
             {otpVerified && (
               <>
                 <div className="account-section active-section">
-
-                  <div className="section-number">
-                    4
-                  </div>
+                  <div className="section-number">4</div>
 
                   <div className="section-content">
-
                     <h3>Create Password</h3>
 
                     <input
                       type="password"
                       placeholder="Create password"
                       value={password}
-                      onChange={(e) =>
-                        setPassword(e.target.value)
-                      }
+                      onChange={(e) => setPassword(e.target.value)}
                     />
 
                     <input
@@ -528,9 +496,7 @@ function App() {
                       placeholder="Confirm password"
                       value={confirmPassword}
                       onChange={(e) =>
-                        setConfirmPassword(
-                          e.target.value
-                        )
+                        setConfirmPassword(e.target.value)
                       }
                     />
 
@@ -540,43 +506,29 @@ function App() {
                           Password দুটো একই হতে হবে।
                         </p>
                       )}
-
                   </div>
-
                 </div>
 
                 <div className="account-section">
-
-                  <div className="section-number">
-                    5
-                  </div>
+                  <div className="section-number">5</div>
 
                   <div className="section-content">
-
                     <h3>
                       Delivery Address
-
-                      <span className="optional-label">
-                        Optional
-                      </span>
+                      <span className="optional-label">Optional</span>
                     </h3>
 
                     <p className="section-note">
-                      এখন না দিলেও পরে order করার সময়
-                      দিতে পারবেন।
+                      এখন না দিলেও পরে order করার সময় দিতে পারবেন।
                     </p>
 
                     <textarea
                       placeholder="আপনার delivery address লিখুন"
                       value={address}
-                      onChange={(e) =>
-                        setAddress(e.target.value)
-                      }
-                      rows="3"
+                      onChange={(e) => setAddress(e.target.value)}
+                      rows={3}
                     />
-
                   </div>
-
                 </div>
 
                 <button
@@ -594,31 +546,27 @@ function App() {
                 </button>
 
                 <p className="address-info">
-                  📍 বর্তমানে শুধু {SERVICE_AREA}-এ
-                  delivery দেওয়া হচ্ছে।
+                  📍 বর্তমানে শুধু {SERVICE_AREA}-এ delivery দেওয়া হচ্ছে।
                 </p>
               </>
             )}
 
             <div className="account-footer">
+              <span>Already have an account?</span>
 
-              <span>
-                Already have an account?
-              </span>
-
-              <button
-                type="button"
-                onClick={openLogin}
-              >
+              <button type="button" onClick={openLogin}>
                 Log In
               </button>
-
             </div>
-
           </div>
         </div>
       )}
 
+      {/* HOME / CUSTOMER DASHBOARD */}
+
+      {page === "home" && (
+        <Home onNavigate={handleHomeNavigate} />
+      )}
     </div>
   );
 }
