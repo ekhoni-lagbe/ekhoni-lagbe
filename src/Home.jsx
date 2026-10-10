@@ -121,11 +121,12 @@ export default function Home({ onNavigate = () => {} }) {
             <p>Fresh essentials and everyday groceries, delivered right to your hands.</p>
             <button onClick={() => document.getElementById("el-popular")?.scrollIntoView({ behavior: "smooth" })}>Shop groceries <span>→</span></button>
             <div className="el-hero-trust"><span>✓ Carefully selected essentials</span><span>✓ Easy ordering</span></div>
+            <div className="el-serving-note"><span>⌖</span><div><b>Currently serving Kamrangirchar only</b><small>আপনার এলাকার জন্য দ্রুত grocery delivery</small></div></div>
           </div>
-          <div className="el-hero-art" aria-hidden="true">
-            <div className="el-hero-orbit"></div>
-            <div className="el-grocery-bag"><div className="el-bag-handle"></div><div className="el-bag-leaf">✦</div><div className="el-bag-label">FRESH<br /><b>DAILY</b></div></div>
-            <span className="el-art-food el-food-one">🥬</span><span className="el-art-food el-food-two">🥖</span><span className="el-art-food el-food-three">🥑</span><span className="el-art-food el-food-four">🍅</span>
+          <div className="el-hero-art" aria-label="Fresh vegetables and everyday groceries">
+            <div className="el-hero-photo-glow"></div>
+            <img className="el-hero-photo" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1000&q=90" alt="Fresh vegetables and everyday groceries" loading="eager" />
+            <div className="el-fresh-badge"><b>Fresh</b><span>& healthy</span></div>
             <div className="el-delivery-pill"><span>⚡</span><div><b>15-minute delivery</b><small>Right to your hands</small></div></div>
           </div>
         </section>
