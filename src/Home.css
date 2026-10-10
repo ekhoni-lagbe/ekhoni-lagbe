@@ -30,3 +30,88 @@
 .el-home .el-serving-note>span{display:grid;place-items:center;flex-shrink:0;width:31px;height:31px;border-radius:9px;background:#e4f0df;color:#267448;font-size:20px;}
 .el-home .el-serving-note>div{display:flex;flex-direction:column;gap:3px;}.el-home .el-serving-note b{font-size:10px;color:#24573a;}.el-home .el-serving-note small{font-size:9px;color:#728276;}
 @media(max-width:760px){.el-home .el-hero-art{min-height:220px;padding:8px 12px 28px;}.el-home .el-hero-photo{height:190px;border-radius:18px 46px 18px 46px;}.el-home .el-fresh-badge{top:7px;left:8px;width:57px;height:57px;}.el-home .el-fresh-badge b{font-size:13px;}.el-home .el-fresh-badge span{font-size:8px;}.el-home .el-delivery-pill{right:12px;bottom:8px;}.el-home .el-serving-note{margin-top:13px;padding:8px 9px;}.el-home .el-serving-note b{font-size:9px;}.el-home .el-serving-note small{font-size:8px;}}
+
+
+/* Brand-led art direction: white canvas, black typography, abundant leaf green */
+.el-home{--el-green:#378b35;--el-green-dark:#173f1d;--el-green-soft:#e7f4df;--el-ink:#111711;--el-muted:#6d786c;--el-line:#e4eadf;--el-cream:#f4f8ef;background:#fff;color:#111711}
+.el-home-header{border-bottom:1px solid #e5ecdf;box-shadow:0 4px 24px #183b1608}
+.el-brand b{color:#173f1d}.el-brand small{letter-spacing:.1px}
+.el-delivery-address .el-pin,.el-icon-button{background:#eef7e8;color:#378b35;border-color:#d9e9d0}
+.el-cart-button{background:#378b35;color:#fff;border-color:#378b35;box-shadow:0 8px 18px #378b3526}
+.el-cart-button small{color:#e6f4e2}.el-cart-button i{background:#111711}
+.el-search-row{background:#f7faf4;border-color:#dfe9d9;box-shadow:inset 0 1px 0 #fff}
+.el-search-row:focus-within{border-color:#378b35;box-shadow:0 0 0 3px #378b3515}
+.el-home .el-hero{background:linear-gradient(120deg,#f4f9ef 0%,#e7f3df 60%,#d7ebce 100%);border:1px solid #dbe9d3;border-radius:28px;box-shadow:0 18px 42px #244a1d0b}
+.el-home .el-hero h1{color:#111711}.el-home .el-hero h1 em{color:#378b35}
+.el-home .el-hero-copy>button,.el-home .el-offer-copy>button{background:#378b35;border-radius:12px;box-shadow:0 8px 20px #378b3530}
+.el-home .el-hero-copy>button:hover,.el-home .el-offer-copy>button:hover{background:#246c26;transform:translateY(-1px)}
+.el-home .el-hero-photo-glow{background:#c9e7bb}.el-home .el-fresh-badge{color:#378b35;border:1px solid #e1eed9}
+.el-home .el-delivery-pill{border-color:#d9e8d1;box-shadow:0 12px 30px #1a481a18}.el-home .el-delivery-pill>span{color:#378b35}
+.el-home .el-serving-note{border-color:#d6e7ce;background:#fff}.el-home .el-serving-note>span{background:#378b35;color:#fff}
+.el-home .el-benefit-strip{border-color:#e3ebdd;border-radius:18px;box-shadow:0 10px 28px #183b1605}
+.el-home .el-benefit-icon{background:#e7f4df;color:#378b35}
+.el-home .el-section-heading h2,.el-home .el-new-arrivals h2{color:#111711;font-weight:850}
+.el-home .el-kicker{color:#378b35}
+.el-home .el-category-item{border-color:#e5ecdf;border-radius:18px;box-shadow:0 7px 22px #183b1604}
+.el-home .el-category-item:hover{border-color:#9acb89;box-shadow:0 12px 28px #378b3514}
+.el-home .el-category-icon{border-radius:18px;background:#edf6e8!important;color:#378b35}
+.el-home .el-offer-section{background:linear-gradient(115deg,#eaf5e3,#f8fbf5 70%);border:1px solid #dcebd4;border-radius:24px}
+.el-home .el-offer-card{background:#378b35;color:#fff;border-radius:12px;box-shadow:0 16px 30px #1d5d2028}
+.el-home .el-offer-sun{background:#cfe9c2}.el-home .el-offer-note{border-color:#d2e3c9}
+.el-home .el-filter-chips button{border-color:#dfe8d8;color:#354433;background:#fff}
+.el-home .el-filter-chips button.active{background:#378b35;border-color:#378b35;color:#fff;box-shadow:0 5px 14px #378b3526}
+.el-home .el-product-card{border:1px solid #e4eadf;border-radius:19px;overflow:hidden;box-shadow:0 8px 24px #173d1707;transition:transform .2s,border-color .2s,box-shadow .2s}
+.el-home .el-product-card:hover{transform:translateY(-4px);border-color:#acd29e;box-shadow:0 16px 32px #173d1714}
+.el-home .el-product-image-wrap{background:#f3f8ef}.el-home .el-product-tag{background:#378b35;color:#fff;border-radius:7px}
+.el-home .el-favorite{background:#fff;color:#173f1d;box-shadow:0 3px 12px #10201012}.el-home .el-favorite.is-favorite{color:#378b35}
+.el-home .el-product-size{color:#378b35;background:#eef7e8;border-radius:5px;padding:3px 5px}
+.el-home .el-rating{color:#378b35}.el-home .el-price-line strong{color:#111711}
+.el-home .el-add-button,.el-home .el-quantity-control{background:#378b35;border-radius:10px;color:#fff}
+.el-home .el-quantity-control button{color:#fff}.el-home .el-quantity-control b{color:#fff}
+.el-home .el-recommendation-green{background:#e7f4df;border-color:#d4e8c9}.el-home .el-recommendation-cream{background:#f8faf5;border-color:#e4eadf}
+.el-home .el-recommendation-icon{background:#378b35;color:#fff}.el-home .el-recommendation-card h3{color:#111711}
+.el-home .el-recommendation-card button{color:#246c26}.el-home .el-new-arrivals{border-color:#dfe9d8;background:#f8fbf5;border-radius:18px}
+.el-home .el-new-icon{background:#378b35;color:#fff}.el-home-footer img{object-fit:contain}.el-home-footer b{color:#173f1d}
+.el-home .el-bottom-nav button.active{color:#378b35}.el-home .el-bottom-nav button.active>span{background:#e7f4df}
+.el-home .el-cart-summary{background:#173f1d}.el-home .el-cart-summary>button{color:#173f1d}.el-home .el-toast{background:#173f1d}
+
+/* TikTok-style discovery strip: swipeable product tiles inside the normal vertical shop flow */
+.el-scroll-shop{margin:0 0 44px;padding:25px 24px 23px;background:#f6faf2;border:1px solid #e1edd9;border-radius:25px;overflow:hidden}
+.el-scroll-shop-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.el-scroll-shop-heading h2{font-size:clamp(21px,2.5vw,29px);letter-spacing:-.8px;line-height:1.15;margin:8px 0;color:#111711;font-weight:850}
+.el-scroll-shop-heading h2 span{display:inline-grid;place-items:center;width:30px;height:30px;background:#378b35;color:#fff;border-radius:50%;font-size:17px;vertical-align:3px}
+.el-scroll-shop-heading p{margin:0;color:#697568;font-size:12px;line-height:1.6}
+.el-swipe-hint{display:flex;align-items:center;gap:8px;white-space:nowrap;color:#378b35;font-size:10px;font-weight:800;padding-bottom:3px}
+.el-swipe-hint span{display:grid;place-items:center;width:24px;height:24px;background:#e2f0d9;border-radius:50%;font-size:15px}
+.el-scroll-shop-track{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(155px,18%,205px);gap:14px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#9bc88b transparent}
+.el-scroll-product{min-width:0;background:#fff;border:1px solid #e2eadc;border-radius:17px;overflow:hidden;scroll-snap-align:start;box-shadow:0 7px 20px #183b1608}
+.el-scroll-product-image{position:relative;display:block;width:100%;height:145px;border:0;background:#eef6e8;padding:0;overflow:hidden}
+.el-scroll-product-image img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .3s}
+.el-scroll-product:hover .el-scroll-product-image img{transform:scale(1.06)}
+.el-scroll-product-image.image-missing:after{content:'EKHONI LAGBE';position:absolute;inset:0;display:grid;place-items:center;background:#e7f4df;color:#378b35;font-size:12px;font-weight:900;letter-spacing:1px}
+.el-scroll-product-index{position:absolute;left:9px;top:9px;display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:#fff;color:#173f1d;font-size:10px;font-weight:900;box-shadow:0 4px 12px #0001}
+.el-scroll-product-tag{position:absolute;right:8px;top:9px;background:#378b35;color:#fff;border-radius:6px;padding:5px 7px;font-size:9px;font-weight:800}
+.el-scroll-product-copy{padding:11px 12px 12px;display:flex;flex-direction:column;gap:7px}
+.el-scroll-product-copy>small{font-size:9px;color:#378b35;font-weight:700}
+.el-scroll-product-copy>b{font-size:13px;color:#111711;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.el-scroll-product-copy>div{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.el-scroll-product-copy strong{font-size:15px;color:#111711}
+.el-scroll-product-copy button{width:32px;height:32px;border:0;border-radius:10px;background:#378b35;color:#fff;font-size:22px;line-height:1;box-shadow:0 5px 12px #378b3525}
+@media(max-width:760px){
+ .el-home .el-hero{border-radius:21px}
+ .el-home-content{padding-top:12px}
+ .el-scroll-shop{margin-bottom:31px;padding:19px 13px 14px;border-radius:19px}
+ .el-scroll-shop-heading{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:13px}
+ .el-scroll-shop-heading h2{font-size:22px;margin:7px 0 5px}
+ .el-scroll-shop-heading p{font-size:10px}
+ .el-swipe-hint{align-self:flex-end;font-size:9px}
+ .el-scroll-shop-track{grid-auto-columns:42%;gap:10px;margin-right:-3px}
+ .el-scroll-product{border-radius:14px}
+ .el-scroll-product-image{height:125px}
+ .el-scroll-product-copy{padding:9px}
+ .el-scroll-product-copy>b{font-size:11px}
+ .el-scroll-product-copy strong{font-size:13px}
+ .el-scroll-product-copy button{width:29px;height:29px}
+ .el-home .el-product-card{border-radius:15px}
+}
+@media(max-width:380px){.el-scroll-shop-track{grid-auto-columns:48%}.el-scroll-product-image{height:112px}}
