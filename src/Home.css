@@ -1,1100 +1,2931 @@
-import { useMemo, useState } from "react";
-import "./Home.css";
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 
-const GREEN = "#16833b";
-
-const categories = [
-  { name: "Rice & Grains", bn: "চাল ও শস্য", icon: "🌾" },
-  { name: "Lentils", bn: "ডাল", icon: "🫘" },
-  { name: "Cooking Oil", bn: "রান্নার তেল", icon: "🫒" },
-  { name: "Salt & Sugar", bn: "লবণ ও চিনি", icon: "🧂" },
-  { name: "Spices", bn: "মসলা", icon: "🌶️" },
-  { name: "Dairy", bn: "দুধ ও দুগ্ধজাত", icon: "🥛" },
-  { name: "Eggs", bn: "ডিম", icon: "🥚" },
-  { name: "Snacks", bn: "স্ন্যাকস", icon: "🍪" },
-  { name: "Drinks", bn: "পানীয়", icon: "🥤" },
-  { name: "Household", bn: "ঘর পরিষ্কার", icon: "🧼" },
-  { name: "Personal Care", bn: "ব্যক্তিগত যত্ন", icon: "🧴" },
-  { name: "Baby Care", bn: "শিশুদের পণ্য", icon: "🍼" },
-];
-
-const products = [
-  {
-    id: 1,
-    name: "Premium Miniket Rice",
-    bn: "প্রিমিয়াম মিনিকেট চাল",
-    weight: "1 kg",
-    price: 78,
-    oldPrice: 90,
-    rating: 4.8,
-    category: "Rice & Grains",
-    badge: "Hot deal",
-    image:
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 2,
-    name: "Fresh Red Lentils",
-    bn: "মসুর ডাল",
-    weight: "500 g",
-    price: 65,
-    oldPrice: 72,
-    rating: 4.7,
-    category: "Lentils",
-    badge: "Save ৳7",
-    image:
-      "https://images.unsplash.com/photo-1515543904379-3d757d5b9c2e?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 3,
-    name: "Pure Mustard Oil",
-    bn: "খাঁটি সরিষার তেল",
-    weight: "500 ml",
-    price: 95,
-    oldPrice: 110,
-    rating: 4.8,
-    category: "Cooking Oil",
-    badge: "Best value",
-    image:
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 4,
-    name: "Farm Fresh Eggs",
-    bn: "ফার্মের তাজা ডিম",
-    weight: "6 pcs",
-    price: 78,
-    oldPrice: null,
-    rating: 4.9,
-    category: "Eggs",
-    badge: "Fresh",
-    image:
-      "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 5,
-    name: "Full Cream Milk",
-    bn: "ফুল ক্রিম দুধ",
-    weight: "1 litre",
-    price: 100,
-    oldPrice: null,
-    rating: 4.8,
-    category: "Dairy",
-    badge: "Popular",
-    image:
-      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 6,
-    name: "Golden Chickpeas",
-    bn: "ছোলা",
-    weight: "500 g",
-    price: 55,
-    oldPrice: 60,
-    rating: 4.6,
-    category: "Lentils",
-    badge: "Save ৳5",
-    image:
-      "https://images.unsplash.com/photo-1515543904379-3d757d5b9c2e?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 7,
-    name: "Everyday Table Salt",
-    bn: "খাবার লবণ",
-    weight: "1 kg",
-    price: 38,
-    oldPrice: null,
-    rating: 4.7,
-    category: "Salt & Sugar",
-    badge: "",
-    image:
-      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442e?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 8,
-    name: "Premium Tea",
-    bn: "প্রিমিয়াম চা",
-    weight: "200 g",
-    price: 115,
-    oldPrice: 125,
-    rating: 4.8,
-    category: "Drinks",
-    badge: "Save ৳10",
-    image:
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 9,
-    name: "Golden Turmeric Powder",
-    bn: "হলুদের গুঁড়া",
-    weight: "100 g",
-    price: 35,
-    oldPrice: null,
-    rating: 4.6,
-    category: "Spices",
-    badge: "",
-    image:
-      "https://images.unsplash.com/photo-1615485500704-8e990f9900f5?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 10,
-    name: "Potato Chips",
-    bn: "আলুর চিপস",
-    weight: "50 g",
-    price: 25,
-    oldPrice: null,
-    rating: 4.5,
-    category: "Snacks",
-    badge: "New",
-    image:
-      "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 11,
-    name: "Dishwashing Liquid",
-    bn: "ডিশওয়াশ লিকুইড",
-    weight: "250 ml",
-    price: 85,
-    oldPrice: 95,
-    rating: 4.6,
-    category: "Household",
-    badge: "Save ৳10",
-    image:
-      "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: 12,
-    name: "Fresh Orange Juice",
-    bn: "কমলার জুস",
-    weight: "1 litre",
-    price: 130,
-    oldPrice: null,
-    rating: 4.7,
-    category: "Drinks",
-    badge: "New",
-    image:
-      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=600&q=85",
-  },
-];
-
-const money = (amount) => `৳${amount}`;
-
-function Icon({ name, size = 20 }) {
-  const paths = {
-    search: (
-      <>
-        <circle cx="11" cy="11" r="7" />
-        <path d="m16 16 4 4" />
-      </>
-    ),
-    cart: (
-      <>
-        <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6" />
-        <circle cx="10" cy="20" r="1" />
-        <circle cx="17" cy="20" r="1" />
-      </>
-    ),
-    bell: (
-      <>
-        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-        <path d="M10 21h4" />
-      </>
-    ),
-    heart: (
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
-    ),
-    home: (
-      <>
-        <path d="m3 10 9-7 9 7" />
-        <path d="M5 9v12h14V9M9 21v-7h6v7" />
-      </>
-    ),
-    grid: (
-      <>
-        <rect x="3" y="3" width="7" height="7" rx="2" />
-        <rect x="14" y="3" width="7" height="7" rx="2" />
-        <rect x="3" y="14" width="7" height="7" rx="2" />
-        <rect x="14" y="14" width="7" height="7" rx="2" />
-      </>
-    ),
-    receipt: (
-      <>
-        <path d="M5 3h14v18l-3-2-4 2-4-2-3 2z" />
-        <path d="M8 8h8M8 12h8M8 16h4" />
-      </>
-    ),
-    user: (
-      <>
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 21a8 8 0 0 1 16 0" />
-      </>
-    ),
-    arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
-    pin: (
-      <>
-        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-        <circle cx="12" cy="10" r="2.5" />
-      </>
-    ),
-    close: <path d="m18 6-12 12M6 6l12 12" />,
-    plus: <path d="M12 5v14M5 12h14" />,
-    minus: <path d="M5 12h14" />,
-    clock: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v5l3 2" />
-      </>
-    ),
-  };
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {paths[name] || paths.grid}
-    </svg>
-  );
+.el-home {
+  --el-green: #16833b;
+  --el-green-dark: #0b5929;
+  --el-green-deep: #06451f;
+  --el-green-light: #e8f6e9;
+  --el-green-pale: #f3fbf3;
+  --el-ink: #17251b;
+  --el-muted: #718075;
+  --el-border: #e7eee7;
+  background: #fff;
+  color: var(--el-ink);
+  font-family: "DM Sans", "Manrope", Arial, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  padding-bottom: 0;
+  overflow: clip;
 }
 
-function ProductCard({ product, quantity, favorite, onAdd, onRemove, onFavorite }) {
-  const [imageFailed, setImageFailed] = useState(false);
-
-  return (
-    <article className="el-product-card">
-      <div className="el-product-image-wrap">
-        {product.badge && (
-          <span className="el-product-badge">{product.badge}</span>
-        )}
-
-        <button
-          type="button"
-          className={`el-favorite ${favorite ? "is-favorite" : ""}`}
-          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
-          onClick={() => onFavorite(product.id)}
-        >
-          <Icon name="heart" size={19} />
-        </button>
-
-        {!imageFailed ? (
-          <img
-            className="el-product-image"
-            src={product.image}
-            alt={product.name}
-            loading="lazy"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <div className="el-image-fallback">
-            <span>🌿</span>
-            <small>EKHONI LAGBE</small>
-          </div>
-        )}
-      </div>
-
-      <div className="el-product-info">
-        <div className="el-product-weight">{product.weight}</div>
-        <h3>{product.name}</h3>
-        <p className="el-product-bn">{product.bn}</p>
-
-        <div className="el-product-rating">
-          <span>★</span> {product.rating}
-          <span className="el-rating-separator">·</span>
-          <span className="el-stock">In stock</span>
-        </div>
-
-        <div className="el-product-bottom">
-          <div className="el-price">
-            <strong>{money(product.price)}</strong>
-            {product.oldPrice && (
-              <del>{money(product.oldPrice)}</del>
-            )}
-          </div>
-
-          {quantity > 0 ? (
-            <div className="el-quantity-control">
-              <button
-                type="button"
-                aria-label="Remove one"
-                onClick={() => onRemove(product.id)}
-              >
-                <Icon name="minus" size={15} />
-              </button>
-              <span>{quantity}</span>
-              <button
-                type="button"
-                aria-label="Add one"
-                onClick={() => onAdd(product.id)}
-              >
-                <Icon name="plus" size={15} />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="el-add-button"
-              onClick={() => onAdd(product.id)}
-            >
-              <Icon name="plus" size={17} />
-              <span>Add</span>
-            </button>
-          )}
-        </div>
-      </div>
-    </article>
-  );
+.el-home *,
+.el-home *::before,
+.el-home *::after {
+  box-sizing: border-box;
 }
 
-function ProductSection({
-  title,
-  subtitle,
-  items,
-  cart,
-  favorites,
-  onAdd,
-  onRemove,
-  onFavorite,
-  onViewAll,
-  variant = "",
-}) {
-  if (!items.length) return null;
-
-  return (
-    <section className={`el-section ${variant}`}>
-      <div className="el-section-heading">
-        <div>
-          <h2>{title}</h2>
-          {subtitle && <p>{subtitle}</p>}
-        </div>
-        <button type="button" className="el-view-all" onClick={onViewAll}>
-          View all <Icon name="arrow" size={16} />
-        </button>
-      </div>
-
-      <div className="el-product-rail">
-        {items.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            quantity={cart[product.id] || 0}
-            favorite={favorites.includes(product.id)}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onFavorite={onFavorite}
-          />
-        ))}
-      </div>
-    </section>
-  );
+.el-home button,
+.el-home input {
+  font: inherit;
 }
 
-export default function Home({ onNavigate = () => {} }) {
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [cart, setCart] = useState({});
-  const [favorites, setFavorites] = useState([]);
-  const [activeNav, setActiveNav] = useState("Home");
-  const [address, setAddress] = useState("Kamrangirchar, Dhaka");
-  const [showAddress, setShowAddress] = useState(false);
-  const [showCart, setShowCart] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [toast, setToast] = useState("");
-  const [showAllCategories, setShowAllCategories] = useState(false);
+.el-home button {
+  cursor: pointer;
+}
 
-  const cartCount = Object.values(cart).reduce((sum, n) => sum + n, 0);
+.el-home button:focus-visible,
+.el-home input:focus-visible {
+  outline: 3px solid #a4dfae;
+  outline-offset: 3px;
+}
 
-  const cartItems = useMemo(
-    () =>
-      products
-        .filter((p) => cart[p.id] > 0)
-        .map((p) => ({ ...p, quantity: cart[p.id] })),
-    [cart]
-  );
+.el-container {
+  width: min(1240px, calc(100% - 48px));
+  margin-inline: auto;
+}
 
-  const cartTotal = cartItems.reduce(
-    (sum, p) => sum + p.price * p.quantity,
-    0
-  );
+/* Announcement strip */
 
-  const filteredProducts = useMemo(() => {
-    const term = search.trim().toLowerCase();
+.el-top-strip {
+  background: var(--el-green-dark);
+  color: #fff;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 
-    return products.filter((p) => {
-      const matchesSearch =
-        !term ||
-        p.name.toLowerCase().includes(term) ||
-        p.bn.includes(term) ||
-        p.category.toLowerCase().includes(term);
+.el-top-strip-inner,
+.el-top-strip-inner > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-      const matchesCategory =
-        selectedCategory === "All" || p.category === selectedCategory;
+.el-top-strip-inner {
+  justify-content: space-between;
+}
 
-      return matchesSearch && matchesCategory;
-    });
-  }, [search, selectedCategory]);
+.el-area-note {
+  color: #d9f2dd;
+}
 
-  const notify = (message) => {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2300);
-  };
+/* Header */
 
-  const addToCart = (id) => {
-    setCart((previous) => ({ ...previous, [id]: (previous[id] || 0) + 1 }));
-    const product = products.find((p) => p.id === id);
-    notify(`${product?.name || "Product"} added to cart`);
-  };
+.el-header {
+  background: #fff;
+  border-bottom: 1px solid #e8efe9;
+  position: relative;
+  z-index: 10;
+}
 
-  const removeFromCart = (id) => {
-    setCart((previous) => {
-      const next = { ...previous };
-      if ((next[id] || 0) <= 1) delete next[id];
-      else next[id] -= 1;
-      return next;
-    });
-  };
+.el-header-main {
+  min-height: 83px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
 
-  const toggleFavorite = (id) => {
-    setFavorites((previous) =>
-      previous.includes(id)
-        ? previous.filter((item) => item !== id)
-        : [...previous, id]
-    );
-  };
+.el-brand {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--el-green-dark);
+  text-align: left;
+  flex-shrink: 0;
+}
 
-  const openCategory = (name) => {
-    setSelectedCategory(name);
-    setSearch("");
-    document.getElementById("el-product-results")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+.el-brand img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
 
-  const openNav = (label) => {
-    setActiveNav(label);
+.el-brand > span,
+.el-address-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-    if (label === "Home") {
-      setSelectedCategory("All");
-      setSearch("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
+.el-brand strong {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.55px;
+}
 
-    if (label === "Categories") {
-      document.getElementById("el-categories")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-      return;
-    }
+.el-brand small {
+  font-size: 10px;
+  color: #728075;
+  font-weight: 600;
+}
 
-    if (label === "Popular") {
-      document.getElementById("el-popular")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-      return;
-    }
+.el-address {
+  border: 1px solid #e2eee3;
+  background: #f7fcf7;
+  border-radius: 13px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 230px;
+  max-width: 340px;
+  text-align: left;
+  color: var(--el-ink);
+  transition: border-color 0.2s, background 0.2s;
+}
 
-    if (label === "Orders") {
-      onNavigate("orders");
-      return;
-    }
+.el-address:hover {
+  background: var(--el-green-light);
+  border-color: #b8dfbf;
+}
 
-    if (label === "Account") {
-      onNavigate("account");
-    }
-  };
+.el-address-icon {
+  color: var(--el-green);
+  display: grid;
+  place-items: center;
+}
 
-  const shownCategories = showAllCategories
-    ? categories
-    : categories.slice(0, 8);
+.el-address-copy {
+  min-width: 0;
+  flex: 1;
+}
 
-  const popularProducts = products.slice(0, 8);
-  const newProducts = products.filter((p) => p.badge === "New");
-  const dealProducts = products.filter((p) => p.oldPrice);
-  const recommendationProducts = products.slice(4, 10);
+.el-address-copy small {
+  font-size: 10px;
+  color: var(--el-muted);
+}
 
-  return (
-    <div className="el-home">
-      <div className="el-top-strip">
-        <div className="el-container el-top-strip-inner">
-          <span>
-            <Icon name="clock" size={14} />
-            Fast grocery delivery in 15 minutes
-          </span>
-          <span className="el-area-note">Currently serving Kamrangirchar</span>
-        </div>
-      </div>
+.el-address-copy strong {
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
-      <header className="el-header">
-        <div className="el-container el-header-main">
-          <button
-            type="button"
-            className="el-brand"
-            onClick={() => openNav("Home")}
-            aria-label="EKHONI LAGBE Home"
-          >
-            <img src="/logo.png" alt="EKHONI LAGBE logo" />
-            <span>
-              <strong>EKHONI LAGBE</strong>
-              <small>15-Minute Grocery Delivery</small>
-            </span>
-          </button>
+.el-chevron {
+  color: var(--el-green);
+  font-size: 19px;
+}
 
-          <button
-            type="button"
-            className="el-address"
-            onClick={() => setShowAddress(true)}
-          >
-            <span className="el-address-icon">
-              <Icon name="pin" size={19} />
-            </span>
-            <span className="el-address-copy">
-              <small>Deliver to</small>
-              <strong>{address}</strong>
-            </span>
-            <span className="el-chevron">⌄</span>
-          </button>
+.el-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
 
-          <div className="el-header-actions">
-            <button
-              type="button"
-              className="el-icon-button"
-              aria-label="Notifications"
-              onClick={() => setShowNotifications(true)}
-            >
-              <Icon name="bell" size={21} />
-              <i />
-            </button>
-            <button
-              type="button"
-              className="el-cart-button"
-              onClick={() => setShowCart(true)}
-            >
-              <Icon name="cart" size={21} />
-              <span>Cart</span>
-              {cartCount > 0 && <b>{cartCount}</b>}
-            </button>
-          </div>
-        </div>
+.el-icon-button,
+.el-cart-button {
+  min-height: 43px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
 
-        <div className="el-container el-search-row">
-          <div className="el-search-box">
-            <Icon name="search" size={21} />
-            <input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setSelectedCategory("All");
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  document.getElementById("el-product-results")?.scrollIntoView({
-                    behavior: "smooth",
-                  });
-                }
-              }}
-              placeholder="Search rice, eggs, oil and more..."
-              aria-label="Search groceries"
-            />
-            {search && (
-              <button
-                type="button"
-                className="el-clear-search"
-                aria-label="Clear search"
-                onClick={() => setSearch("")}
-              >
-                <Icon name="close" size={17} />
-              </button>
-            )}
-            <span className="el-search-shortcut">⌕</span>
-          </div>
-          <button
-            type="button"
-            className="el-search-mobile-button"
-            aria-label="Search"
-            onClick={() =>
-              document.querySelector(".el-search-box input")?.focus()
-            }
-          >
-            <Icon name="search" size={21} />
-          </button>
-        </div>
-      </header>
+.el-icon-button {
+  width: 43px;
+  border: 1px solid var(--el-border);
+  background: #fff;
+  color: var(--el-green-dark);
+}
 
-      <main className="el-container el-main">
-        <section className="el-hero">
-          <div className="el-hero-copy">
-            <div className="el-hero-pill">
-              <span className="el-live-dot" />
-              YOUR DAILY GROCERY PARTNER
-            </div>
-            <h1>
-              Your groceries.
-              <br />
-              <span>At your door in 15.</span>
-            </h1>
-            <p>
-              Everyday essentials, fresh picks and pantry favourites—delivered
-              quickly to your home.
-            </p>
+.el-icon-button:hover {
+  background: var(--el-green-pale);
+}
 
-            <div className="el-hero-perks">
-              <span><b>✓</b> Daily essentials</span>
-              <span><b>✓</b> Easy ordering</span>
-              <span><b>✓</b> Fast delivery</span>
-            </div>
+.el-icon-button i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #f4a73a;
+  border: 1px solid white;
+  border-radius: 50%;
+  top: 8px;
+  right: 8px;
+}
 
-            <button
-              type="button"
-              className="el-hero-button"
-              onClick={() =>
-                document.getElementById("el-categories")?.scrollIntoView({
-                  behavior: "smooth",
-                })
-              }
-            >
-              Start shopping <Icon name="arrow" size={18} />
-            </button>
+.el-cart-button {
+  border: 0;
+  background: var(--el-green);
+  color: #fff;
+  gap: 9px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 800;
+}
 
-            <div className="el-hero-delivery">
-              <span className="el-delivery-clock"><Icon name="clock" size={18} /></span>
-              <span>
-                <strong>15-minute delivery promise</strong>
-                <small>Service currently available in Kamrangirchar</small>
-              </span>
-            </div>
-          </div>
+.el-cart-button:hover,
+.el-hero-button:hover,
+.el-modal-primary:hover {
+  background: var(--el-green-dark);
+}
 
-          <div className="el-hero-art" aria-label="Grocery delivery illustration">
-            <div className="el-art-glow" />
-            <div className="el-art-circle el-art-circle-one" />
-            <div className="el-art-circle el-art-circle-two" />
-            <div className="el-art-leaf el-art-leaf-one" />
-            <div className="el-art-leaf el-art-leaf-two" />
-            <div className="el-art-card el-art-card-top">
-              <span>⚡</span>
-              <div><strong>Fast delivery</strong><small>Right to your hands</small></div>
-            </div>
-            <div className="el-grocery-bag">
-              <div className="el-bag-handle" />
-              <div className="el-bag-body">
-                <div className="el-bag-produce produce-one">🥬</div>
-                <div className="el-bag-produce produce-two">🥕</div>
-                <div className="el-bag-produce produce-three">🥦</div>
-                <div className="el-bag-produce produce-four">🍎</div>
-                <div className="el-bag-logo">EL</div>
-              </div>
-            </div>
-            <div className="el-art-card el-art-card-bottom">
-              <span className="el-art-check">✓</span>
-              <div><strong>Fresh picks</strong><small>For your everyday needs</small></div>
-            </div>
-            <div className="el-art-caption">FRESH · FAST · EASY</div>
-          </div>
-        </section>
+.el-cart-button b {
+  display: grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--el-green-dark);
+  font-size: 10px;
+}
 
-        <section className="el-service-ribbon">
-          <div><span>01</span><strong>Everyday essentials</strong></div>
-          <i />
-          <div><span>02</span><strong>Simple shopping</strong></div>
-          <i />
-          <div><span>03</span><strong>Fast local delivery</strong></div>
-        </section>
+/* Search */
 
-        <section className="el-section el-categories-section" id="el-categories">
-          <div className="el-section-heading">
-            <div>
-              <span className="el-eyebrow">FIND WHAT YOU NEED</span>
-              <h2>Shop by category</h2>
-              <p>Your daily essentials, all in one place.</p>
-            </div>
-            <button
-              type="button"
-              className="el-view-all"
-              onClick={() => setShowAllCategories((value) => !value)}
-            >
-              {showAllCategories ? "Show less" : "View all"}
-              <Icon name="arrow" size={16} />
-            </button>
-          </div>
+.el-search-row {
+  padding-bottom: 17px;
+  display: flex;
+  gap: 10px;
+}
 
-          <div className="el-category-grid">
-            {shownCategories.map((category) => (
-              <button
-                type="button"
-                className={`el-category-card ${
-                  selectedCategory === category.name ? "is-selected" : ""
-                }`}
-                key={category.name}
-                onClick={() => openCategory(category.name)}
-              >
-                <span className="el-category-icon">{category.icon}</span>
-                <strong>{category.name}</strong>
-                <small>{category.bn}</small>
-              </button>
-            ))}
-          </div>
-        </section>
+.el-search-box {
+  width: 100%;
+  min-height: 49px;
+  border: 1px solid #dbe9dc;
+  border-radius: 13px;
+  background: #f8fcf8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 15px;
+  color: var(--el-green);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
 
-        <section className="el-offer-banner">
-          <div className="el-offer-stamp">DAILY<br />SAVINGS</div>
-          <div className="el-offer-copy">
-            <span>SMART PICKS. SMARTER SAVINGS.</span>
-            <h2>Good groceries.<br />Better everyday value.</h2>
-            <p>Explore selected offers on everyday essentials.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedCategory("All");
-                setSearch("");
-                document.getElementById("el-deals")?.scrollIntoView({
-                  behavior: "smooth",
-                });
-              }}
-            >
-              Explore offers <Icon name="arrow" size={17} />
-            </button>
-          </div>
-          <div className="el-offer-visual">
-            <div className="el-offer-orbit" />
-            <div className="el-offer-product el-offer-product-one">🥬</div>
-            <div className="el-offer-product el-offer-product-two">🥕</div>
-            <div className="el-offer-product el-offer-product-three">🥑</div>
-            <div className="el-offer-spark">✳</div>
-          </div>
-        </section>
+.el-search-box:focus-within {
+  border-color: var(--el-green);
+  box-shadow: 0 0 0 3px #16833b12;
+}
 
-        <ProductSection
-          title="Popular products"
-          subtitle="Everyday favourites customers love."
-          items={popularProducts}
-          cart={cart}
-          favorites={favorites}
-          onAdd={addToCart}
-          onRemove={removeFromCart}
-          onFavorite={toggleFavorite}
-          onViewAll={() => openNav("Popular")}
-          variant="el-popular-section"
-        />
+.el-search-box input {
+  min-width: 0;
+  width: 100%;
+  outline: none;
+  border: 0;
+  background: transparent;
+  color: var(--el-ink);
+  font-size: 13px;
+}
 
-        <section className="el-deals-section el-section" id="el-deals">
-          <div className="el-section-heading">
-            <div>
-              <span className="el-eyebrow">LIMITED SELECTION</span>
-              <h2>Offers & deals</h2>
-              <p>Selected products with a reduced demo price.</p>
-            </div>
-            <span className="el-deal-mark">SAVE MORE</span>
-          </div>
+.el-search-box input::placeholder {
+  color: #9aa89c;
+}
 
-          <div className="el-deals-grid">
-            {dealProducts.slice(0, 4).map((product) => (
-              <div className="el-deal-card" key={product.id}>
-                <div className="el-deal-icon">%</div>
-                <div className="el-deal-content">
-                  <small>{product.category}</small>
-                  <strong>{product.name}</strong>
-                  <span>
-                    {money(product.price)}
-                    <del>{money(product.oldPrice)}</del>
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  aria-label={`Add ${product.name}`}
-                  onClick={() => addToCart(product.id)}
-                >
-                  <Icon name="plus" size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
+.el-search-shortcut {
+  border: 1px solid #dfe9e0;
+  color: #8c9c8e;
+  background: #fff;
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  font-size: 18px;
+}
 
-        <ProductSection
-          title="Recently viewed"
-          subtitle="Keep exploring products from your list."
-          items={products.slice(2, 8)}
-          cart={cart}
-          favorites={favorites}
-          onAdd={addToCart}
-          onRemove={removeFromCart}
-          onFavorite={toggleFavorite}
-          onViewAll={() => {
-            setSearch("");
-            setSelectedCategory("All");
-            document.getElementById("el-product-results")?.scrollIntoView({
-              behavior: "smooth",
-            });
-          }}
-        />
+.el-clear-search,
+.el-search-mobile-button {
+  border: 0;
+  color: var(--el-green-dark);
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
 
-        <ProductSection
-          title="Recommended for you"
-          subtitle="A few useful picks to explore."
-          items={recommendationProducts}
-          cart={cart}
-          favorites={favorites}
-          onAdd={addToCart}
-          onRemove={removeFromCart}
-          onFavorite={toggleFavorite}
-          onViewAll={() => openNav("Popular")}
-          variant="el-recommended-section"
-        />
+.el-search-mobile-button {
+  display: none;
+}
 
-        <section className="el-reorder-banner">
-          <div className="el-reorder-icon"><Icon name="receipt" size={25} /></div>
-          <div>
-            <span className="el-eyebrow">SAVE YOUR TIME</span>
-            <h2>Need your regular groceries?</h2>
-            <p>Buy Again will be personalised when your order history is connected.</p>
-          </div>
-          <button type="button" onClick={() => onNavigate("orders")}>
-            My orders <Icon name="arrow" size={17} />
-          </button>
-        </section>
+/* Main hero */
 
-        <ProductSection
-          title="New arrivals"
-          subtitle="Take a look at newly featured products."
-          items={newProducts}
-          cart={cart}
-          favorites={favorites}
-          onAdd={addToCart}
-          onRemove={removeFromCart}
-          onFavorite={toggleFavorite}
-          onViewAll={() => openNav("Popular")}
-        />
+.el-main {
+  padding-top: 25px;
+}
 
-        <section className="el-product-results" id="el-product-results">
-          <div className="el-section-heading">
-            <div>
-              <span className="el-eyebrow">
-                {search ? "SEARCH RESULTS" : "BROWSE PRODUCTS"}
-              </span>
-              <h2>
-                {search
-                  ? `Results for “${search}”`
-                  : selectedCategory === "All"
-                  ? "Explore groceries"
-                  : selectedCategory}
-              </h2>
-              <p>{filteredProducts.length} products in this demo catalogue.</p>
-            </div>
-            {(search || selectedCategory !== "All") && (
-              <button
-                type="button"
-                className="el-view-all"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("All");
-                }}
-              >
-                Clear filters <Icon name="close" size={16} />
-              </button>
-            )}
-          </div>
+.el-hero {
+  background: var(--el-green);
+  border-radius: 23px;
+  min-height: 360px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  color: #fff;
+  isolation: isolate;
+}
 
-          <div className="el-filter-chips">
-            {["All", ...categories.map((category) => category.name)].map((name) => (
-              <button
-                type="button"
-                key={name}
-                className={selectedCategory === name ? "active" : ""}
-                onClick={() => setSelectedCategory(name)}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
+.el-hero::before {
+  content: "";
+  position: absolute;
+  width: 510px;
+  height: 510px;
+  border-radius: 50%;
+  border: 1px solid #ffffff1f;
+  right: -125px;
+  top: -190px;
+  z-index: -1;
+}
 
-          {filteredProducts.length > 0 ? (
-            <div className="el-product-grid">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  quantity={cart[product.id] || 0}
-                  favorite={favorites.includes(product.id)}
-                  onAdd={addToCart}
-                  onRemove={removeFromCart}
-                  onFavorite={toggleFavorite}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="el-empty-state">
-              <span>⌕</span>
-              <h3>No products found</h3>
-              <p>Try another product name or select a different category.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("All");
-                }}
-              >
-                Show all products
-              </button>
-            </div>
-          )}
-        </section>
+.el-hero::after {
+  content: "";
+  position: absolute;
+  width: 330px;
+  height: 330px;
+  border-radius: 50%;
+  border: 1px solid #ffffff21;
+  right: 2px;
+  bottom: -225px;
+  z-index: -1;
+}
 
-        <section className="el-trust-row">
-          <div><span>✓</span><p><strong>Easy ordering</strong><small>Simple shopping experience</small></p></div>
-          <div><span>◷</span><p><strong>Fast local delivery</strong><small>15-minute service promise</small></p></div>
-          <div><span>♡</span><p><strong>Everyday essentials</strong><small>Your daily grocery needs</small></p></div>
-        </section>
-      </main>
+.el-hero-copy {
+  padding: 38px 0 32px 40px;
+  position: relative;
+  z-index: 2;
+}
 
-      <footer className="el-footer">
-        <div className="el-container el-footer-main">
-          <div className="el-footer-brand">
-            <img src="/logo.png" alt="EKHONI LAGBE logo" />
-            <div>
-              <strong>EKHONI LAGBE</strong>
-              <small>15-Minute Delivery — Right to Your Hands</small>
-            </div>
-          </div>
-          <p>Everyday groceries, made easier.</p>
-        </div>
-        <div className="el-footer-bottom">
-          © {new Date().getFullYear()} EKHONI LAGBE · Serving Kamrangirchar, Dhaka
-        </div>
-      </footer>
+.el-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #effff0;
+  background: #ffffff18;
+  border: 1px solid #ffffff36;
+  padding: 7px 11px;
+  border-radius: 40px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
 
-      <nav className="el-bottom-nav" aria-label="Main navigation">
-        {[
-          { label: "Home", icon: "home" },
-          { label: "Categories", icon: "grid" },
-          { label: "Popular", icon: "heart" },
-          { label: "Orders", icon: "receipt" },
-          { label: "Account", icon: "user" },
-        ].map((item) => (
-          <button
-            type="button"
-            key={item.label}
-            className={activeNav === item.label ? "active" : ""}
-            onClick={() => openNav(item.label)}
-          >
-            <span className="el-nav-icon"><Icon name={item.icon} size={21} /></span>
-            <small>{item.label}</small>
-          </button>
-        ))}
-      </nav>
+.el-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b7f17b;
+  box-shadow: 0 0 0 4px #b7f17b25;
+}
 
-      {toast && <div className="el-toast">{toast}</div>}
+.el-hero h1 {
+  margin: 19px 0 12px;
+  font-family: "Manrope", "DM Sans", sans-serif;
+  font-size: clamp(32px, 3.6vw, 48px);
+  font-weight: 800;
+  line-height: 1.13;
+  letter-spacing: -1.8px;
+  color: #fff;
+}
 
-      {showAddress && (
-        <div className="el-modal-backdrop" onClick={() => setShowAddress(false)}>
-          <section className="el-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="el-modal-heading">
-              <div><span className="el-eyebrow">DELIVERY LOCATION</span><h2>Where should we deliver?</h2></div>
-              <button type="button" onClick={() => setShowAddress(false)}><Icon name="close" /></button>
-            </div>
-            <p className="el-modal-note">The current service area is Kamrangirchar only.</p>
-            <label className="el-field-label" htmlFor="el-address-input">Delivery address</label>
-            <input
-              id="el-address-input"
-              className="el-modal-input"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              placeholder="Enter your area or address"
-            />
-            <button
-              type="button"
-              className="el-modal-primary"
-              onClick={() => {
-                setShowAddress(false);
-                notify("Delivery address updated for this session");
-              }}
-            >
-              Save address
-            </button>
-          </section>
-        </div>
-      )}
+.el-hero h1 span {
+  color: #d8f6ad;
+}
 
-      {showNotifications && (
-        <div className="el-modal-backdrop" onClick={() => setShowNotifications(false)}>
-          <section className="el-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="el-modal-heading">
-              <div><span className="el-eyebrow">UPDATES</span><h2>Notifications</h2></div>
-              <button type="button" onClick={() => setShowNotifications(false)}><Icon name="close" /></button>
-            </div>
-            <div className="el-notification-empty">
-              <span><Icon name="bell" size={26} /></span>
-              <strong>You’re all caught up</strong>
-              <p>Order updates and offers will appear here when notifications are connected.</p>
-            </div>
-          </section>
-        </div>
-      )}
+.el-hero-copy > p {
+  max-width: 440px;
+  color: #e7f7e9;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0;
+}
 
-      {showCart && (
-        <div className="el-modal-backdrop el-cart-backdrop" onClick={() => setShowCart(false)}>
-          <section className="el-cart-drawer" onClick={(event) => event.stopPropagation()}>
-            <div className="el-modal-heading">
-              <div><span className="el-eyebrow">YOUR BASKET</span><h2>My cart ({cartCount})</h2></div>
-              <button type="button" onClick={() => setShowCart(false)}><Icon name="close" /></button>
-            </div>
+.el-hero-perks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 17px;
+}
 
-            {cartItems.length ? (
-              <>
-                <div className="el-cart-items">
-                  {cartItems.map((item) => (
-                    <div className="el-cart-item" key={item.id}>
-                      <div className="el-cart-item-picture">🛍️</div>
-                      <div className="el-cart-item-info">
-                        <strong>{item.name}</strong>
-                        <small>{item.weight}</small>
-                        <b>{money(item.price * item.quantity)}</b>
-                      </div>
-                      <div className="el-quantity-control">
-                        <button type="button" onClick={() => removeFromCart(item.id)}><Icon name="minus" size={14} /></button>
-                        <span>{item.quantity}</span>
-                        <button type="button" onClick={() => addToCart(item.id)}><Icon name="plus" size={14} /></button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="el-cart-summary">
-                  <div><span>Subtotal</span><strong>{money(cartTotal)}</strong></div>
-                  <small>Delivery fee and final total will be calculated at checkout when connected.</small>
-                  <button
-                    type="button"
-                    className="el-modal-primary"
-                    onClick={() => {
-                      setShowCart(false);
-                      notify("Checkout will be connected in a later step");
-                    }}
-                  >
-                    Continue to checkout <Icon name="arrow" size={17} />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="el-notification-empty">
-                <span><Icon name="cart" size={28} /></span>
-                <strong>Your cart is waiting</strong>
-                <p>Add your everyday grocery essentials to get started.</p>
-                <button type="button" className="el-modal-primary" onClick={() => setShowCart(false)}>
-                  Continue shopping
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
-      )}
-    </div>
-  );
+.el-hero-perks span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #f4fff4;
+  font-weight: 600;
+}
+
+.el-hero-perks b {
+  display: grid;
+  place-items: center;
+  background: #d7f6ac;
+  color: var(--el-green-dark);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+}
+
+.el-hero-button {
+  border: 0;
+  background: #fff;
+  color: var(--el-green-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 17px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 22px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.el-hero-button:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.el-hero-delivery {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.el-delivery-clock {
+  width: 34px;
+  height: 34px;
+  background: #ffffff1d;
+  border: 1px solid #ffffff30;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #e5ffbd;
+}
+
+.el-hero-delivery > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.el-hero-delivery strong {
+  font-size: 11px;
+}
+
+.el-hero-delivery small {
+  font-size: 10px;
+  color: #d8f2dc;
+}
+
+/* Decorative grocery artwork */
+
+.el-hero-art {
+  min-height: 360px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.el-art-glow {
+  position: absolute;
+  width: 275px;
+  height: 275px;
+  background: #c8f19d;
+  border-radius: 50%;
+  opacity: 0.95;
+  filter: blur(0.2px);
+}
+
+.el-art-circle {
+  position: absolute;
+  border: 1px solid #ffffff70;
+  border-radius: 50%;
+}
+
+.el-art-circle-one {
+  width: 310px;
+  height: 310px;
+}
+
+.el-art-circle-two {
+  width: 240px;
+  height: 240px;
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.el-art-leaf {
+  position: absolute;
+  background: #8bcf67;
+  width: 65px;
+  height: 110px;
+  border-radius: 90% 0 90% 0;
+  transform: rotate(-32deg);
+  opacity: 0.9;
+}
+
+.el-art-leaf-one {
+  left: 14%;
+  top: 22%;
+}
+
+.el-art-leaf-two {
+  right: 13%;
+  bottom: 21%;
+  transform: rotate(150deg);
+  background: #a5dc78;
+}
+
+.el-grocery-bag {
+  position: relative;
+  z-index: 2;
+  width: 210px;
+  margin-top: 45px;
+  filter: drop-shadow(0 20px 14px #063b1c25);
+}
+
+.el-bag-handle {
+  position: absolute;
+  z-index: -1;
+  width: 108px;
+  height: 93px;
+  left: 51px;
+  top: -58px;
+  border: 13px solid #f8fff4;
+  border-bottom: 0;
+  border-radius: 65px 65px 0 0;
+}
+
+.el-bag-body {
+  position: relative;
+  height: 190px;
+  background: linear-gradient(145deg, #fff, #e8f6d9);
+  border-radius: 15px 15px 27px 27px;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+  border: 2px solid #d6efc8;
+  overflow: hidden;
+}
+
+.el-bag-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, #ffffffaa, transparent 50%);
+  pointer-events: none;
+}
+
+.el-bag-produce {
+  position: absolute;
+  font-size: 54px;
+  filter: drop-shadow(0 4px 3px #183b191b);
+}
+
+.produce-one {
+  top: -31px;
+  left: 16px;
+  transform: rotate(-16deg);
+}
+
+.produce-two {
+  top: -43px;
+  left: 73px;
+  transform: rotate(8deg);
+}
+
+.produce-three {
+  top: -28px;
+  right: 7px;
+  transform: rotate(20deg);
+}
+
+.produce-four {
+  top: 13px;
+  left: 66px;
+  font-size: 42px;
+}
+
+.el-bag-logo {
+  position: absolute;
+  bottom: 23px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 59px;
+  height: 59px;
+  border-radius: 50%;
+  background: var(--el-green);
+  color: #fff;
+  border: 4px solid #d8f3c5;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.el-art-card {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #ffffffd6;
+  background: #ffffffef;
+  color: var(--el-ink);
+  padding: 10px 13px;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px #073d1b25;
+}
+
+.el-art-card > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--el-green-light);
+  border-radius: 9px;
+  font-size: 18px;
+}
+
+.el-art-card > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.el-art-card strong {
+  font-size: 11px;
+}
+
+.el-art-card small {
+  font-size: 9px;
+  color: var(--el-muted);
+}
+
+.el-art-card-top {
+  top: 45px;
+  right: 12px;
+}
+
+.el-art-card-bottom {
+  bottom: 35px;
+  left: 6px;
+}
+
+.el-art-check {
+  color: var(--el-green);
+  font-weight: 900;
+  font-size: 22px;
+}
+
+.el-art-caption {
+  position: absolute;
+  right: 23px;
+  bottom: 12px;
+  color: #eaffdf;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+/* Small benefits ribbon */
+
+.el-service-ribbon {
+  margin: 18px 0 39px;
+  padding: 16px 23px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  border: 1px solid #e4efe4;
+  border-radius: 15px;
+  background: #f8fcf8;
+}
+
+.el-service-ribbon > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.el-service-ribbon > div span {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  background: #dff2df;
+  border-radius: 9px;
+  color: var(--el-green-dark);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.el-service-ribbon strong {
+  font-size: 11px;
+}
+
+.el-service-ribbon > i {
+  width: 1px;
+  height: 23px;
+  background: #dce9dc;
+}
+
+/* Section styles */
+
+.el-section {
+  margin: 0 0 41px;
+  scroll-margin-top: 22px;
+}
+
+.el-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.el-section-heading h2 {
+  margin: 4px 0 0;
+  font-size: clamp(21px, 2.3vw, 27px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: var(--el-ink);
+  line-height: 1.3;
+}
+
+.el-section-heading p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--el-muted);
+  line-height: 1.6;
+}
+
+.el-eyebrow {
+  display: inline-block;
+  color: var(--el-green);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.el-view-all {
+  border: 0;
+  padding: 8px 0 5px 10px;
+  background: transparent;
+  color: var(--el-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.el-view-all:hover {
+  color: var(--el-green-dark);
+}
+
+/* Categories */
+
+.el-categories-section {
+  scroll-margin-top: 18px;
+}
+
+.el-category-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.el-category-card {
+  min-width: 0;
+  border: 1px solid #e3eee3;
+  border-radius: 15px;
+  padding: 15px 7px 13px;
+  background: #f8fcf8;
+  color: var(--el-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s,
+    box-shadow 0.2s;
+}
+
+.el-category-card:hover,
+.el-category-card.is-selected {
+  transform: translateY(-3px);
+  border-color: #8bc99a;
+  background: #e9f7e9;
+  box-shadow: 0 8px 18px #0a67200c;
+}
+
+.el-category-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+  background: #e4f5e3;
+  font-size: 28px;
+  margin-bottom: 3px;
+}
+
+.el-category-card strong {
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.el-category-card small {
+  font-size: 10px;
+  color: #829084;
+}
+
+/* Offer banner */
+
+.el-offer-banner {
+  min-height: 246px;
+  margin: 0 0 41px;
+  padding: 27px 32px;
+  position: relative;
+  overflow: hidden;
+  background: #f0f9e9;
+  border: 1px solid #d8ebd0;
+  border-radius: 22px;
+  display: grid;
+  grid-template-columns: auto 1fr 0.8fr;
+  align-items: center;
+  gap: 24px;
+}
+
+.el-offer-stamp {
+  width: 71px;
+  height: 71px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border: 1px dashed #82b979;
+  outline: 5px solid #e2f2d9;
+  border-radius: 50%;
+  color: var(--el-green-dark);
+  background: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.el-offer-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.el-offer-copy > span {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  color: var(--el-green);
+  font-weight: 800;
+}
+
+.el-offer-copy h2 {
+  margin: 9px 0 8px;
+  font-size: clamp(22px, 2.6vw, 31px);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  font-weight: 800;
+  color: #153d21;
+}
+
+.el-offer-copy p {
+  color: #657d67;
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.el-offer-copy button {
+  border: 0;
+  background: var(--el-green);
+  color: #fff;
+  border-radius: 10px;
+  padding: 11px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 15px;
+}
+
+.el-offer-copy button:hover {
+  background: var(--el-green-dark);
+}
+
+.el-offer-visual {
+  min-height: 190px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.el-offer-orbit {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: #dcefcf;
+  border: 1px solid #c6e5b7;
+}
+
+.el-offer-product {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid #d7e9d0;
+  border-radius: 21px;
+  width: 78px;
+  height: 78px;
+  font-size: 40px;
+  box-shadow: 0 10px 20px #286b2510;
+}
+
+.el-offer-product-one {
+  left: 11%;
+  top: 7%;
+  transform: rotate(-12deg);
+}
+
+.el-offer-product-two {
+  right: 7%;
+  top: 12%;
+  transform: rotate(10deg);
+}
+
+.el-offer-product-three {
+  left: 37%;
+  bottom: 0;
+  transform: rotate(-5deg);
+}
+
+.el-offer-spark {
+  position: absolute;
+  right: 4%;
+  bottom: 11%;
+  font-size: 35px;
+  color: var(--el-green);
+}
+
+/* Product cards */
+
+.el-product-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 48px) / 5);
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 3px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #b9dcbc transparent;
+}
+
+.el-product-rail::-webkit-scrollbar {
+  height: 5px;
+}
+
+.el-product-rail::-webkit-scrollbar-thumb {
+  background: #b9dcbc;
+  border-radius: 10px;
+}
+
+.el-product-card {
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e6eee6;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  scroll-snap-align: start;
+}
+
+.el-product-card:hover {
+  transform: translateY(-3px);
+  border-color: #b4d9b6;
+  box-shadow: 0 9px 24px #16491b0c;
+}
+
+.el-product-image-wrap {
+  position: relative;
+  aspect-ratio: 1 / 0.88;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f4f9f2;
+  border-bottom: 1px solid #eef3ed;
+}
+
+.el-product-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.el-product-card:hover .el-product-image {
+  transform: scale(1.04);
+}
+
+.el-product-badge {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  left: 8px;
+  max-width: calc(100% - 50px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--el-green);
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.el-favorite {
+  z-index: 2;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 1px solid #e5eee4;
+  border-radius: 50%;
+  background: #ffffffed;
+  color: #829184;
+  padding: 0;
+}
+
+.el-favorite svg {
+  fill: transparent;
+}
+
+.el-favorite:hover,
+.el-favorite.is-favorite {
+  color: #e24f65;
+  background: #fff4f5;
+  border-color: #f6d1d6;
+}
+
+.el-favorite.is-favorite svg {
+  fill: #e24f65;
+}
+
+.el-image-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: linear-gradient(145deg, #edf8e9, #f9fcf7);
+  color: var(--el-green);
+}
+
+.el-image-fallback span {
+  font-size: 38px;
+}
+
+.el-image-fallback small {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.el-product-info {
+  padding: 11px 11px 12px;
+}
+
+.el-product-weight {
+  color: #758879;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.el-product-info h3 {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--el-ink);
+  margin: 5px 0 3px;
+  min-height: 34px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.el-product-bn {
+  font-size: 10px;
+  color: #859286;
+  margin: 0 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.el-product-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #627365;
+  margin-bottom: 10px;
+}
+
+.el-product-rating > span:first-child {
+  color: #efa72f;
+  font-size: 13px;
+}
+
+.el-rating-separator {
+  color: #b2bdb3;
+  margin: 0 2px;
+}
+
+.el-stock {
+  color: var(--el-green);
+  font-weight: 700;
+}
+
+.el-product-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  padding-top: 9px;
+  border-top: 1px solid #edf2ec;
+}
+
+.el-price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.el-price strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--el-green-dark);
+  white-space: nowrap;
+}
+
+.el-price del {
+  font-size: 10px;
+  color: #9aa59b;
+}
+
+.el-add-button {
+  min-width: 59px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 8px;
+  border: 1px solid #a7d7ab;
+  border-radius: 9px;
+  background: #eff9ed;
+  color: var(--el-green-dark);
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.el-add-button:hover {
+  background: var(--el-green);
+  color: #fff;
+  border-color: var(--el-green);
+}
+
+.el-quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  background: var(--el-green);
+  color: #fff;
+  border-radius: 9px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.el-quantity-control button {
+  border: 0;
+  border-radius: 6px;
+  background: #ffffff20;
+  color: #fff;
+  width: 24px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.el-quantity-control button:hover {
+  background: #ffffff3d;
+}
+
+.el-quantity-control span {
+  min-width: 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Deals */
+
+.el-deals-section {
+  background: #f8fcf7;
+  border: 1px solid #e5f0e3;
+  padding: 23px;
+  border-radius: 20px;
+}
+
+.el-deal-mark {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  background: #dff2dc;
+  color: var(--el-green-dark);
+  padding: 8px 10px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+}
+
+.el-deals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.el-deal-card {
+  background: #fff;
+  border: 1px solid #e3eee1;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  min-width: 0;
+}
+
+.el-deal-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--el-green);
+  color: #fff;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.el-deal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.el-deal-content small {
+  font-size: 10px;
+  color: #829283;
+}
+
+.el-deal-content strong {
+  font-size: 12px;
+  line-height: 1.4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.el-deal-content > span {
+  color: var(--el-green-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.el-deal-content del {
+  color: #9ba79b;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 7px;
+}
+
+.el-deal-card > button {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: #e9f7e7;
+  color: var(--el-green);
+  border: 1px solid #cce6c9;
+  border-radius: 10px;
+}
+
+.el-deal-card > button:hover {
+  background: var(--el-green);
+  color: #fff;
+}
+
+/* Reorder banner */
+
+.el-reorder-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 23px;
+  margin: 0 0 41px;
+  background: var(--el-green-pale);
+  border: 1px solid #d9ecd8;
+  border-radius: 17px;
+}
+
+.el-reorder-icon {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  background: #dff2dc;
+  color: var(--el-green-dark);
+  border-radius: 15px;
+}
+
+.el-reorder-banner > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.el-reorder-banner h2 {
+  font-size: 18px;
+  margin: 5px 0;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.el-reorder-banner p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--el-muted);
+  margin: 0;
+}
+
+.el-reorder-banner > button {
+  flex-shrink: 0;
+  border: 1px solid #b7dcb5;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--el-green-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.el-reorder-banner > button:hover {
+  background: var(--el-green);
+  color: #fff;
+}
+
+/* Product results */
+
+.el-product-results {
+  scroll-margin-top: 20px;
+  margin-bottom: 42px;
+}
+
+.el-filter-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 1px 1px 13px;
+  margin-bottom: 10px;
+  scrollbar-width: none;
+}
+
+.el-filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.el-filter-chips button {
+  border: 1px solid #dce9dc;
+  background: #fff;
+  color: #536656;
+  padding: 9px 13px;
+  border-radius: 30px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.el-filter-chips button:hover,
+.el-filter-chips button.active {
+  border-color: var(--el-green);
+  background: var(--el-green);
+  color: #fff;
+}
+
+.el-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.el-empty-state {
+  text-align: center;
+  padding: 44px 18px;
+  background: #f8fcf7;
+  border: 1px dashed #cfe5ce;
+  border-radius: 17px;
+}
+
+.el-empty-state > span {
+  width: 57px;
+  height: 57px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 18px;
+  background: #e4f5e1;
+  color: var(--el-green);
+  font-size: 30px;
+}
+
+.el-empty-state h3 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+.el-empty-state p {
+  color: var(--el-muted);
+  font-size: 12px;
+  margin: 0 0 15px;
+}
+
+.el-empty-state button {
+  border: 0;
+  background: var(--el-green);
+  color: #fff;
+  padding: 11px 15px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* Trust row */
+
+.el-trust-row {
+  border-top: 1px solid #e5eee5;
+  padding: 24px 0;
+  margin-top: 5px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.el-trust-row > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+
+.el-trust-row > div > span {
+  width: 37px;
+  height: 37px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e7f5e5;
+  color: var(--el-green);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.el-trust-row p {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.el-trust-row strong {
+  font-size: 11px;
+}
+
+.el-trust-row small {
+  font-size: 10px;
+  color: var(--el-muted);
+}
+
+/* Footer */
+
+.el-footer {
+  background: #0b4e25;
+  color: #fff;
+}
+
+.el-footer-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 25px;
+}
+
+.el-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.el-footer-brand img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.el-footer-brand > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.el-footer-brand strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.el-footer-brand small {
+  color: #ccebd0;
+  font-size: 10px;
+}
+
+.el-footer-main > p {
+  font-size: 11px;
+  color: #d4ebd5;
+}
+
+.el-footer-bottom {
+  border-top: 1px solid #ffffff20;
+  padding: 13px 20px;
+  text-align: center;
+  color: #c5e2c9;
+  font-size: 10px;
+}
+
+/* Bottom navigation */
+
+.el-bottom-nav {
+  display: none;
+}
+
+/* Toast */
+
+.el-toast {
+  position: fixed;
+  z-index: 1000;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 32px);
+  background: #103d20;
+  color: #fff;
+  padding: 13px 19px;
+  border: 1px solid #2d7441;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px #05240e30;
+  font-size: 12px;
+  font-weight: 700;
+  animation: el-toast-in 0.2s ease-out;
+}
+
+@keyframes el-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Modals */
+
+.el-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #081b0db3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  backdrop-filter: blur(3px);
+}
+
+.el-modal {
+  width: min(100%, 460px);
+  max-height: min(85vh, 720px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 21px;
+  padding: 25px;
+  box-shadow: 0 25px 80px #001e0c30;
+}
+
+.el-modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.el-modal-heading h2 {
+  font-size: 21px;
+  line-height: 1.35;
+  margin: 5px 0 0;
+  letter-spacing: -0.5px;
+}
+
+.el-modal-heading > button {
+  border: 1px solid #e4eee3;
+  background: #f7fcf6;
+  color: var(--el-green-dark);
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.el-modal-note {
+  font-size: 12px;
+  color: #6b7c6d;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.el-field-label {
+  display: block;
+  color: #3d5140;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.el-modal-input {
+  width: 100%;
+  border: 1px solid #dbe9dc;
+  border-radius: 11px;
+  padding: 13px;
+  color: var(--el-ink);
+  outline: none;
+  background: #fbfefb;
+  margin-bottom: 15px;
+}
+
+.el-modal-primary {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  padding: 13px 16px;
+  background: var(--el-green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+}
+
+.el-notification-empty {
+  text-align: center;
+  padding: 25px 8px 13px;
+}
+
+.el-notification-empty > span {
+  display: grid;
+  place-items: center;
+  width: 61px;
+  height: 61px;
+  margin: 0 auto 13px;
+  background: #e5f5e3;
+  color: var(--el-green);
+  border-radius: 20px;
+}
+
+.el-notification-empty > strong {
+  font-size: 15px;
+}
+
+.el-notification-empty p {
+  color: var(--el-muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 8px auto 20px;
+  max-width: 300px;
+}
+
+/* Cart drawer */
+
+.el-cart-backdrop {
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.el-cart-drawer {
+  height: 100%;
+  width: min(100%, 470px);
+  background: #fff;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -15px 0 60px #001e0c1a;
+  animation: el-drawer-in 0.2s ease-out;
+}
+
+@keyframes el-drawer-in {
+  from {
+    transform: translateX(25px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.el-cart-items {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0 18px;
+}
+
+.el-cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5eee4;
+  border-radius: 13px;
+}
+
+.el-cart-item-picture {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eaf7e7;
+  font-size: 24px;
+}
+
+.el-cart-item-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.el-cart-item-info strong {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.el-cart-item-info small {
+  color: var(--el-muted);
+  font-size: 10px;
+}
+
+.el-cart-item-info b {
+  color: var(--el-green-dark);
+  font-size: 12px;
+}
+
+.el-cart-summary {
+  border-top: 1px solid #e4eee3;
+  padding-top: 17px;
+}
+
+.el-cart-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.el-cart-summary > div strong {
+  color: var(--el-green-dark);
+  font-size: 19px;
+}
+
+.el-cart-summary > small {
+  display: block;
+  color: var(--el-muted);
+  font-size: 10px;
+  line-height: 1.6;
+  margin: 9px 0 15px;
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+  .el-container {
+    width: min(100% - 36px, 900px);
+  }
+
+  .el-header-main {
+    gap: 15px;
+  }
+
+  .el-address {
+    min-width: 190px;
+  }
+
+  .el-hero-copy {
+    padding-left: 29px;
+  }
+
+  .el-hero h1 {
+    font-size: 38px;
+  }
+
+  .el-hero-art {
+    transform: scale(0.94);
+  }
+
+  .el-category-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .el-product-rail {
+    grid-auto-columns: calc((100% - 36px) / 4);
+  }
+
+  .el-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .el-offer-banner {
+    grid-template-columns: auto 1fr 0.6fr;
+    gap: 17px;
+  }
+
+  .el-offer-visual {
+    transform: scale(0.9);
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 650px) {
+  .el-home {
+    padding-bottom: calc(67px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .el-container {
+    width: calc(100% - 28px);
+  }
+
+  .el-top-strip {
+    min-height: 31px;
+    font-size: 9px;
+  }
+
+  .el-top-strip-inner {
+    gap: 7px;
+  }
+
+  .el-top-strip-inner > span {
+    gap: 5px;
+  }
+
+  .el-area-note {
+    font-size: 8px;
+    text-align: right;
+  }
+
+  .el-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 15px #123c1908;
+  }
+
+  .el-header-main {
+    min-height: 65px;
+    gap: 8px;
+  }
+
+  .el-brand {
+    gap: 7px;
+  }
+
+  .el-brand img {
+    width: 37px;
+    height: 37px;
+  }
+
+  .el-brand strong {
+    font-size: 12px;
+    letter-spacing: -0.35px;
+  }
+
+  .el-brand small {
+    font-size: 8px;
+  }
+
+  .el-address {
+    min-width: 0;
+    max-width: 44%;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    flex: 1;
+  }
+
+  .el-address-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .el-address-copy {
+    gap: 3px;
+  }
+
+  .el-address-copy small {
+    font-size: 8px;
+  }
+
+  .el-address-copy strong {
+    font-size: 9px;
+  }
+
+  .el-chevron {
+    font-size: 15px;
+  }
+
+  .el-header-actions {
+    gap: 6px;
+  }
+
+  .el-icon-button {
+    width: 34px;
+    min-height: 36px;
+    border-radius: 10px;
+  }
+
+  .el-icon-button svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .el-icon-button i {
+    width: 6px;
+    height: 6px;
+    top: 5px;
+    right: 5px;
+  }
+
+  .el-cart-button {
+    min-height: 36px;
+    width: 38px;
+    padding: 0;
+    gap: 0;
+    border-radius: 10px;
+  }
+
+  .el-cart-button > span {
+    display: none;
+  }
+
+  .el-cart-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .el-cart-button b {
+    position: absolute;
+    top: -6px;
+    right: -5px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 9px;
+    border: 1px solid #fff;
+  }
+
+  .el-search-row {
+    padding-bottom: 10px;
+    gap: 0;
+  }
+
+  .el-search-box {
+    min-height: 42px;
+    border-radius: 11px;
+    padding: 0 11px;
+    gap: 9px;
+  }
+
+  .el-search-box svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .el-search-box input {
+    font-size: 11px;
+  }
+
+  .el-search-shortcut {
+    display: none;
+  }
+
+  .el-main {
+    padding-top: 15px;
+  }
+
+  /* Hero adapts to small screens */
+
+  .el-hero {
+    border-radius: 18px;
+    min-height: 0;
+    grid-template-columns: 1fr 0.72fr;
+  }
+
+  .el-hero-copy {
+    padding: 23px 0 22px 18px;
+  }
+
+  .el-hero-pill {
+    font-size: 7px;
+    padding: 6px 8px;
+    gap: 6px;
+    letter-spacing: 0.035em;
+  }
+
+  .el-live-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .el-hero h1 {
+    font-size: clamp(24px, 7vw, 33px);
+    letter-spacing: -1.2px;
+    line-height: 1.13;
+    margin: 15px 0 9px;
+  }
+
+  .el-hero-copy > p {
+    font-size: 10px;
+    line-height: 1.65;
+    max-width: 270px;
+  }
+
+  .el-hero-perks {
+    gap: 6px 9px;
+    margin-top: 11px;
+  }
+
+  .el-hero-perks span {
+    font-size: 8px;
+    gap: 4px;
+  }
+
+  .el-hero-perks b {
+    width: 13px;
+    height: 13px;
+    font-size: 8px;
+  }
+
+  .el-hero-button {
+    font-size: 10px;
+    padding: 10px 11px;
+    gap: 7px;
+    margin-top: 15px;
+    border-radius: 9px;
+  }
+
+  .el-hero-button svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .el-hero-delivery {
+    gap: 7px;
+    margin-top: 13px;
+  }
+
+  .el-delivery-clock {
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+  }
+
+  .el-delivery-clock svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .el-hero-delivery strong {
+    font-size: 8px;
+  }
+
+  .el-hero-delivery small {
+    font-size: 7px;
+    line-height: 1.5;
+  }
+
+  .el-hero-art {
+    min-height: 280px;
+    transform: scale(0.82);
+    transform-origin: center center;
+    margin-left: -17px;
+    width: calc(100% + 20px);
+  }
+
+  .el-art-glow {
+    width: 210px;
+    height: 210px;
+  }
+
+  .el-art-circle-one {
+    width: 240px;
+    height: 240px;
+  }
+
+  .el-art-circle-two {
+    width: 190px;
+    height: 190px;
+  }
+
+  .el-grocery-bag {
+    width: 165px;
+    margin-top: 36px;
+  }
+
+  .el-bag-body {
+    height: 157px;
+  }
+
+  .el-bag-handle {
+    width: 87px;
+    height: 73px;
+    left: 39px;
+    top: -47px;
+    border-width: 10px;
+    border-bottom: 0;
+  }
+
+  .el-bag-produce {
+    font-size: 43px;
+  }
+
+  .produce-one {
+    top: -26px;
+    left: 12px;
+  }
+
+  .produce-two {
+    top: -35px;
+    left: 56px;
+  }
+
+  .produce-three {
+    top: -23px;
+    right: 5px;
+  }
+
+  .produce-four {
+    top: 10px;
+    left: 52px;
+    font-size: 34px;
+  }
+
+  .el-bag-logo {
+    width: 48px;
+    height: 48px;
+    bottom: 19px;
+    font-size: 17px;
+  }
+
+  .el-art-card {
+    gap: 6px;
+    padding: 8px;
+    border-radius: 9px;
+  }
+
+  .el-art-card > span:first-child {
+    width: 27px;
+    height: 27px;
+    font-size: 15px;
+  }
+
+  .el-art-card strong {
+    font-size: 9px;
+  }
+
+  .el-art-card small {
+    font-size: 7px;
+  }
+
+  .el-art-card-top {
+    top: 33px;
+    right: -5px;
+  }
+
+  .el-art-card-bottom {
+    bottom: 29px;
+    left: -8px;
+  }
+
+  .el-art-caption {
+    display: none;
+  }
+
+  .el-service-ribbon {
+    padding: 11px 9px;
+    margin: 12px 0 29px;
+    border-radius: 12px;
+    gap: 7px;
+  }
+
+  .el-service-ribbon > div {
+    gap: 6px;
+  }
+
+  .el-service-ribbon > div span {
+    width: 23px;
+    height: 23px;
+    font-size: 8px;
+    border-radius: 7px;
+  }
+
+  .el-service-ribbon strong {
+    font-size: 8px;
+    line-height: 1.35;
+  }
+
+  .el-service-ribbon > i {
+    height: 20px;
+  }
+
+  .el-section {
+    margin-bottom: 30px;
+  }
+
+  .el-section-heading {
+    margin-bottom: 13px;
+    gap: 8px;
+  }
+
+  .el-section-heading h2 {
+    font-size: 20px;
+    letter-spacing: -0.65px;
+  }
+
+  .el-section-heading p {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  .el-eyebrow {
+    font-size: 8px;
+  }
+
+  .el-view-all {
+    gap: 4px;
+    font-size: 10px;
+    padding-left: 4px;
+  }
+
+  .el-view-all svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* Categories: horizontal browsing */
+
+  .el-category-grid {
+    display: flex;
+    gap: 9px;
+    overflow-x: auto;
+    margin-inline: -1px;
+    padding: 2px 1px 10px;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .el-category-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .el-category-card {
+    flex: 0 0 105px;
+    border-radius: 13px;
+    padding: 12px 6px 11px;
+    scroll-snap-align: start;
+  }
+
+  .el-category-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 24px;
+  }
+
+  .el-category-card strong {
+    font-size: 10px;
+  }
+
+  .el-category-card small {
+    font-size: 9px;
+  }
+
+  /* Offer banner */
+
+  .el-offer-banner {
+    min-height: 210px;
+    grid-template-columns: 1fr 0.62fr;
+    gap: 6px;
+    padding: 20px 17px;
+    border-radius: 17px;
+    margin-bottom: 30px;
+  }
+
+  .el-offer-stamp {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    width: 49px;
+    height: 49px;
+    font-size: 7px;
+    outline-width: 3px;
+  }
+
+  .el-offer-copy {
+    align-self: center;
+    padding-right: 0;
+  }
+
+  .el-offer-copy > span {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+  }
+
+  .el-offer-copy h2 {
+    font-size: 23px;
+    letter-spacing: -0.8px;
+    margin: 8px 0;
+  }
+
+  .el-offer-copy p {
+    font-size: 9px;
+    line-height: 1.6;
+    max-width: 200px;
+  }
+
+  .el-offer-copy button {
+    margin-top: 12px;
+    padding: 10px;
+    font-size: 9px;
+    gap: 6px;
+  }
+
+  .el-offer-copy button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .el-offer-visual {
+    min-height: 165px;
+    transform: scale(0.78);
+    transform-origin: center;
+    margin-left: -14px;
+  }
+
+  .el-offer-orbit {
+    width: 150px;
+    height: 150px;
+  }
+
+  .el-offer-product {
+    width: 61px;
+    height: 61px;
+    font-size: 31px;
+    border-radius: 16px;
+  }
+
+  .el-offer-spark {
+    font-size: 28px;
+  }
+
+  /* Product rails show part of the next card */
+
+  .el-product-rail {
+    grid-auto-columns: 43%;
+    gap: 10px;
+    margin-right: -14px;
+    padding-right: 14px;
+    padding-bottom: 8px;
+  }
+
+  .el-product-image-wrap {
+    aspect-ratio: 1 / 0.83;
+  }
+
+  .el-product-badge {
+    top: 7px;
+    left: 6px;
+    padding: 4px 5px;
+    font-size: 8px;
+  }
+
+  .el-favorite {
+    top: 6px;
+    right: 6px;
+    width: 27px;
+    height: 27px;
+  }
+
+  .el-favorite svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .el-product-info {
+    padding: 9px 8px 10px;
+  }
+
+  .el-product-weight {
+    font-size: 9px;
+  }
+
+  .el-product-info h3 {
+    font-size: 11px;
+    min-height: 31px;
+    margin: 4px 0 2px;
+  }
+
+  .el-product-bn {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .el-product-rating {
+    gap: 3px;
+    font-size: 9px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .el-product-rating > span:first-child {
+    font-size: 11px;
+  }
+
+  .el-product-bottom {
+    gap: 4px;
+    padding-top: 8px;
+  }
+
+  .el-price strong {
+    font-size: 13px;
+  }
+
+  .el-price del {
+    font-size: 9px;
+  }
+
+  .el-add-button {
+    min-width: 47px;
+    height: 30px;
+    padding: 0 5px;
+    gap: 2px;
+    font-size: 10px;
+  }
+
+  .el-add-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .el-quantity-control {
+    gap: 4px;
+    padding: 2px;
+  }
+
+  .el-quantity-control button {
+    width: 21px;
+    height: 23px;
+  }
+
+  .el-quantity-control span {
+    font-size: 10px;
+  }
+
+  /* Deals */
+
+  .el-deals-section {
+    padding: 15px 12px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+  }
+
+  .el-deals-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .el-deal-card {
+    gap: 10px;
+    padding: 10px;
+    border-radius: 11px;
+  }
+
+  .el-deal-icon {
+    width: 37px;
+    height: 37px;
+    font-size: 20px;
+    border-radius: 10px;
+  }
+
+  .el-deal-content small {
+    font-size: 9px;
+  }
+
+  .el-deal-content strong {
+    font-size: 11px;
+  }
+
+  .el-deal-content > span {
+    font-size: 12px;
+  }
+
+  .el-deal-card > button {
+    width: 31px;
+    height: 31px;
+  }
+
+  .el-deal-mark {
+    font-size: 7px;
+    padding: 7px;
+  }
+
+  /* Reorder */
+
+  .el-reorder-banner {
+    flex-wrap: wrap;
+    gap: 11px;
+    padding: 15px;
+    border-radius: 14px;
+    margin-bottom: 30px;
+  }
+
+  .el-reorder-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 12px;
+  }
+
+  .el-reorder-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .el-reorder-banner h2 {
+    font-size: 15px;
+  }
+
+  .el-reorder-banner p {
+    font-size: 10px;
+  }
+
+  .el-reorder-banner > button {
+    width: 100%;
+    justify-content: center;
+    padding: 11px;
+  }
+
+  /* Results grid */
+
+  .el-product-results {
+    margin-bottom: 28px;
+  }
+
+  .el-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .el-product-grid .el-product-image-wrap {
+    aspect-ratio: 1 / 0.82;
+  }
+
+  .el-product-grid .el-product-info {
+    padding: 9px 8px 10px;
+  }
+
+  .el-filter-chips {
+    gap: 7px;
+    margin-right: -14px;
+  }
+
+  .el-filter-chips button {
+    padding: 8px 11px;
+    font-size: 9px;
+  }
+
+  /* Trust and footer */
+
+  .el-trust-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 20px 5px;
+  }
+
+  .el-trust-row > div {
+    justify-content: flex-start;
+  }
+
+  .el-trust-row > div > span {
+    width: 34px;
+    height: 34px;
+  }
+
+  .el-trust-row strong {
+    font-size: 11px;
+  }
+
+  .el-footer-main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+    padding-block: 20px;
+  }
+
+  .el-footer-brand img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .el-footer-brand strong {
+    font-size: 12px;
+  }
+
+  .el-footer-brand small {
+    font-size: 9px;
+  }
+
+  .el-footer-main > p {
+    margin: 0;
+    font-size: 10px;
+  }
+
+  .el-footer-bottom {
+    font-size: 9px;
+    padding: 12px 14px;
+    line-height: 1.6;
+  }
+
+  /* Mobile bottom navigation */
+
+  .el-bottom-nav {
+    position: fixed;
+    z-index: 500;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px));
+    background: #fffffffa;
+    border-top: 1px solid #e1ebe1;
+    box-shadow: 0 -5px 20px #16471b09;
+    backdrop-filter: blur(12px);
+  }
+
+  .el-bottom-nav button {
+    min-width: 0;
+    padding: 4px 0 2px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #849186;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .el-bottom-nav button.active {
+    color: var(--el-green-dark);
+  }
+
+  .el-nav-icon {
+    width: 36px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+
+  .el-bottom-nav button.active .el-nav-icon {
+    background: #e3f5e2;
+  }
+
+  .el-bottom-nav button small {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .el-bottom-nav button.active small {
+    font-weight: 800;
+  }
+
+  .el-toast {
+    bottom: calc(77px + env(safe-area-inset-bottom, 0px));
+    font-size: 11px;
+    text-align: center;
+    width: max-content;
+  }
+
+  .el-modal {
+    border-radius: 18px;
+    padding: 20px;
+  }
+
+  .el-modal-heading h2 {
+    font-size: 18px;
+  }
+
+  .el-cart-drawer {
+    width: 100%;
+    padding: 20px 15px;
+  }
+}
+
+/* Very small phones */
+
+@media (max-width: 380px) {
+  .el-container {
+    width: calc(100% - 22px);
+  }
+
+  .el-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .el-brand strong {
+    font-size: 10px;
+  }
+
+  .el-brand small {
+    font-size: 7px;
+  }
+
+  .el-address {
+    max-width: 41%;
+    padding: 6px;
+  }
+
+  .el-address-copy strong {
+    font-size: 8px;
+  }
+
+  .el-header-actions {
+    gap: 4px;
+  }
+
+  .el-icon-button {
+    width: 31px;
+  }
+
+  .el-cart-button {
+    width: 33px;
+  }
+
+  .el-hero {
+    grid-template-columns: 1fr 0.58fr;
+  }
+
+  .el-hero-copy {
+    padding-left: 13px;
+  }
+
+  .el-hero h1 {
+    font-size: 23px;
+  }
+
+  .el-hero-copy > p {
+    font-size: 9px;
+  }
+
+  .el-hero-art {
+    transform: scale(0.7);
+    margin-left: -28px;
+  }
+
+  .el-hero-perks {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .el-hero-perks span {
+    font-size: 8px;
+  }
+
+  .el-service-ribbon {
+    padding-inline: 6px;
+  }
+
+  .el-service-ribbon > div {
+    gap: 4px;
+  }
+
+  .el-service-ribbon strong {
+    font-size: 7px;
+  }
+
+  .el-product-rail {
+    grid-auto-columns: 48%;
+  }
+
+  .el-offer-banner {
+    grid-template-columns: 1fr 0.42fr;
+    padding-inline: 13px;
+  }
+
+  .el-offer-copy h2 {
+    font-size: 20px;
+  }
+
+  .el-offer-visual {
+    transform: scale(0.65);
+    margin-left: -30px;
+  }
+}
+
+/* Reduced motion accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .el-home *,
+  .el-home *::before,
+  .el-home *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
