@@ -152,6 +152,23 @@ export default function Home({ onNavigate = () => {} }) {
           <div className="el-offer-note"><span>✦</span><b>Offers & deals</b><small>Selected deals, without the clutter.</small></div>
         </section>
 
+        <section className="el-scroll-shop" aria-label="Scroll and shop popular groceries">
+          <div className="el-scroll-shop-heading">
+            <div><span className="el-kicker">SCROLL. SPOT IT. SHOP IT.</span><h2>দেখতে দেখতে পছন্দ করুন <span>↘</span></h2><p>একটার পর একটা পণ্য দেখুন—ভালো লাগলেই কার্টে যোগ করুন।</p></div>
+            <span className="el-swipe-hint"><span>←</span> Swipe to explore <span>→</span></span>
+          </div>
+          <div className="el-scroll-shop-track">
+            {products.slice(0, 8).map((p, i) => <article className="el-scroll-product" key={`scroll-${p.id}`}>
+              <button className="el-scroll-product-image" onClick={() => viewProduct(p)} aria-label={`${p.bn} details`}>
+                <img src={p.image} alt={p.bn} loading="lazy" onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement.classList.add("image-missing"); }} />
+                <span className="el-scroll-product-index">{String(i + 1).padStart(2, "0")}</span>
+                {p.tag && <span className="el-scroll-product-tag">{p.tag}</span>}
+              </button>
+              <div className="el-scroll-product-copy"><small>{p.size} · ★ {p.rating}</small><b>{p.bn}</b><div><strong>{money(p.price)}</strong><button onClick={() => add(p.id)} aria-label={`Add ${p.bn} to cart`}>＋</button></div></div>
+            </article>)}
+          </div>
+        </section>
+
         <section className="el-section el-products-section" id="el-popular">
           <div className="el-section-heading"><div><span className="el-kicker">CUSTOMER FAVOURITES</span><h2>{search ? "Search results" : selectedCategory === "All" ? "Popular products" : categories.find(c => c.name === selectedCategory)?.bn || selectedCategory}</h2><p>{search ? `Results for “${search}”` : "Frequently picked for everyday shopping."}</p></div><div className="el-product-heading-actions"><span className="el-result-count">{filteredProducts.length} products</span><button className="el-text-link" onClick={() => setShowAllPopular((v) => !v)}>{showAllPopular ? "Show less" : "View all"} <span>→</span></button></div></div>
           <div className="el-filter-chips"><button className={selectedCategory === "All" ? "active" : ""} onClick={() => setSelectedCategory("All")}>All products</button>{categories.slice(0, 6).map(c => <button key={c.name} className={selectedCategory === c.name ? "active" : ""} onClick={() => setSelectedCategory(c.name)}>{c.bn}</button>)}</div>
