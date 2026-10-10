@@ -1,636 +1,1100 @@
+import { useMemo, useState } from "react";
+import "./Home.css";
 
-.el-home {
-  --el-green: #23864b;
-  --el-green-dark: #145b32;
-  --el-green-light: #e9f5eb;
-  --el-ink: #171b18;
-  --el-muted: #747c75;
-  --el-line: #e9ece8;
-  --el-white: #fff;
-  background: #fff;
-  color: var(--el-ink);
-  min-height: 100vh;
-  padding-bottom: 0;
-  font-family: inherit;
-}
+const GREEN = "#16833b";
 
-.el-home * { box-sizing: border-box; }
-.el-home button, .el-home input { font: inherit; }
-.el-home button { cursor: pointer; }
-.el-shell { width: min(1280px, calc(100% - 48px)); margin: 0 auto; }
+const categories = [
+  { name: "Rice & Grains", bn: "চাল ও শস্য", icon: "🌾" },
+  { name: "Lentils", bn: "ডাল", icon: "🫘" },
+  { name: "Cooking Oil", bn: "রান্নার তেল", icon: "🫒" },
+  { name: "Salt & Sugar", bn: "লবণ ও চিনি", icon: "🧂" },
+  { name: "Spices", bn: "মসলা", icon: "🌶️" },
+  { name: "Dairy", bn: "দুধ ও দুগ্ধজাত", icon: "🥛" },
+  { name: "Eggs", bn: "ডিম", icon: "🥚" },
+  { name: "Snacks", bn: "স্ন্যাকস", icon: "🍪" },
+  { name: "Drinks", bn: "পানীয়", icon: "🥤" },
+  { name: "Household", bn: "ঘর পরিষ্কার", icon: "🧼" },
+  { name: "Personal Care", bn: "ব্যক্তিগত যত্ন", icon: "🧴" },
+  { name: "Baby Care", bn: "শিশুদের পণ্য", icon: "🍼" },
+];
 
-.el-service-strip {
-  background: var(--el-green-dark);
-  color: #fff;
-  font-size: 12px;
-}
-.el-strip-inner {
-  min-height: 34px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-.el-strip-inner > span:first-child { display: flex; align-items: center; gap: 8px; }
-.el-live-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #a8e8b4; box-shadow: 0 0 0 4px #ffffff1a;
-}
-.el-strip-right { opacity: .85; }
+const products = [
+  {
+    id: 1,
+    name: "Premium Miniket Rice",
+    bn: "প্রিমিয়াম মিনিকেট চাল",
+    weight: "1 kg",
+    price: 78,
+    oldPrice: 90,
+    rating: 4.8,
+    category: "Rice & Grains",
+    badge: "Hot deal",
+    image:
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 2,
+    name: "Fresh Red Lentils",
+    bn: "মসুর ডাল",
+    weight: "500 g",
+    price: 65,
+    oldPrice: 72,
+    rating: 4.7,
+    category: "Lentils",
+    badge: "Save ৳7",
+    image:
+      "https://images.unsplash.com/photo-1515543904379-3d757d5b9c2e?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 3,
+    name: "Pure Mustard Oil",
+    bn: "খাঁটি সরিষার তেল",
+    weight: "500 ml",
+    price: 95,
+    oldPrice: 110,
+    rating: 4.8,
+    category: "Cooking Oil",
+    badge: "Best value",
+    image:
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 4,
+    name: "Farm Fresh Eggs",
+    bn: "ফার্মের তাজা ডিম",
+    weight: "6 pcs",
+    price: 78,
+    oldPrice: null,
+    rating: 4.9,
+    category: "Eggs",
+    badge: "Fresh",
+    image:
+      "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 5,
+    name: "Full Cream Milk",
+    bn: "ফুল ক্রিম দুধ",
+    weight: "1 litre",
+    price: 100,
+    oldPrice: null,
+    rating: 4.8,
+    category: "Dairy",
+    badge: "Popular",
+    image:
+      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 6,
+    name: "Golden Chickpeas",
+    bn: "ছোলা",
+    weight: "500 g",
+    price: 55,
+    oldPrice: 60,
+    rating: 4.6,
+    category: "Lentils",
+    badge: "Save ৳5",
+    image:
+      "https://images.unsplash.com/photo-1515543904379-3d757d5b9c2e?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 7,
+    name: "Everyday Table Salt",
+    bn: "খাবার লবণ",
+    weight: "1 kg",
+    price: 38,
+    oldPrice: null,
+    rating: 4.7,
+    category: "Salt & Sugar",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1518110925495-5fe2fda0442e?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 8,
+    name: "Premium Tea",
+    bn: "প্রিমিয়াম চা",
+    weight: "200 g",
+    price: 115,
+    oldPrice: 125,
+    rating: 4.8,
+    category: "Drinks",
+    badge: "Save ৳10",
+    image:
+      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 9,
+    name: "Golden Turmeric Powder",
+    bn: "হলুদের গুঁড়া",
+    weight: "100 g",
+    price: 35,
+    oldPrice: null,
+    rating: 4.6,
+    category: "Spices",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1615485500704-8e990f9900f5?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 10,
+    name: "Potato Chips",
+    bn: "আলুর চিপস",
+    weight: "50 g",
+    price: 25,
+    oldPrice: null,
+    rating: 4.5,
+    category: "Snacks",
+    badge: "New",
+    image:
+      "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 11,
+    name: "Dishwashing Liquid",
+    bn: "ডিশওয়াশ লিকুইড",
+    weight: "250 ml",
+    price: 85,
+    oldPrice: 95,
+    rating: 4.6,
+    category: "Household",
+    badge: "Save ৳10",
+    image:
+      "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=85",
+  },
+  {
+    id: 12,
+    name: "Fresh Orange Juice",
+    bn: "কমলার জুস",
+    weight: "1 litre",
+    price: 130,
+    oldPrice: null,
+    rating: 4.7,
+    category: "Drinks",
+    badge: "New",
+    image:
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=600&q=85",
+  },
+];
 
-.el-header {
-  background: #fff;
-  border-bottom: 1px solid var(--el-line);
-  position: relative;
-  z-index: 20;
-}
-.el-header-main {
-  min-height: 88px;
-  display: flex;
-  align-items: center;
-  gap: 26px;
-}
-.el-brand {
-  display: flex; align-items: center; gap: 10px;
-  flex-shrink: 0; border: 0; padding: 0; background: transparent;
-  text-align: left; color: var(--el-ink);
-}
-.el-brand img { width: 52px; height: 52px; object-fit: contain; }
-.el-brand > span, .el-footer-brand > div {
-  display: flex; flex-direction: column; gap: 2px;
-}
-.el-brand strong { font-size: 18px; font-weight: 850; letter-spacing: -.5px; }
-.el-brand small, .el-footer-brand small {
-  font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--el-green);
-}
-.el-address {
-  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-  background: #f7faf7; border: 1px solid #e7eee8; border-radius: 13px;
-  padding: 10px 13px; text-align: left; color: var(--el-ink);
-}
-.el-address-icon { font-size: 27px; color: var(--el-green); }
-.el-address > span:last-child { display: flex; flex-direction: column; gap: 3px; }
-.el-address small { color: var(--el-muted); font-size: 10px; }
-.el-address strong { font-size: 12px; white-space: nowrap; }
-.el-address strong span { color: var(--el-green); }
+const money = (amount) => `৳${amount}`;
 
-.el-search {
-  display: flex; align-items: center; gap: 10px; min-width: 0;
-  background: #f7f8f6; border: 1px solid #e9ece8; border-radius: 14px;
-  padding: 0 15px; height: 48px; flex: 1;
-}
-.el-search > span { font-size: 27px; color: var(--el-green); line-height: 1; }
-.el-search input {
-  min-width: 0; flex: 1; background: transparent; border: 0; outline: 0;
-  color: var(--el-ink); font-size: 13px;
-}
-.el-search input::placeholder { color: #939a94; }
-.el-search > button { border: 0; background: transparent; color: #777; font-size: 20px; }
-.el-header-actions { display: flex; align-items: center; gap: 17px; }
-.el-icon-action {
-  border: 0; background: transparent; color: var(--el-ink);
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  position: relative; min-width: 43px;
-}
-.el-icon-action > span { font-size: 22px; position: relative; line-height: 1.2; }
-.el-icon-action small { font-size: 10px; color: var(--el-muted); }
-.el-cart-action b {
-  position: absolute; right: -8px; top: -5px; min-width: 17px; height: 17px;
-  border-radius: 20px; background: var(--el-green); color: #fff;
-  display: grid; place-items: center; font-size: 10px;
-}
-.el-account-action {
-  display: flex; align-items: center; gap: 7px; white-space: nowrap;
-  border: 1px solid #dfe8e0; border-radius: 11px; background: #fff;
-  color: var(--el-ink); padding: 11px 13px; font-size: 12px; font-weight: 700;
-}
-.el-account-action span { font-size: 19px; color: var(--el-green); }
-.el-mobile-menu, .el-mobile-search { display: none; }
+function Icon({ name, size = 20 }) {
+  const paths = {
+    search: (
+      <>
+        <circle cx="11" cy="11" r="7" />
+        <path d="m16 16 4 4" />
+      </>
+    ),
+    cart: (
+      <>
+        <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6" />
+        <circle cx="10" cy="20" r="1" />
+        <circle cx="17" cy="20" r="1" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </>
+    ),
+    heart: (
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
+    ),
+    home: (
+      <>
+        <path d="m3 10 9-7 9 7" />
+        <path d="M5 9v12h14V9M9 21v-7h6v7" />
+      </>
+    ),
+    grid: (
+      <>
+        <rect x="3" y="3" width="7" height="7" rx="2" />
+        <rect x="14" y="3" width="7" height="7" rx="2" />
+        <rect x="3" y="14" width="7" height="7" rx="2" />
+        <rect x="14" y="14" width="7" height="7" rx="2" />
+      </>
+    ),
+    receipt: (
+      <>
+        <path d="M5 3h14v18l-3-2-4 2-4-2-3 2z" />
+        <path d="M8 8h8M8 12h8M8 16h4" />
+      </>
+    ),
+    user: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 21a8 8 0 0 1 16 0" />
+      </>
+    ),
+    arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
+    pin: (
+      <>
+        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </>
+    ),
+    close: <path d="m18 6-12 12M6 6l12 12" />,
+    plus: <path d="M12 5v14M5 12h14" />,
+    minus: <path d="M5 12h14" />,
+    clock: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+  };
 
-.el-hero {
-  margin-top: 26px; min-height: 365px; border-radius: 25px;
-  overflow: hidden; position: relative; display: grid;
-  grid-template-columns: 1.04fr .96fr;
-  background: linear-gradient(112deg, #f2f8f0 0%, #e6f3e6 60%, #d8ead8 100%);
-}
-.el-hero-copy {
-  padding: 48px 0 40px 54px; align-self: center; position: relative; z-index: 2;
-}
-.el-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #fff; border: 1px solid #dcebdd; border-radius: 30px;
-  color: var(--el-green-dark); padding: 8px 12px; font-size: 11px; font-weight: 750;
-}
-.el-eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--el-green); }
-.el-hero h1 {
-  margin: 19px 0 12px; font-size: clamp(35px, 4vw, 54px);
-  line-height: 1.17; letter-spacing: -2px; font-weight: 900;
-}
-.el-hero h1 span { color: var(--el-green); }
-.el-hero-copy > p {
-  color: #5d6b60; font-size: 14px; line-height: 1.9;
-  max-width: 440px; margin: 0 0 22px;
-}
-.el-hero-button {
-  border: 0; background: var(--el-green); color: #fff;
-  padding: 14px 19px; border-radius: 11px; font-size: 13px; font-weight: 800;
-  box-shadow: 0 7px 17px #23864b2a; transition: transform .2s, background .2s;
-}
-.el-hero-button:hover { transform: translateY(-2px); background: var(--el-green-dark); }
-.el-hero-button span { margin-left: 15px; font-size: 17px; }
-.el-hero-trust { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 19px; }
-.el-hero-trust span { font-size: 11px; color: #59665b; }
-.el-hero-trust b { color: var(--el-green); margin-right: 5px; }
-
-.el-hero-art { min-height: 350px; position: relative; display: grid; place-items: center; }
-.el-hero-circle {
-  width: min(330px, 72%); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
-  border: 12px solid #ffffffb8; box-shadow: 0 20px 55px #285a3018;
-  position: relative; z-index: 1; background: #d6e7d2;
-}
-.el-hero-circle img { width: 100%; height: 100%; object-fit: cover; }
-.el-hero-orbit { position: absolute; border: 1px solid #4a98554c; border-radius: 50%; }
-.el-orbit-one { width: 390px; height: 390px; }
-.el-orbit-two { width: 450px; height: 450px; border-style: dashed; }
-.el-floating-card {
-  position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px;
-  background: #fff; border: 1px solid #e8eee7; border-radius: 13px;
-  box-shadow: 0 12px 30px #163f2414; padding: 12px 14px;
-}
-.el-floating-card > span {
-  display: grid; place-items: center; width: 35px; height: 35px;
-  border-radius: 10px; color: var(--el-green); background: var(--el-green-light); font-size: 20px;
-}
-.el-floating-card div { display: flex; flex-direction: column; gap: 4px; }
-.el-floating-card strong { font-size: 11px; }
-.el-floating-card small { font-size: 10px; color: var(--el-muted); }
-.el-float-top { top: 47px; left: 0; }
-.el-float-bottom { right: 15px; bottom: 37px; }
-.el-decor { position: absolute; color: var(--el-green); }
-.el-decor-one { top: 30px; right: 65px; font-size: 33px; }
-.el-decor-two { bottom: 50px; left: 35px; font-size: 26px; }
-
-.el-benefit-row {
-  margin: 19px 0 42px; display: grid; grid-template-columns: repeat(4, 1fr);
-  background: #fff; border: 1px solid var(--el-line); border-radius: 16px;
-  box-shadow: 0 7px 25px #102b1606;
-}
-.el-benefit-row > div {
-  display: flex; align-items: center; gap: 12px; padding: 19px 20px;
-  min-width: 0; border-right: 1px solid var(--el-line);
-}
-.el-benefit-row > div:last-child { border-right: 0; }
-.el-benefit-icon {
-  display: grid; place-items: center; flex-shrink: 0;
-  width: 43px; height: 43px; border-radius: 13px;
-  background: var(--el-green-light); color: var(--el-green); font-size: 22px;
-}
-.el-benefit-row p { display: flex; flex-direction: column; gap: 5px; margin: 0; }
-.el-benefit-row strong { font-size: 12px; }
-.el-benefit-row small { color: var(--el-muted); font-size: 10px; }
-
-.el-category-section { margin: 0 0 38px; }
-.el-section-heading {
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 15px; margin-bottom: 18px;
-}
-.el-section-heading h2, .el-search-results h2 {
-  font-size: 23px; letter-spacing: -.6px; font-weight: 850; margin: 0;
-}
-.el-section-heading p { font-size: 12px; color: var(--el-muted); margin: 6px 0 0; }
-.el-text-link {
-  border: 0; background: transparent; color: var(--el-green);
-  font-size: 12px; font-weight: 800; white-space: nowrap;
-}
-.el-text-link span { margin-left: 5px; font-size: 16px; }
-.el-category-scroll {
-  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px;
-}
-.el-category-card {
-  border: 1px solid #edf0eb; background: #fff; border-radius: 15px;
-  min-width: 0; padding: 15px 8px 13px; display: flex;
-  flex-direction: column; align-items: center; gap: 11px;
-  color: var(--el-ink); transition: transform .2s, border-color .2s, box-shadow .2s;
-}
-.el-category-card:hover {
-  transform: translateY(-3px); border-color: #9fc9a6;
-  box-shadow: 0 8px 20px #1d71300c;
-}
-.el-category-card.is-active {
-  border-color: var(--el-green); background: #f1f8f0;
-  box-shadow: 0 0 0 1px var(--el-green) inset;
-}
-.el-category-icon {
-  display: grid; place-items: center; width: 62px; height: 62px;
-  border-radius: 17px; font-size: 29px; background: #f1f4ee;
-}
-.el-cat-sand { background: #f5eedc; }
-.el-cat-peach { background: #fff0e6; }
-.el-cat-mint { background: #e4f4e8; }
-.el-cat-blue { background: #e7f2fc; }
-.el-cat-yellow { background: #fff4cc; }
-.el-cat-pink { background: #fce9ef; }
-.el-cat-green { background: #e4f3df; }
-.el-all-category .el-category-icon { background: var(--el-green); color: #fff; }
-.el-category-card strong { font-size: 11px; text-align: center; line-height: 1.5; }
-
-.el-promo {
-  margin: 8px 0 45px; min-height: 210px; overflow: hidden; position: relative;
-  display: grid; grid-template-columns: 1fr .7fr; align-items: center;
-  border-radius: 20px; background: #18231b; color: #fff;
-}
-.el-promo-copy { padding: 31px 40px; position: relative; z-index: 2; }
-.el-promo-label {
-  color: #b5e7bf; font-size: 10px; font-weight: 800; letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.el-promo h2 { font-size: 27px; line-height: 1.35; letter-spacing: -.8px; margin: 10px 0; }
-.el-promo p { font-size: 12px; color: #c4d0c5; line-height: 1.8; margin: 0 0 16px; }
-.el-promo-copy button {
-  border: 0; border-radius: 9px; padding: 11px 15px;
-  color: #173f25; background: #c6edc9; font-size: 12px; font-weight: 800;
-}
-.el-promo-copy button span { margin-left: 12px; }
-.el-promo-visual { position: relative; height: 100%; min-height: 210px; display: grid; place-items: center; }
-.el-promo-visual img {
-  position: relative; z-index: 1; width: 210px; height: 180px;
-  object-fit: cover; border-radius: 45% 45% 22% 22%; transform: rotate(4deg);
-  box-shadow: 0 20px 40px #0003;
-}
-.el-promo-ring {
-  position: absolute; width: 220px; height: 220px; border-radius: 50%;
-  background: #31583a; right: 18%; top: 50%; transform: translateY(-50%);
-}
-.el-promo-leaf { position: absolute; z-index: 2; right: 15%; top: 25%; color: #c6edc9; font-size: 29px; }
-
-.el-products-anchor { scroll-margin-top: 25px; }
-.el-product-section { margin: 0 0 44px; }
-.el-product-grid {
-  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 15px;
-}
-.el-product-card {
-  min-width: 0; overflow: hidden; background: #fff;
-  border: 1px solid #e9ede8; border-radius: 15px;
-  transition: transform .2s, box-shadow .2s, border-color .2s;
-}
-.el-product-card:hover {
-  transform: translateY(-3px); border-color: #c8dfca;
-  box-shadow: 0 12px 28px #142d190c;
-}
-.el-product-image {
-  position: relative; aspect-ratio: 1 / .88; overflow: hidden; background: #f0f4ee;
-}
-.el-product-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s; }
-.el-product-card:hover .el-product-image img { transform: scale(1.04); }
-.el-image-fallback::after {
-  content: "EKHONI LAGBE"; position: absolute; inset: 0;
-  display: grid; place-items: center; color: var(--el-green);
-  font-size: 12px; font-weight: 900; letter-spacing: 2px;
-}
-.el-discount {
-  position: absolute; top: 9px; left: 9px; padding: 5px 7px;
-  border-radius: 6px; background: var(--el-green); color: #fff;
-  font-size: 10px; font-weight: 800;
-}
-.el-favorite {
-  position: absolute; top: 8px; right: 8px; width: 31px; height: 31px;
-  border: 1px solid #e9ece8; border-radius: 50%; background: #ffffffed;
-  color: #343b35; font-size: 21px; line-height: 1;
-}
-.el-favorite.is-favorite { color: #d43d58; }
-.el-image-label {
-  position: absolute; left: 8px; bottom: 8px; background: #ffffffed;
-  color: var(--el-green-dark); padding: 5px 7px; border-radius: 6px;
-  font-size: 9px; font-weight: 800;
-}
-.el-product-info { padding: 12px; }
-.el-product-info h3 {
-  font-size: 13px; line-height: 1.5; font-weight: 800;
-  margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.el-product-detail { margin: 0 0 10px; color: var(--el-muted); font-size: 10px; }
-.el-product-price { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 11px; }
-.el-product-price strong { color: var(--el-green-dark); font-size: 16px; font-weight: 900; }
-.el-product-price del { color: #9ba19b; font-size: 10px; }
-.el-add-button {
-  width: 100%; min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px;
-  border: 1px solid #b8d9bd; background: #f0f8ef; color: var(--el-green-dark);
-  border-radius: 9px; font-size: 11px; font-weight: 800; transition: background .2s;
-}
-.el-add-button:hover { background: #dff1df; }
-.el-add-button span { font-size: 17px; line-height: 1; }
-.el-quantity-control {
-  min-height: 36px; display: flex; align-items: center; justify-content: space-between;
-  border: 1px solid #b8d9bd; border-radius: 9px; overflow: hidden; color: var(--el-green-dark);
-}
-.el-quantity-control button {
-  width: 35px; height: 34px; border: 0; background: #eff8ef;
-  color: var(--el-green-dark); font-size: 20px; font-weight: 700;
-}
-.el-quantity-control span { font-size: 12px; font-weight: 800; }
-.el-empty-state {
-  padding: 35px 15px; text-align: center; border-radius: 14px;
-  background: #f8faf7; color: var(--el-muted); font-size: 13px;
-}
-.el-search-results {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px;
-  margin: 10px 0 22px;
-}
-.el-search-results > span {
-  color: var(--el-green); font-size: 10px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 1px;
-}
-.el-search-results h2 { font-size: 20px; }
-.el-search-results button {
-  margin-left: auto; border: 0; background: #f0f7ef; color: var(--el-green-dark);
-  padding: 8px 11px; border-radius: 8px; font-size: 11px; font-weight: 700;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths[name] || paths.grid}
+    </svg>
+  );
 }
 
-.el-bottom-callout {
-  margin: 8px 0 45px; padding: 23px 26px; border-radius: 16px;
-  background: #f0f7ef; border: 1px solid #e2eee0;
-  display: flex; align-items: center; gap: 16px;
-}
-.el-callout-icon {
-  flex-shrink: 0; width: 49px; height: 49px; border-radius: 15px;
-  background: var(--el-green); color: #fff; display: grid; place-items: center; font-size: 25px;
-}
-.el-bottom-callout > div:nth-child(2) { flex: 1; }
-.el-bottom-callout h2 { font-size: 16px; margin: 0 0 5px; }
-.el-bottom-callout p { color: var(--el-muted); font-size: 11px; margin: 0; }
-.el-bottom-callout > button {
-  border: 1px solid #c4ddc6; border-radius: 9px; padding: 10px 13px;
-  background: #fff; color: var(--el-green-dark); font-size: 11px; font-weight: 800;
-}
+function ProductCard({ product, quantity, favorite, onAdd, onRemove, onFavorite }) {
+  const [imageFailed, setImageFailed] = useState(false);
 
-.el-footer { background: #f8faf7; border-top: 1px solid var(--el-line); }
-.el-footer-main {
-  display: grid; grid-template-columns: 1.5fr .8fr .9fr 1fr; gap: 38px;
-  padding-top: 36px; padding-bottom: 35px;
-}
-.el-footer-brand { display: grid; grid-template-columns: 44px auto; align-content: start; column-gap: 10px; }
-.el-footer-brand img { width: 44px; height: 44px; object-fit: contain; grid-row: span 2; }
-.el-footer-brand strong { font-size: 16px; }
-.el-footer-brand p { grid-column: 1 / -1; max-width: 280px; color: var(--el-muted); font-size: 11px; line-height: 1.9; margin: 13px 0 0; }
-.el-footer-links, .el-footer-note { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-.el-footer-links > strong, .el-footer-note > strong { font-size: 12px; margin-bottom: 3px; }
-.el-footer-links button {
-  padding: 0; border: 0; background: transparent; color: var(--el-muted);
-  font-size: 11px; text-align: left;
-}
-.el-footer-links button:hover { color: var(--el-green); }
-.el-footer-note > span { font-size: 24px; }
-.el-footer-note p { margin: 0; font-size: 11px; color: var(--el-muted); }
-.el-footer-note small { font-size: 10px; color: #939a93; line-height: 1.6; }
-.el-footer-bottom { border-top: 1px solid #e8ece7; }
-.el-footer-bottom > div {
-  min-height: 44px; display: flex; justify-content: space-between; align-items: center;
-  gap: 12px; color: #7d857d; font-size: 10px;
-}
+  return (
+    <article className="el-product-card">
+      <div className="el-product-image-wrap">
+        {product.badge && (
+          <span className="el-product-badge">{product.badge}</span>
+        )}
 
-.el-mobile-bottom-nav { display: none; }
+        <button
+          type="button"
+          className={`el-favorite ${favorite ? "is-favorite" : ""}`}
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+          onClick={() => onFavorite(product.id)}
+        >
+          <Icon name="heart" size={19} />
+        </button>
 
-.el-cart-overlay {
-  position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: flex-end;
-  background: #111a13a1; animation: elFadeIn .2s ease;
-}
-.el-cart-drawer {
-  width: min(460px, 100%); height: 100%; background: #fff;
-  display: flex; flex-direction: column; box-shadow: -15px 0 45px #0002;
-  animation: elSlideIn .25s ease;
-}
-.el-cart-heading {
-  padding: 22px 22px 18px; border-bottom: 1px solid var(--el-line);
-  display: flex; align-items: center; justify-content: space-between; gap: 15px;
-}
-.el-cart-heading span { font-size: 11px; color: var(--el-green); font-weight: 800; }
-.el-cart-heading h2 { font-size: 21px; margin: 5px 0 0; }
-.el-cart-heading > button {
-  border: 0; background: #f2f5f1; color: #263328; border-radius: 50%;
-  width: 36px; height: 36px; font-size: 24px;
-}
-.el-cart-empty {
-  margin: auto; padding: 30px; text-align: center; max-width: 330px;
-}
-.el-cart-empty > span { font-size: 50px; }
-.el-cart-empty h3 { font-size: 18px; margin: 18px 0 8px; }
-.el-cart-empty p { color: var(--el-muted); font-size: 12px; line-height: 1.8; }
-.el-cart-empty button, .el-cart-summary > button {
-  border: 0; background: var(--el-green); color: #fff; border-radius: 10px;
-  padding: 13px 16px; font-size: 12px; font-weight: 800;
-}
-.el-cart-items { overflow-y: auto; flex: 1; padding: 8px 22px; }
-.el-cart-item {
-  display: flex; align-items: center; gap: 12px; padding: 15px 0;
-  border-bottom: 1px solid var(--el-line);
-}
-.el-cart-item > img {
-  width: 65px; height: 65px; object-fit: cover; border-radius: 10px; background: #f0f4ee;
-}
-.el-cart-item-info { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 0; }
-.el-cart-item-info strong { font-size: 12px; }
-.el-cart-item-info small { font-size: 10px; color: var(--el-muted); }
-.el-cart-item-info b { font-size: 13px; color: var(--el-green-dark); }
-.el-cart-item .el-quantity-control { flex-shrink: 0; }
-.el-cart-item .el-quantity-control button { width: 27px; }
-.el-cart-summary { padding: 18px 22px 24px; border-top: 1px solid var(--el-line); }
-.el-cart-summary > div { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 13px; font-size: 12px; }
-.el-cart-summary > div > span { color: var(--el-muted); }
-.el-cart-summary .el-cart-total { border-top: 1px dashed #dce4da; padding-top: 14px; font-size: 14px; font-weight: 800; }
-.el-cart-summary .el-cart-total strong { color: var(--el-green-dark); font-size: 18px; }
-.el-cart-summary > button { width: 100%; margin-top: 5px; }
-.el-cart-summary > small { display: block; text-align: center; font-size: 10px; color: #929991; margin-top: 12px; }
+        {!imageFailed ? (
+          <img
+            className="el-product-image"
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <div className="el-image-fallback">
+            <span>🌿</span>
+            <small>EKHONI LAGBE</small>
+          </div>
+        )}
+      </div>
 
-@keyframes elFadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes elSlideIn { from { transform: translateX(30px); } to { transform: translateX(0); } }
+      <div className="el-product-info">
+        <div className="el-product-weight">{product.weight}</div>
+        <h3>{product.name}</h3>
+        <p className="el-product-bn">{product.bn}</p>
 
-@media (min-width: 1500px) {
-  .el-shell { width: min(1380px, calc(100% - 80px)); }
-  .el-header-main { min-height: 96px; }
-  .el-product-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
-  .el-product-info { padding: 15px; }
-  .el-hero { min-height: 405px; }
-  .el-hero-copy { padding-left: 65px; }
+        <div className="el-product-rating">
+          <span>★</span> {product.rating}
+          <span className="el-rating-separator">·</span>
+          <span className="el-stock">In stock</span>
+        </div>
+
+        <div className="el-product-bottom">
+          <div className="el-price">
+            <strong>{money(product.price)}</strong>
+            {product.oldPrice && (
+              <del>{money(product.oldPrice)}</del>
+            )}
+          </div>
+
+          {quantity > 0 ? (
+            <div className="el-quantity-control">
+              <button
+                type="button"
+                aria-label="Remove one"
+                onClick={() => onRemove(product.id)}
+              >
+                <Icon name="minus" size={15} />
+              </button>
+              <span>{quantity}</span>
+              <button
+                type="button"
+                aria-label="Add one"
+                onClick={() => onAdd(product.id)}
+              >
+                <Icon name="plus" size={15} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="el-add-button"
+              onClick={() => onAdd(product.id)}
+            >
+              <Icon name="plus" size={17} />
+              <span>Add</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
 }
 
-@media (max-width: 1120px) {
-  .el-header-main { gap: 14px; }
-  .el-address { display: none; }
-  .el-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .el-category-scroll { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .el-benefit-row > div { padding: 16px 12px; }
-  .el-benefit-row strong { font-size: 11px; }
-  .el-footer-main { gap: 24px; }
+function ProductSection({
+  title,
+  subtitle,
+  items,
+  cart,
+  favorites,
+  onAdd,
+  onRemove,
+  onFavorite,
+  onViewAll,
+  variant = "",
+}) {
+  if (!items.length) return null;
+
+  return (
+    <section className={`el-section ${variant}`}>
+      <div className="el-section-heading">
+        <div>
+          <h2>{title}</h2>
+          {subtitle && <p>{subtitle}</p>}
+        </div>
+        <button type="button" className="el-view-all" onClick={onViewAll}>
+          View all <Icon name="arrow" size={16} />
+        </button>
+      </div>
+
+      <div className="el-product-rail">
+        {items.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            quantity={cart[product.id] || 0}
+            favorite={favorites.includes(product.id)}
+            onAdd={onAdd}
+            onRemove={onRemove}
+            onFavorite={onFavorite}
+          />
+        ))}
+      </div>
+    </section>
+  );
 }
 
-@media (max-width: 760px) {
-  .el-home { padding-bottom: 69px; }
-  .el-shell { width: calc(100% - 28px); }
-  .el-strip-inner { min-height: 30px; font-size: 10px; }
-  .el-strip-right { font-size: 9px; }
-  .el-header-main { min-height: 67px; gap: 10px; }
-  .el-brand { gap: 7px; }
-  .el-brand img { width: 39px; height: 39px; }
-  .el-brand strong { font-size: 15px; }
-  .el-brand small { font-size: 8px; letter-spacing: 1.5px; }
-  .el-mobile-menu {
-    display: block; flex-shrink: 0; padding: 5px; border: 0;
-    background: transparent; color: var(--el-ink); font-size: 22px;
-  }
-  .el-header-main > .el-search { display: none; }
-  .el-header-actions { margin-left: auto; gap: 10px; }
-  .el-header-actions .el-icon-action:first-child { display: none; }
-  .el-icon-action { min-width: 35px; }
-  .el-icon-action > span { font-size: 20px; }
-  .el-icon-action small { font-size: 9px; }
-  .el-account-action { display: none; }
-  .el-mobile-search {
-    display: none; padding: 0 14px 12px; gap: 8px;
-  }
-  .el-mobile-search.is-open { display: flex; }
-  .el-mobile-search .el-search { height: 42px; }
-  .el-mobile-search > button {
-    flex-shrink: 0; border: 1px solid #dfe8e0; border-radius: 9px;
-    background: #fff; padding: 0 9px; color: var(--el-green-dark); font-size: 10px;
-  }
+export default function Home({ onNavigate = () => {} }) {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [cart, setCart] = useState({});
+  const [favorites, setFavorites] = useState([]);
+  const [activeNav, setActiveNav] = useState("Home");
+  const [address, setAddress] = useState("Kamrangirchar, Dhaka");
+  const [showAddress, setShowAddress] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [toast, setToast] = useState("");
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
-  .el-hero {
-    margin-top: 15px; min-height: 0; grid-template-columns: 1fr;
-    border-radius: 20px;
-  }
-  .el-hero-copy { padding: 25px 21px 10px; }
-  .el-eyebrow { padding: 7px 10px; font-size: 10px; }
-  .el-hero h1 { font-size: clamp(34px, 9vw, 45px); margin: 15px 0 9px; letter-spacing: -1.5px; }
-  .el-hero-copy > p { font-size: 12px; line-height: 1.8; margin-bottom: 15px; max-width: 360px; }
-  .el-hero-button { padding: 12px 15px; font-size: 12px; }
-  .el-hero-trust { margin-top: 13px; gap: 14px; }
-  .el-hero-trust span { font-size: 10px; }
-  .el-hero-art { min-height: 235px; margin-top: 0; overflow: hidden; }
-  .el-hero-circle { width: 195px; border-width: 8px; }
-  .el-orbit-one { width: 240px; height: 240px; }
-  .el-orbit-two { width: 280px; height: 280px; }
-  .el-floating-card { padding: 8px 10px; gap: 7px; border-radius: 10px; }
-  .el-floating-card > span { width: 28px; height: 28px; font-size: 16px; }
-  .el-floating-card strong { font-size: 9px; }
-  .el-floating-card small { font-size: 8px; }
-  .el-float-top { top: 28px; left: 6px; }
-  .el-float-bottom { bottom: 19px; right: 4px; }
-  .el-decor-one { top: 18px; right: 30px; font-size: 23px; }
-  .el-decor-two { bottom: 28px; left: 18px; font-size: 20px; }
+  const cartCount = Object.values(cart).reduce((sum, n) => sum + n, 0);
 
-  .el-benefit-row {
-    margin: 12px 0 30px; grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-radius: 13px;
-  }
-  .el-benefit-row > div { padding: 12px 10px; gap: 9px; }
-  .el-benefit-row > div:nth-child(2) { border-right: 0; }
-  .el-benefit-row > div:nth-child(-n+2) { border-bottom: 1px solid var(--el-line); }
-  .el-benefit-icon { width: 35px; height: 35px; font-size: 18px; border-radius: 11px; }
-  .el-benefit-row strong { font-size: 10px; }
-  .el-benefit-row small { font-size: 9px; }
+  const cartItems = useMemo(
+    () =>
+      products
+        .filter((p) => cart[p.id] > 0)
+        .map((p) => ({ ...p, quantity: cart[p.id] })),
+    [cart]
+  );
 
-  .el-category-section { margin-bottom: 29px; }
-  .el-section-heading { margin-bottom: 13px; gap: 8px; }
-  .el-section-heading h2, .el-search-results h2 { font-size: 19px; }
-  .el-section-heading p { font-size: 10px; line-height: 1.6; }
-  .el-text-link { font-size: 10px; }
-  .el-category-scroll {
-    display: flex; gap: 10px; overflow-x: auto; padding: 2px 1px 10px;
-    margin-right: -14px; scrollbar-width: none; scroll-snap-type: x proximity;
-  }
-  .el-category-scroll::-webkit-scrollbar { display: none; }
-  .el-category-card {
-    flex: 0 0 94px; padding: 11px 6px; border-radius: 12px;
-    gap: 8px; scroll-snap-align: start;
-  }
-  .el-category-icon { width: 48px; height: 48px; border-radius: 13px; font-size: 24px; }
-  .el-category-card strong { font-size: 10px; }
+  const cartTotal = cartItems.reduce(
+    (sum, p) => sum + p.price * p.quantity,
+    0
+  );
 
-  .el-promo { margin: 4px 0 32px; min-height: 190px; grid-template-columns: 1.15fr .85fr; border-radius: 16px; }
-  .el-promo-copy { padding: 20px 0 20px 17px; }
-  .el-promo-label { font-size: 8px; letter-spacing: .5px; }
-  .el-promo h2 { font-size: 20px; margin: 9px 0; letter-spacing: -.5px; }
-  .el-promo p { font-size: 10px; line-height: 1.6; margin-bottom: 12px; }
-  .el-promo-copy button { font-size: 10px; padding: 10px; }
-  .el-promo-visual { min-height: 190px; overflow: hidden; }
-  .el-promo-visual img { width: 125px; height: 135px; border-radius: 35%; }
-  .el-promo-ring { width: 150px; height: 150px; right: -7%; }
-  .el-promo-leaf { right: 7%; top: 16%; font-size: 21px; }
+  const filteredProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
 
-  .el-product-section { margin-bottom: 31px; }
-  .el-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
-  .el-product-card { border-radius: 13px; }
-  .el-product-image { aspect-ratio: 1 / .83; }
-  .el-product-info { padding: 10px; }
-  .el-product-info h3 { font-size: 12px; }
-  .el-product-detail { margin-bottom: 8px; }
-  .el-product-price { gap: 6px; margin-bottom: 9px; }
-  .el-product-price strong { font-size: 15px; }
-  .el-add-button { min-height: 35px; }
-  .el-quantity-control, .el-quantity-control button { min-height: 34px; height: 34px; }
-  .el-quantity-control button { width: 34px; }
-  .el-discount { top: 7px; left: 7px; font-size: 9px; }
-  .el-favorite { width: 29px; height: 29px; font-size: 19px; }
-  .el-image-label { font-size: 8px; }
+    return products.filter((p) => {
+      const matchesSearch =
+        !term ||
+        p.name.toLowerCase().includes(term) ||
+        p.bn.includes(term) ||
+        p.category.toLowerCase().includes(term);
 
-  .el-search-results { gap: 8px; }
-  .el-search-results h2 { width: 100%; order: 2; }
-  .el-search-results button { margin-left: 0; order: 3; }
-  .el-search-results > span { order: 1; }
-  .el-bottom-callout { padding: 15px; margin: 0 0 30px; gap: 10px; }
-  .el-callout-icon { width: 38px; height: 38px; border-radius: 11px; font-size: 20px; }
-  .el-bottom-callout h2 { font-size: 12px; line-height: 1.6; }
-  .el-bottom-callout p { font-size: 9px; line-height: 1.6; }
-  .el-bottom-callout > button { padding: 9px; font-size: 9px; }
+      const matchesCategory =
+        selectedCategory === "All" || p.category === selectedCategory;
 
-  .el-footer-main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 27px 18px; padding-top: 27px; padding-bottom: 25px; }
-  .el-footer-brand { grid-column: 1 / -1; }
-  .el-footer-brand p { max-width: 340px; }
-  .el-footer-links, .el-footer-note { gap: 10px; }
-  .el-footer-links > strong, .el-footer-note > strong { font-size: 11px; }
-  .el-footer-links button, .el-footer-note p { font-size: 10px; }
-  .el-footer-note small { font-size: 9px; }
-  .el-footer-bottom > div { min-height: 45px; font-size: 8px; }
+      return matchesSearch && matchesCategory;
+    });
+  }, [search, selectedCategory]);
 
-  .el-mobile-bottom-nav {
-    position: fixed; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: stretch; left: 0; right: 0; bottom: 0; z-index: 100;
-    padding: 6px 5px max(6px, env(safe-area-inset-bottom));
-    background: #fffffffa; border-top: 1px solid #e6ebe5;
-    box-shadow: 0 -6px 20px #1a361008; backdrop-filter: blur(12px);
-  }
-  .el-mobile-bottom-nav button {
-    border: 0; background: transparent; color: #777f78;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    min-width: 0; padding: 4px 0;
-  }
-  .el-mobile-bottom-nav button > span { font-size: 21px; line-height: 1.15; }
-  .el-mobile-bottom-nav button > small { font-size: 9px; }
-  .el-mobile-bottom-nav button.is-active { color: var(--el-green); }
-  .el-mobile-bottom-nav button.is-active > small { font-weight: 900; }
+  const notify = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2300);
+  };
 
-  .el-cart-drawer { width: 100%; }
-  .el-cart-heading { padding: 17px; }
-  .el-cart-items { padding: 6px 16px; }
-  .el-cart-summary { padding: 15px 16px max(18px, env(safe-area-inset-bottom)); }
-}
+  const addToCart = (id) => {
+    setCart((previous) => ({ ...previous, [id]: (previous[id] || 0) + 1 }));
+    const product = products.find((p) => p.id === id);
+    notify(`${product?.name || "Product"} added to cart`);
+  };
 
-@media (max-width: 370px) {
-  .el-shell { width: calc(100% - 22px); }
-  .el-strip-right { max-width: 125px; text-align: right; }
-  .el-header-main { gap: 6px; }
-  .el-brand img { width: 33px; height: 33px; }
-  .el-brand strong { font-size: 13px; }
-  .el-brand small { font-size: 7px; }
-  .el-header-actions { gap: 6px; }
-  .el-hero-copy { padding-left: 16px; padding-right: 16px; }
-  .el-hero h1 { font-size: 32px; }
-  .el-category-card { flex-basis: 85px; }
-  .el-promo h2 { font-size: 17px; }
-  .el-promo-copy { padding-left: 13px; }
-  .el-product-grid { gap: 8px; }
-  .el-product-info { padding: 8px; }
-  .el-product-info h3 { font-size: 11px; }
-  .el-product-price strong { font-size: 14px; }
-  .el-add-button { font-size: 10px; }
+  const removeFromCart = (id) => {
+    setCart((previous) => {
+      const next = { ...previous };
+      if ((next[id] || 0) <= 1) delete next[id];
+      else next[id] -= 1;
+      return next;
+    });
+  };
+
+  const toggleFavorite = (id) => {
+    setFavorites((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id]
+    );
+  };
+
+  const openCategory = (name) => {
+    setSelectedCategory(name);
+    setSearch("");
+    document.getElementById("el-product-results")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const openNav = (label) => {
+    setActiveNav(label);
+
+    if (label === "Home") {
+      setSelectedCategory("All");
+      setSearch("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (label === "Categories") {
+      document.getElementById("el-categories")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+
+    if (label === "Popular") {
+      document.getElementById("el-popular")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+
+    if (label === "Orders") {
+      onNavigate("orders");
+      return;
+    }
+
+    if (label === "Account") {
+      onNavigate("account");
+    }
+  };
+
+  const shownCategories = showAllCategories
+    ? categories
+    : categories.slice(0, 8);
+
+  const popularProducts = products.slice(0, 8);
+  const newProducts = products.filter((p) => p.badge === "New");
+  const dealProducts = products.filter((p) => p.oldPrice);
+  const recommendationProducts = products.slice(4, 10);
+
+  return (
+    <div className="el-home">
+      <div className="el-top-strip">
+        <div className="el-container el-top-strip-inner">
+          <span>
+            <Icon name="clock" size={14} />
+            Fast grocery delivery in 15 minutes
+          </span>
+          <span className="el-area-note">Currently serving Kamrangirchar</span>
+        </div>
+      </div>
+
+      <header className="el-header">
+        <div className="el-container el-header-main">
+          <button
+            type="button"
+            className="el-brand"
+            onClick={() => openNav("Home")}
+            aria-label="EKHONI LAGBE Home"
+          >
+            <img src="/logo.png" alt="EKHONI LAGBE logo" />
+            <span>
+              <strong>EKHONI LAGBE</strong>
+              <small>15-Minute Grocery Delivery</small>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="el-address"
+            onClick={() => setShowAddress(true)}
+          >
+            <span className="el-address-icon">
+              <Icon name="pin" size={19} />
+            </span>
+            <span className="el-address-copy">
+              <small>Deliver to</small>
+              <strong>{address}</strong>
+            </span>
+            <span className="el-chevron">⌄</span>
+          </button>
+
+          <div className="el-header-actions">
+            <button
+              type="button"
+              className="el-icon-button"
+              aria-label="Notifications"
+              onClick={() => setShowNotifications(true)}
+            >
+              <Icon name="bell" size={21} />
+              <i />
+            </button>
+            <button
+              type="button"
+              className="el-cart-button"
+              onClick={() => setShowCart(true)}
+            >
+              <Icon name="cart" size={21} />
+              <span>Cart</span>
+              {cartCount > 0 && <b>{cartCount}</b>}
+            </button>
+          </div>
+        </div>
+
+        <div className="el-container el-search-row">
+          <div className="el-search-box">
+            <Icon name="search" size={21} />
+            <input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setSelectedCategory("All");
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  document.getElementById("el-product-results")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }
+              }}
+              placeholder="Search rice, eggs, oil and more..."
+              aria-label="Search groceries"
+            />
+            {search && (
+              <button
+                type="button"
+                className="el-clear-search"
+                aria-label="Clear search"
+                onClick={() => setSearch("")}
+              >
+                <Icon name="close" size={17} />
+              </button>
+            )}
+            <span className="el-search-shortcut">⌕</span>
+          </div>
+          <button
+            type="button"
+            className="el-search-mobile-button"
+            aria-label="Search"
+            onClick={() =>
+              document.querySelector(".el-search-box input")?.focus()
+            }
+          >
+            <Icon name="search" size={21} />
+          </button>
+        </div>
+      </header>
+
+      <main className="el-container el-main">
+        <section className="el-hero">
+          <div className="el-hero-copy">
+            <div className="el-hero-pill">
+              <span className="el-live-dot" />
+              YOUR DAILY GROCERY PARTNER
+            </div>
+            <h1>
+              Your groceries.
+              <br />
+              <span>At your door in 15.</span>
+            </h1>
+            <p>
+              Everyday essentials, fresh picks and pantry favourites—delivered
+              quickly to your home.
+            </p>
+
+            <div className="el-hero-perks">
+              <span><b>✓</b> Daily essentials</span>
+              <span><b>✓</b> Easy ordering</span>
+              <span><b>✓</b> Fast delivery</span>
+            </div>
+
+            <button
+              type="button"
+              className="el-hero-button"
+              onClick={() =>
+                document.getElementById("el-categories")?.scrollIntoView({
+                  behavior: "smooth",
+                })
+              }
+            >
+              Start shopping <Icon name="arrow" size={18} />
+            </button>
+
+            <div className="el-hero-delivery">
+              <span className="el-delivery-clock"><Icon name="clock" size={18} /></span>
+              <span>
+                <strong>15-minute delivery promise</strong>
+                <small>Service currently available in Kamrangirchar</small>
+              </span>
+            </div>
+          </div>
+
+          <div className="el-hero-art" aria-label="Grocery delivery illustration">
+            <div className="el-art-glow" />
+            <div className="el-art-circle el-art-circle-one" />
+            <div className="el-art-circle el-art-circle-two" />
+            <div className="el-art-leaf el-art-leaf-one" />
+            <div className="el-art-leaf el-art-leaf-two" />
+            <div className="el-art-card el-art-card-top">
+              <span>⚡</span>
+              <div><strong>Fast delivery</strong><small>Right to your hands</small></div>
+            </div>
+            <div className="el-grocery-bag">
+              <div className="el-bag-handle" />
+              <div className="el-bag-body">
+                <div className="el-bag-produce produce-one">🥬</div>
+                <div className="el-bag-produce produce-two">🥕</div>
+                <div className="el-bag-produce produce-three">🥦</div>
+                <div className="el-bag-produce produce-four">🍎</div>
+                <div className="el-bag-logo">EL</div>
+              </div>
+            </div>
+            <div className="el-art-card el-art-card-bottom">
+              <span className="el-art-check">✓</span>
+              <div><strong>Fresh picks</strong><small>For your everyday needs</small></div>
+            </div>
+            <div className="el-art-caption">FRESH · FAST · EASY</div>
+          </div>
+        </section>
+
+        <section className="el-service-ribbon">
+          <div><span>01</span><strong>Everyday essentials</strong></div>
+          <i />
+          <div><span>02</span><strong>Simple shopping</strong></div>
+          <i />
+          <div><span>03</span><strong>Fast local delivery</strong></div>
+        </section>
+
+        <section className="el-section el-categories-section" id="el-categories">
+          <div className="el-section-heading">
+            <div>
+              <span className="el-eyebrow">FIND WHAT YOU NEED</span>
+              <h2>Shop by category</h2>
+              <p>Your daily essentials, all in one place.</p>
+            </div>
+            <button
+              type="button"
+              className="el-view-all"
+              onClick={() => setShowAllCategories((value) => !value)}
+            >
+              {showAllCategories ? "Show less" : "View all"}
+              <Icon name="arrow" size={16} />
+            </button>
+          </div>
+
+          <div className="el-category-grid">
+            {shownCategories.map((category) => (
+              <button
+                type="button"
+                className={`el-category-card ${
+                  selectedCategory === category.name ? "is-selected" : ""
+                }`}
+                key={category.name}
+                onClick={() => openCategory(category.name)}
+              >
+                <span className="el-category-icon">{category.icon}</span>
+                <strong>{category.name}</strong>
+                <small>{category.bn}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="el-offer-banner">
+          <div className="el-offer-stamp">DAILY<br />SAVINGS</div>
+          <div className="el-offer-copy">
+            <span>SMART PICKS. SMARTER SAVINGS.</span>
+            <h2>Good groceries.<br />Better everyday value.</h2>
+            <p>Explore selected offers on everyday essentials.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory("All");
+                setSearch("");
+                document.getElementById("el-deals")?.scrollIntoView({
+                  behavior: "smooth",
+                });
+              }}
+            >
+              Explore offers <Icon name="arrow" size={17} />
+            </button>
+          </div>
+          <div className="el-offer-visual">
+            <div className="el-offer-orbit" />
+            <div className="el-offer-product el-offer-product-one">🥬</div>
+            <div className="el-offer-product el-offer-product-two">🥕</div>
+            <div className="el-offer-product el-offer-product-three">🥑</div>
+            <div className="el-offer-spark">✳</div>
+          </div>
+        </section>
+
+        <ProductSection
+          title="Popular products"
+          subtitle="Everyday favourites customers love."
+          items={popularProducts}
+          cart={cart}
+          favorites={favorites}
+          onAdd={addToCart}
+          onRemove={removeFromCart}
+          onFavorite={toggleFavorite}
+          onViewAll={() => openNav("Popular")}
+          variant="el-popular-section"
+        />
+
+        <section className="el-deals-section el-section" id="el-deals">
+          <div className="el-section-heading">
+            <div>
+              <span className="el-eyebrow">LIMITED SELECTION</span>
+              <h2>Offers & deals</h2>
+              <p>Selected products with a reduced demo price.</p>
+            </div>
+            <span className="el-deal-mark">SAVE MORE</span>
+          </div>
+
+          <div className="el-deals-grid">
+            {dealProducts.slice(0, 4).map((product) => (
+              <div className="el-deal-card" key={product.id}>
+                <div className="el-deal-icon">%</div>
+                <div className="el-deal-content">
+                  <small>{product.category}</small>
+                  <strong>{product.name}</strong>
+                  <span>
+                    {money(product.price)}
+                    <del>{money(product.oldPrice)}</del>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  aria-label={`Add ${product.name}`}
+                  onClick={() => addToCart(product.id)}
+                >
+                  <Icon name="plus" size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <ProductSection
+          title="Recently viewed"
+          subtitle="Keep exploring products from your list."
+          items={products.slice(2, 8)}
+          cart={cart}
+          favorites={favorites}
+          onAdd={addToCart}
+          onRemove={removeFromCart}
+          onFavorite={toggleFavorite}
+          onViewAll={() => {
+            setSearch("");
+            setSelectedCategory("All");
+            document.getElementById("el-product-results")?.scrollIntoView({
+              behavior: "smooth",
+            });
+          }}
+        />
+
+        <ProductSection
+          title="Recommended for you"
+          subtitle="A few useful picks to explore."
+          items={recommendationProducts}
+          cart={cart}
+          favorites={favorites}
+          onAdd={addToCart}
+          onRemove={removeFromCart}
+          onFavorite={toggleFavorite}
+          onViewAll={() => openNav("Popular")}
+          variant="el-recommended-section"
+        />
+
+        <section className="el-reorder-banner">
+          <div className="el-reorder-icon"><Icon name="receipt" size={25} /></div>
+          <div>
+            <span className="el-eyebrow">SAVE YOUR TIME</span>
+            <h2>Need your regular groceries?</h2>
+            <p>Buy Again will be personalised when your order history is connected.</p>
+          </div>
+          <button type="button" onClick={() => onNavigate("orders")}>
+            My orders <Icon name="arrow" size={17} />
+          </button>
+        </section>
+
+        <ProductSection
+          title="New arrivals"
+          subtitle="Take a look at newly featured products."
+          items={newProducts}
+          cart={cart}
+          favorites={favorites}
+          onAdd={addToCart}
+          onRemove={removeFromCart}
+          onFavorite={toggleFavorite}
+          onViewAll={() => openNav("Popular")}
+        />
+
+        <section className="el-product-results" id="el-product-results">
+          <div className="el-section-heading">
+            <div>
+              <span className="el-eyebrow">
+                {search ? "SEARCH RESULTS" : "BROWSE PRODUCTS"}
+              </span>
+              <h2>
+                {search
+                  ? `Results for “${search}”`
+                  : selectedCategory === "All"
+                  ? "Explore groceries"
+                  : selectedCategory}
+              </h2>
+              <p>{filteredProducts.length} products in this demo catalogue.</p>
+            </div>
+            {(search || selectedCategory !== "All") && (
+              <button
+                type="button"
+                className="el-view-all"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("All");
+                }}
+              >
+                Clear filters <Icon name="close" size={16} />
+              </button>
+            )}
+          </div>
+
+          <div className="el-filter-chips">
+            {["All", ...categories.map((category) => category.name)].map((name) => (
+              <button
+                type="button"
+                key={name}
+                className={selectedCategory === name ? "active" : ""}
+                onClick={() => setSelectedCategory(name)}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+
+          {filteredProducts.length > 0 ? (
+            <div className="el-product-grid">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  quantity={cart[product.id] || 0}
+                  favorite={favorites.includes(product.id)}
+                  onAdd={addToCart}
+                  onRemove={removeFromCart}
+                  onFavorite={toggleFavorite}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="el-empty-state">
+              <span>⌕</span>
+              <h3>No products found</h3>
+              <p>Try another product name or select a different category.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("All");
+                }}
+              >
+                Show all products
+              </button>
+            </div>
+          )}
+        </section>
+
+        <section className="el-trust-row">
+          <div><span>✓</span><p><strong>Easy ordering</strong><small>Simple shopping experience</small></p></div>
+          <div><span>◷</span><p><strong>Fast local delivery</strong><small>15-minute service promise</small></p></div>
+          <div><span>♡</span><p><strong>Everyday essentials</strong><small>Your daily grocery needs</small></p></div>
+        </section>
+      </main>
+
+      <footer className="el-footer">
+        <div className="el-container el-footer-main">
+          <div className="el-footer-brand">
+            <img src="/logo.png" alt="EKHONI LAGBE logo" />
+            <div>
+              <strong>EKHONI LAGBE</strong>
+              <small>15-Minute Delivery — Right to Your Hands</small>
+            </div>
+          </div>
+          <p>Everyday groceries, made easier.</p>
+        </div>
+        <div className="el-footer-bottom">
+          © {new Date().getFullYear()} EKHONI LAGBE · Serving Kamrangirchar, Dhaka
+        </div>
+      </footer>
+
+      <nav className="el-bottom-nav" aria-label="Main navigation">
+        {[
+          { label: "Home", icon: "home" },
+          { label: "Categories", icon: "grid" },
+          { label: "Popular", icon: "heart" },
+          { label: "Orders", icon: "receipt" },
+          { label: "Account", icon: "user" },
+        ].map((item) => (
+          <button
+            type="button"
+            key={item.label}
+            className={activeNav === item.label ? "active" : ""}
+            onClick={() => openNav(item.label)}
+          >
+            <span className="el-nav-icon"><Icon name={item.icon} size={21} /></span>
+            <small>{item.label}</small>
+          </button>
+        ))}
+      </nav>
+
+      {toast && <div className="el-toast">{toast}</div>}
+
+      {showAddress && (
+        <div className="el-modal-backdrop" onClick={() => setShowAddress(false)}>
+          <section className="el-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="el-modal-heading">
+              <div><span className="el-eyebrow">DELIVERY LOCATION</span><h2>Where should we deliver?</h2></div>
+              <button type="button" onClick={() => setShowAddress(false)}><Icon name="close" /></button>
+            </div>
+            <p className="el-modal-note">The current service area is Kamrangirchar only.</p>
+            <label className="el-field-label" htmlFor="el-address-input">Delivery address</label>
+            <input
+              id="el-address-input"
+              className="el-modal-input"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="Enter your area or address"
+            />
+            <button
+              type="button"
+              className="el-modal-primary"
+              onClick={() => {
+                setShowAddress(false);
+                notify("Delivery address updated for this session");
+              }}
+            >
+              Save address
+            </button>
+          </section>
+        </div>
+      )}
+
+      {showNotifications && (
+        <div className="el-modal-backdrop" onClick={() => setShowNotifications(false)}>
+          <section className="el-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="el-modal-heading">
+              <div><span className="el-eyebrow">UPDATES</span><h2>Notifications</h2></div>
+              <button type="button" onClick={() => setShowNotifications(false)}><Icon name="close" /></button>
+            </div>
+            <div className="el-notification-empty">
+              <span><Icon name="bell" size={26} /></span>
+              <strong>You’re all caught up</strong>
+              <p>Order updates and offers will appear here when notifications are connected.</p>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {showCart && (
+        <div className="el-modal-backdrop el-cart-backdrop" onClick={() => setShowCart(false)}>
+          <section className="el-cart-drawer" onClick={(event) => event.stopPropagation()}>
+            <div className="el-modal-heading">
+              <div><span className="el-eyebrow">YOUR BASKET</span><h2>My cart ({cartCount})</h2></div>
+              <button type="button" onClick={() => setShowCart(false)}><Icon name="close" /></button>
+            </div>
+
+            {cartItems.length ? (
+              <>
+                <div className="el-cart-items">
+                  {cartItems.map((item) => (
+                    <div className="el-cart-item" key={item.id}>
+                      <div className="el-cart-item-picture">🛍️</div>
+                      <div className="el-cart-item-info">
+                        <strong>{item.name}</strong>
+                        <small>{item.weight}</small>
+                        <b>{money(item.price * item.quantity)}</b>
+                      </div>
+                      <div className="el-quantity-control">
+                        <button type="button" onClick={() => removeFromCart(item.id)}><Icon name="minus" size={14} /></button>
+                        <span>{item.quantity}</span>
+                        <button type="button" onClick={() => addToCart(item.id)}><Icon name="plus" size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="el-cart-summary">
+                  <div><span>Subtotal</span><strong>{money(cartTotal)}</strong></div>
+                  <small>Delivery fee and final total will be calculated at checkout when connected.</small>
+                  <button
+                    type="button"
+                    className="el-modal-primary"
+                    onClick={() => {
+                      setShowCart(false);
+                      notify("Checkout will be connected in a later step");
+                    }}
+                  >
+                    Continue to checkout <Icon name="arrow" size={17} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="el-notification-empty">
+                <span><Icon name="cart" size={28} /></span>
+                <strong>Your cart is waiting</strong>
+                <p>Add your everyday grocery essentials to get started.</p>
+                <button type="button" className="el-modal-primary" onClick={() => setShowCart(false)}>
+                  Continue shopping
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
+      )}
+    </div>
+  );
 }
