@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import Home from "./Home";
+import CustomerHome from "./CustomerHome";
 
 const SERVICE_AREA = "Kamrangirchar";
 
@@ -17,7 +17,6 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [address, setAddress] = useState("");
 
-  // Login form
   const [loginMobile, setLoginMobile] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
@@ -51,9 +50,10 @@ function App() {
       return;
     }
 
-    // Prototype only: real OTP sending is not connected yet.
-    setAccountStep(2);
-    alert("Demo mode: OTP sending is not connected yet.");
+    alert(
+      "মোবাইল OTP সার্ভিস এখনো সংযুক্ত করা হয়নি। " +
+      "আসল OTP যাচাই চালু হলে আপনি পরবর্তী ধাপে যেতে পারবেন।"
+    );
   };
 
   const handleVerifyOtp = () => {
@@ -62,10 +62,10 @@ function App() {
       return;
     }
 
-    // Prototype only: this does not verify a real OTP.
-    setOtpVerified(true);
-    setAccountStep(3);
-    alert("Demo mode: OTP accepted for this prototype.");
+    alert(
+      "আসল OTP যাচাই ব্যবস্থা এখনো সংযুক্ত করা হয়নি। " +
+      "সার্ভিসটি সংযুক্ত করার পর অ্যাকাউন্ট যাচাই করা যাবে।"
+    );
   };
 
   const handleCreateAccount = () => {
@@ -79,8 +79,7 @@ function App() {
       return;
     }
 
-    alert("Demo account created! Real account storage is not connected yet.");
-    setPage("home");
+    alert("অ্যাকাউন্ট তৈরির সার্ভিস এখনো সংযুক্ত করা হয়নি।");
   };
 
   const handleLogin = () => {
@@ -94,24 +93,21 @@ function App() {
       return;
     }
 
-    // Prototype only: no real account/password verification yet.
-    alert("Demo login: real account authentication is not connected yet.");
-    setPage("home");
+    alert("লগইন সার্ভিস এখনো সংযুক্ত করা হয়নি।");
   };
 
-  const handleHomeNavigate = (destination) => {
+  const handleHomeNavigate = (destination, data) => {
     if (destination === "home") {
       setPage("home");
     } else if (destination === "account") {
       openLogin();
     } else {
-      alert("এই স্ক্রিনটি পরবর্তী ধাপে তৈরি হবে।");
+      alert("এই স্ক্রিনটি পরবর্তী ধাপে যুক্ত করা হবে।");
     }
   };
 
   return (
     <div className="app">
-
       {/* WELCOME PAGE */}
 
       {page === "welcome" && (
@@ -203,14 +199,11 @@ function App() {
                 </div>
               </div>
 
-              {/* Grocery Visual */}
-
               <div className="hero-visual">
                 <div className="visual-glow"></div>
 
                 <div className="grocery-basket">
                   <div className="basket-handle"></div>
-
                   <div className="grocery-item item-one">🥬</div>
                   <div className="grocery-item item-two">🥛</div>
                   <div className="grocery-item item-three">🍎</div>
@@ -226,7 +219,6 @@ function App() {
 
                 <div className="floating-card fast-card">
                   <span>⚡</span>
-
                   <div>
                     <strong>15 min</strong>
                     <small>Fast delivery</small>
@@ -235,7 +227,6 @@ function App() {
 
                 <div className="floating-card fresh-card">
                   <span>✓</span>
-
                   <div>
                     <strong>Fresh &amp; Easy</strong>
                     <small>Everyday groceries</small>
@@ -247,7 +238,6 @@ function App() {
             <section className="benefits">
               <div className="benefit">
                 <span>⚡</span>
-
                 <div>
                   <strong>Fast Delivery</strong>
                   <small>15-minute grocery delivery</small>
@@ -256,7 +246,6 @@ function App() {
 
               <div className="benefit">
                 <span>🛒</span>
-
                 <div>
                   <strong>Everyday Grocery</strong>
                   <small>Your daily essentials in one place</small>
@@ -265,7 +254,6 @@ function App() {
 
               <div className="benefit">
                 <span>📍</span>
-
                 <div>
                   <strong>Kamrangirchar</strong>
                   <small>Currently serving this area</small>
@@ -276,10 +264,7 @@ function App() {
 
           <footer className="footer">
             <div>© {new Date().getFullYear()} EKHONI LAGBE</div>
-
-            <div>
-              15-Minute Delivery — Right to Your Hands
-            </div>
+            <div>15-Minute Delivery — Right to Your Hands</div>
           </footer>
         </>
       )}
@@ -303,7 +288,6 @@ function App() {
             </div>
 
             <h2>Welcome Back</h2>
-
             <p>Login to your EKHONI LAGBE account.</p>
 
             <input
@@ -336,11 +320,6 @@ function App() {
             >
               Log In
             </button>
-
-            <small className="modal-note">
-              Demo login only. Real account authentication will be
-              connected later.
-            </small>
           </div>
         </div>
       )}
@@ -368,14 +347,10 @@ function App() {
               <p>আপনার EKHONI LAGBE account তৈরি করুন</p>
             </div>
 
-            {/* NAME */}
-
             <div className="account-section">
               <div className="section-number">1</div>
-
               <div className="section-content">
                 <h3>Your Name</h3>
-
                 <input
                   type="text"
                   placeholder="আপনার নাম লিখুন"
@@ -385,14 +360,10 @@ function App() {
               </div>
             </div>
 
-            {/* MOBILE */}
-
             <div className="account-section">
               <div className="section-number">2</div>
-
               <div className="section-content">
                 <h3>Mobile Number</h3>
-
                 <input
                   type="tel"
                   placeholder="01XXXXXXXXX"
@@ -431,15 +402,11 @@ function App() {
               </div>
             </div>
 
-            {/* OTP */}
-
             {accountStep >= 2 && (
               <div className="account-section active-section">
                 <div className="section-number">3</div>
-
                 <div className="section-content">
                   <h3>OTP Verification</h3>
-
                   <p className="section-note">
                     আপনার মোবাইলে পাঠানো OTP দিন
                   </p>
@@ -467,20 +434,17 @@ function App() {
 
                   {otpVerified && (
                     <div className="verified-message">
-                      ✓ Demo verification complete
+                      ✓ মোবাইল নম্বর যাচাই করা হয়েছে
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* PASSWORD + ADDRESS */}
-
             {otpVerified && (
               <>
                 <div className="account-section active-section">
                   <div className="section-number">4</div>
-
                   <div className="section-content">
                     <h3>Create Password</h3>
 
@@ -511,7 +475,6 @@ function App() {
 
                 <div className="account-section">
                   <div className="section-number">5</div>
-
                   <div className="section-content">
                     <h3>
                       Delivery Address
@@ -553,7 +516,6 @@ function App() {
 
             <div className="account-footer">
               <span>Already have an account?</span>
-
               <button type="button" onClick={openLogin}>
                 Log In
               </button>
@@ -562,10 +524,10 @@ function App() {
         </div>
       )}
 
-      {/* HOME / CUSTOMER DASHBOARD */}
+      {/* CUSTOMER HOME */}
 
       {page === "home" && (
-        <Home onNavigate={handleHomeNavigate} />
+        <CustomerHome onNavigate={handleHomeNavigate} />
       )}
     </div>
   );
