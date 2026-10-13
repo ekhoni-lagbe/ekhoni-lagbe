@@ -862,4 +862,4 @@ export default function CustomerHome({
     </div>
   );
 }
-export default CustomerHome;
+
