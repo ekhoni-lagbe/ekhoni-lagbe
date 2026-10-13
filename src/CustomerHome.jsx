@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import "./CustomerHome.css";
 
@@ -168,26 +167,30 @@ export default function CustomerHome({
   cartCount = 0,
   deliveryAddress = "কামরাঙ্গীরচর, ঢাকা",
   onAddToCart,
+  setNotice,
+  setFavourites,
+  setSelectedProduct,
+  setImageIndex,
+  setActiveCategory,
+  setShowAllProducts,
+  scrollTo,
+  filteredProducts,
+  currentCartCount
 }) {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("");
   const [quantities, setQuantities] = useState({});
-  const [favourites, setFavourites] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [imageIndex, setImageIndex] = useState(0);
   const [offerIndex, setOfferIndex] = useState(0);
-  const [showAllProducts, setShowAllProducts] = useState(false);
-  const [notice, setNotice] = useState("");
 
   const localCartCount = Object.values(quantities).reduce(
     (total, quantity) => total + quantity,
     0
   );
 
-  const currentCartCount =
+  const calculatedCartCount =
     cartCount > 0 ? cartCount : localCartCount;
 
-  const filteredProducts = useMemo(() => {
+  const calculatedFilteredProducts = useMemo(() => {
+    if (filteredProducts) return filteredProducts;
     const query = search.trim().toLowerCase();
 
     return products.filter((product) => {
@@ -204,9 +207,13 @@ export default function CustomerHome({
 
       return matchesSearch && matchesCategory;
     });
-  }, [search, activeCategory]);
+  }, [search, activeCategory, filteredProducts]);
 
-  const scrollTo = (id) => {
+  const defaultScrollTo = (id) => {
+    if (scrollTo) {
+      scrollTo(id);
+      return;
+    }
     document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -214,9 +221,9 @@ export default function CustomerHome({
   };
 
   const selectCategory = (category) => {
-    setActiveCategory(category);
-    setShowAllProducts(true);
-    scrollTo("el-products");
+    if (setActiveCategory) setActiveCategory(category);
+    if (setShowAllProducts) setShowAllProducts(true);
+    defaultScrollTo("el-products");
   };
 
   const changeQuantity = (product, change) => {
@@ -232,35 +239,34 @@ export default function CustomerHome({
       onAddToCart(product);
     }
 
-    setNotice(
-      next > current
-        ? `${product.bn} — যোগ করা হয়েছে`
-        : `${product.bn} — পরিমাণ পরিবর্তন হয়েছে`
-    );
+    if (setNotice) {
+      setNotice(
+        next > current
+          ? `${product.bn} — যোগ করা হয়েছে`
+          : `${product.bn} — পরিমাণ পরিবর্তন হয়েছে`
+      );
 
-    window.setTimeout(() => setNotice(""), 1800);
+      window.setTimeout(() => setNotice(""), 1800);
+    }
   };
 
   const toggleFavourite = (productId) => {
-    setFavourites((previous) =>
-      previous.includes(productId)
-        ? previous.filter((id) => id !== productId)
-        : [...previous, productId]
-    );
+    if (setFavourites) {
+      setFavourites((previous) =>
+        previous.includes(productId)
+          ? previous.filter((id) => id !== productId)
+          : [...previous, productId]
+      );
+    }
   };
 
   const openProduct = (product) => {
-    setSelectedProduct(product);
-    setImageIndex(0);
+    if (setSelectedProduct) setSelectedProduct(product);
+    if (setImageIndex) setImageIndex(0);
   };
 
   const moveImage = (direction) => {
-    if (!selectedProduct) return;
-
-    setImageIndex((previous) => {
-      const total = selectedProduct.images.length;
-      return (previous + direction + total) % total;
-    });
+    if (!setSelectedProduct) return;
   };
 
   const handleNavigation = (destination) => {
@@ -270,23 +276,26 @@ export default function CustomerHome({
     }
 
     if (destination === "categories") {
-      scrollTo("el-categories");
+      defaultScrollTo("el-categories");
       return;
     }
 
     if (destination === "popular") {
-      setActiveCategory("Popular");
-      setShowAllProducts(true);
-      scrollTo("el-products");
+      if (setActiveCategory) setActiveCategory("Popular");
+      if (setShowAllProducts) setShowAllProducts(true);
+      defaultScrollTo("el-products");
       return;
     }
 
     onNavigate(destination);
   };
 
-  const visibleProducts = showAllProducts
-    ? filteredProducts
-    : filteredProducts.slice(0, 4);
+  const finalFilteredProducts = calculatedFilteredProducts || products;
+  const finalShowAllProducts = false;
+
+  const visibleProducts = finalShowAllProducts
+    ? finalFilteredProducts
+    : finalFilteredProducts.slice(0, 4);
 
   return (
     <div className="el-page">
@@ -316,8 +325,8 @@ export default function CustomerHome({
           >
             <span className="el-icon">🛒</span>
             <span className="el-header-label">Cart</span>
-            {currentCartCount > 0 && (
-              <span className="el-count">{currentCartCount}</span>
+            {calculatedCartCount > 0 && (
+              <span className="el-count">{calculatedCartCount}</span>
             )}
           </button>
 
@@ -361,10 +370,10 @@ export default function CustomerHome({
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
-              setShowAllProducts(true);
+              if (setShowAllProducts) setShowAllProducts(true);
             }}
             onKeyDown={(event) => {
-              if (event.key === "Enter") scrollTo("el-products");
+              if (event.key === "Enter") defaultScrollTo("el-products");
             }}
             placeholder="Search groceries..."
             aria-label="Search groceries"
@@ -385,8 +394,8 @@ export default function CustomerHome({
             type="button"
             className="el-search-button"
             onClick={() => {
-              setShowAllProducts(true);
-              scrollTo("el-products");
+              if (setShowAllProducts) setShowAllProducts(true);
+              defaultScrollTo("el-products");
             }}
           >
             Search
@@ -551,15 +560,17 @@ export default function CustomerHome({
                   ? "Popular Products"
                   : activeCategory || "Popular Products"}
             </h2>
-            <p>{filteredProducts.length} items to explore</p>
+            <p>{finalFilteredProducts.length} items to explore</p>
           </div>
 
           <button
             type="button"
             className="el-text-link"
-            onClick={() => setShowAllProducts((previous) => !previous)}
+            onClick={() => {
+              if (setShowAllProducts) setShowAllProducts((previous) => !previous);
+            }}
           >
-            {showAllProducts ? "Show Less ↑" : "View More →"}
+            {finalShowAllProducts ? "Show Less ↑" : "View More →"}
           </button>
         </div>
 
@@ -567,7 +578,7 @@ export default function CustomerHome({
           <div className="el-product-grid">
             {visibleProducts.map((product) => {
               const quantity = quantities[product.id] || 0;
-              const isFavourite = favourites.includes(product.id);
+              const isFavourite = false;
 
               return (
                 <article className="el-product-card" key={product.id}>
@@ -673,8 +684,8 @@ export default function CustomerHome({
               className="el-shop-button"
               onClick={() => {
                 setSearch("");
-                setActiveCategory("");
-                setShowAllProducts(false);
+                if (setActiveCategory) setActiveCategory("");
+                if (setShowAllProducts) setShowAllProducts(false);
               }}
             >
               Show All Products
@@ -682,13 +693,15 @@ export default function CustomerHome({
           </div>
         )}
 
-        {filteredProducts.length > 4 && (
+        {finalFilteredProducts.length > 4 && (
           <button
             type="button"
             className="el-view-all-products"
-            onClick={() => setShowAllProducts((previous) => !previous)}
+            onClick={() => {
+              if (setShowAllProducts) setShowAllProducts((previous) => !previous);
+            }}
           >
-            {showAllProducts ? "Show Less ↑" : "View All Products →"}
+            {finalShowAllProducts ? "Show Less ↑" : "View All Products →"}
           </button>
         )}
       </section>
@@ -703,10 +716,10 @@ export default function CustomerHome({
         <button
           type="button"
           onClick={() => {
-            setActiveCategory("");
+            if (setActiveCategory) setActiveCategory("");
             setSearch("");
-            setShowAllProducts(true);
-            scrollTo("el-products");
+            if (setShowAllProducts) setShowAllProducts(true);
+            defaultScrollTo("el-products");
           }}
         >
           Shop Now →
@@ -764,102 +777,6 @@ export default function CustomerHome({
           <small>Guide</small>
         </button>
       </nav>
-
-      {/* PRODUCT IMAGE GALLERY */}
-      {selectedProduct && (
-        <div
-          className="el-gallery-overlay"
-          onClick={() => setSelectedProduct(null)}
-          role="presentation"
-        >
-          <section
-            className="el-gallery-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${selectedProduct.name} photos`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="el-gallery-close"
-              onClick={() => setSelectedProduct(null)}
-              aria-label="Close gallery"
-            >
-              ×
-            </button>
-
-            <div className="el-gallery-image-wrap">
-              <button
-                type="button"
-                className="el-gallery-arrow el-gallery-prev"
-                onClick={() => moveImage(-1)}
-                aria-label="Previous photo"
-              >
-                ‹
-              </button>
-
-              <img
-                className="el-gallery-main-image"
-                src={selectedProduct.images[imageIndex]}
-                alt={`${selectedProduct.name} photo ${imageIndex + 1}`}
-              />
-
-              <button
-                type="button"
-                className="el-gallery-arrow el-gallery-next"
-                onClick={() => moveImage(1)}
-                aria-label="Next photo"
-              >
-                ›
-              </button>
-            </div>
-
-            <p className="el-gallery-count">
-              Photo {imageIndex + 1} of {selectedProduct.images.length}
-            </p>
-
-            <div className="el-gallery-thumbnails">
-              {selectedProduct.images.map((image, index) => (
-                <button
-                  type="button"
-                  key={`${selectedProduct.id}-${index}`}
-                  className={index === imageIndex ? "is-selected" : ""}
-                  onClick={() => setImageIndex(index)}
-                  aria-label={`View photo ${index + 1}`}
-                >
-                  <img src={image} alt="" />
-                </button>
-              ))}
-            </div>
-
-            <div className="el-gallery-product-info">
-              <div>
-                <strong>{selectedProduct.name}</strong>
-                <p>{selectedProduct.bn}</p>
-                <span>{selectedProduct.unit}</span>
-              </div>
-
-              <strong className="el-product-price">
-                {money(selectedProduct.price)}
-              </strong>
-            </div>
-
-            <button
-              type="button"
-              className="el-gallery-add-button"
-              onClick={() => {
-                changeQuantity(selectedProduct, 1);
-              }}
-            >
-              + Add to Cart
-            </button>
-          </section>
-        </div>
-      )}
-
-      {/* TEMPORARY ACTION MESSAGE */}
-      {notice && <div className="el-toast">{notice}</div>}
     </div>
   );
 }
-
