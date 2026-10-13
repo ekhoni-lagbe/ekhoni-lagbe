@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from "react";
 import "./CustomerHome.css";
 
@@ -47,7 +48,7 @@ const products = [
   {
     id: 3,
     name: "Fresh Milk",
-    bn: "তাজা দুধ",
+    bn: "দুধ",
     category: "Dairy & Eggs",
     price: 90,
     unit: "1 litre",
@@ -117,7 +118,7 @@ const products = [
   {
     id: 8,
     name: "Farm Fresh Eggs",
-    bn: "খামারের ডিম",
+    bn: "ডিম",
     category: "Dairy & Eggs",
     price: 65,
     unit: "4 pieces",
@@ -137,7 +138,6 @@ const offers = [
     title: "Everyday Essentials",
     description: "Your daily grocery, made easy.",
     button: "Shop Now",
-    className: "el-offer-green",
     emoji: "🥬",
     category: "",
   },
@@ -147,7 +147,6 @@ const offers = [
     title: "Popular Picks",
     description: "Discover what everyone loves.",
     button: "Explore Now",
-    className: "el-offer-cream",
     emoji: "🛒",
     category: "Popular",
   },
@@ -157,7 +156,6 @@ const offers = [
     title: "Fresh Fruits",
     description: "Bring freshness to your table.",
     button: "Shop Fruits",
-    className: "el-offer-mint",
     emoji: "🍎",
     category: "Fruits",
   },
@@ -168,7 +166,7 @@ const money = (amount) => `৳${amount}`;
 export default function CustomerHome({
   onNavigate = () => {},
   cartCount = 0,
-  deliveryAddress = "Delivery address",
+  deliveryAddress = "কামরাঙ্গীরচর, ঢাকা",
   onAddToCart,
 }) {
   const [search, setSearch] = useState("");
@@ -181,9 +179,13 @@ export default function CustomerHome({
   const [showAllProducts, setShowAllProducts] = useState(false);
   const [notice, setNotice] = useState("");
 
+  const localCartCount = Object.values(quantities).reduce(
+    (total, quantity) => total + quantity,
+    0
+  );
+
   const currentCartCount =
-    cartCount ||
-    Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0);
+    cartCount > 0 ? cartCount : localCartCount;
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -204,6 +206,19 @@ export default function CustomerHome({
     });
   }, [search, activeCategory]);
 
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const selectCategory = (category) => {
+    setActiveCategory(category);
+    setShowAllProducts(true);
+    scrollTo("el-products");
+  };
+
   const changeQuantity = (product, change) => {
     const current = quantities[product.id] || 0;
     const next = Math.max(0, current + change);
@@ -219,10 +234,8 @@ export default function CustomerHome({
 
     setNotice(
       next > current
-        ? `${product.name} added`
-        : next < current
-          ? `${product.name} quantity updated`
-          : ""
+        ? `${product.bn} — যোগ করা হয়েছে`
+        : `${product.bn} — পরিমাণ পরিবর্তন হয়েছে`
     );
 
     window.setTimeout(() => setNotice(""), 1800);
@@ -250,29 +263,21 @@ export default function CustomerHome({
     });
   };
 
-  const selectCategory = (category) => {
-    setActiveCategory(category);
-    setShowAllProducts(false);
-
-    document
-      .getElementById("el-products")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   const handleNavigation = (destination) => {
+    if (destination === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     if (destination === "categories") {
-      document
-        .getElementById("el-categories")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollTo("el-categories");
       return;
     }
 
     if (destination === "popular") {
       setActiveCategory("Popular");
       setShowAllProducts(true);
-      document
-        .getElementById("el-products")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollTo("el-products");
       return;
     }
 
@@ -293,7 +298,7 @@ export default function CustomerHome({
           onClick={() => handleNavigation("home")}
           aria-label="EKHONI LAGBE Home"
         >
-          <img src="/logo.png" alt="EKHONI LAGBE" />
+          <img src="/logo.png" alt="EKHONI LAGBE logo" />
 
           <span className="el-brand-copy">
             <strong>এখনই লাগবে</strong>
@@ -338,10 +343,19 @@ export default function CustomerHome({
         </div>
       </header>
 
+      {/* DELIVERY ADDRESS */}
+      <div className="el-address-strip">
+        <span>📍</span>
+        <span>
+          Delivering to <strong>{deliveryAddress}</strong>
+        </span>
+      </div>
+
       {/* SEARCH */}
       <section className="el-search-wrap">
         <label className="el-search">
           <span className="el-search-symbol">⌕</span>
+
           <input
             type="search"
             value={search}
@@ -349,9 +363,13 @@ export default function CustomerHome({
               setSearch(event.target.value);
               setShowAllProducts(true);
             }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") scrollTo("el-products");
+            }}
             placeholder="Search groceries..."
             aria-label="Search groceries"
           />
+
           {search && (
             <button
               type="button"
@@ -362,14 +380,13 @@ export default function CustomerHome({
               ×
             </button>
           )}
+
           <button
             type="button"
             className="el-search-button"
             onClick={() => {
               setShowAllProducts(true);
-              document
-                .getElementById("el-products")
-                ?.scrollIntoView({ behavior: "smooth" });
+              scrollTo("el-products");
             }}
           >
             Search
@@ -385,8 +402,9 @@ export default function CustomerHome({
         <div className="el-section-heading">
           <div>
             <h2>Shop by Category</h2>
-            <p>Everything you need, all in one place</p>
+            <p>সব প্রয়োজনীয় পণ্য এক জায়গায়</p>
           </div>
+
           <button
             type="button"
             className="el-text-link"
@@ -399,7 +417,9 @@ export default function CustomerHome({
         <div className="el-horizontal-scroll el-category-row">
           <button
             type="button"
-            className={`el-category ${!activeCategory ? "is-active" : ""}`}
+            className={`el-category ${
+              !activeCategory ? "is-active" : ""
+            }`}
             onClick={() => selectCategory("")}
           >
             <span className="el-category-emoji">🛍️</span>
@@ -415,7 +435,9 @@ export default function CustomerHome({
               }`}
               onClick={() => selectCategory(category.name)}
             >
-              <span className="el-category-emoji">{category.emoji}</span>
+              <span className="el-category-emoji">
+                {category.emoji}
+              </span>
               <span>{category.name}</span>
             </button>
           ))}
@@ -436,9 +458,7 @@ export default function CustomerHome({
             <button
               type="button"
               className="el-shop-button"
-              onClick={() =>
-                selectCategory(offers[offerIndex].category)
-              }
+              onClick={() => selectCategory(offers[offerIndex].category)}
             >
               {offers[offerIndex].button} <span>→</span>
             </button>
@@ -466,12 +486,12 @@ export default function CustomerHome({
         </div>
       </section>
 
-      {/* QUICK DISCOVERY STRIPS */}
+      {/* OFFERS AND POPULAR SHORTCUTS */}
       <section className="el-section el-quick-section">
         <div className="el-section-heading">
           <div>
             <h2>Discover More</h2>
-            <p>Good things for your everyday shopping</p>
+            <p>Explore your everyday favourites</p>
           </div>
         </div>
 
@@ -479,7 +499,7 @@ export default function CustomerHome({
           <button
             type="button"
             className="el-promo-card el-promo-dark"
-            onClick={() => selectCategory("Popular")}
+            onClick={() => handleNavigation("popular")}
           >
             <span className="el-promo-emoji">🔥</span>
             <span className="el-promo-copy">
@@ -518,7 +538,10 @@ export default function CustomerHome({
       </section>
 
       {/* PRODUCTS */}
-      <section className="el-section el-products-section" id="el-products">
+      <section
+        className="el-section el-products-section"
+        id="el-products"
+      >
         <div className="el-section-heading">
           <div>
             <h2>
@@ -528,9 +551,7 @@ export default function CustomerHome({
                   ? "Popular Products"
                   : activeCategory || "Popular Products"}
             </h2>
-            <p>
-              {filteredProducts.length} items to explore
-            </p>
+            <p>{filteredProducts.length} items to explore</p>
           </div>
 
           <button
@@ -625,7 +646,9 @@ export default function CustomerHome({
                         >
                           −
                         </button>
+
                         <span>{quantity}</span>
+
                         <button
                           type="button"
                           onClick={() => changeQuantity(product, 1)}
@@ -641,50 +664,64 @@ export default function CustomerHome({
             })}
           </div>
         ) : (
-          <div className="el-empty-state">
+          <div className="el-empty-results">
             <span>🔎</span>
             <h3>No products found</h3>
-            <p>Try another search or choose a different category.</p>
+            <p>অন্য নামে সার্চ করুন অথবা অন্য ক্যাটাগরি বেছে নিন।</p>
             <button
               type="button"
-              className="el-add-button"
+              className="el-shop-button"
               onClick={() => {
                 setSearch("");
                 setActiveCategory("");
+                setShowAllProducts(false);
               }}
             >
-              Browse All Products
+              Show All Products
             </button>
           </div>
         )}
+
+        {filteredProducts.length > 4 && (
+          <button
+            type="button"
+            className="el-view-all-products"
+            onClick={() => setShowAllProducts((previous) => !previous)}
+          >
+            {showAllProducts ? "Show Less ↑" : "View All Products →"}
+          </button>
+        )}
       </section>
 
-      {/* REORDER / SUPPORT */}
-      <section className="el-section el-bottom-promo">
-        <div className="el-bottom-promo-icon">🛒</div>
-        <div className="el-bottom-promo-copy">
-          <strong>Need help with your shopping?</strong>
-          <p>Visit our guide for help and useful information.</p>
+      {/* SMALL FOOTER BANNER */}
+      <section className="el-bottom-banner">
+        <div>
+          <strong>Your daily groceries, made easier.</strong>
+          <p>Shop smart. Live fresh.</p>
         </div>
+
         <button
           type="button"
-          className="el-bottom-promo-button"
-          onClick={() => handleNavigation("information")}
+          onClick={() => {
+            setActiveCategory("");
+            setSearch("");
+            setShowAllProducts(true);
+            scrollTo("el-products");
+          }}
         >
-          Explore Guide →
+          Shop Now →
         </button>
       </section>
 
-      {/* FOOTER */}
       <footer className="el-footer">
         <img src="/logo.png" alt="" />
         <div>
-          <strong>EKHONI LAGBE</strong>
+          <strong>এখনই লাগবে · EKHONI LAGBE</strong>
           <p>15-Minute Delivery — Right to Your Hands</p>
         </div>
       </footer>
 
-      {/* MOBILE NAVIGATION */}
+      {/* MOBILE BOTTOM NAVIGATION */}
       <nav className="el-mobile-nav" aria-label="Main navigation">
         <button
           type="button"
@@ -707,7 +744,7 @@ export default function CustomerHome({
           type="button"
           onClick={() => handleNavigation("popular")}
         >
-          <span>♡</span>
+          <span>★</span>
           <small>Popular</small>
         </button>
 
@@ -721,22 +758,9 @@ export default function CustomerHome({
 
         <button
           type="button"
-          onClick={() => handleNavigation("cart")}
+          onClick={() => handleNavigation("guide")}
         >
-          <span className="el-nav-cart">
-            🛒
-            {currentCartCount > 0 && (
-              <i>{currentCartCount}</i>
-            )}
-          </span>
-          <small>Cart</small>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleNavigation("information")}
-        >
-          <span>☰</span>
+          <span>ⓘ</span>
           <small>Guide</small>
         </button>
       </nav>
@@ -745,13 +769,14 @@ export default function CustomerHome({
       {selectedProduct && (
         <div
           className="el-gallery-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${selectedProduct.name} photo gallery`}
           onClick={() => setSelectedProduct(null)}
+          role="presentation"
         >
-          <div
+          <section
             className="el-gallery-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedProduct.name} photos`}
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -763,32 +788,33 @@ export default function CustomerHome({
               ×
             </button>
 
-            <div className="el-gallery-main">
+            <div className="el-gallery-image-wrap">
               <button
                 type="button"
-                className="el-gallery-arrow"
+                className="el-gallery-arrow el-gallery-prev"
                 onClick={() => moveImage(-1)}
-                aria-label="Previous image"
+                aria-label="Previous photo"
               >
                 ‹
               </button>
 
               <img
+                className="el-gallery-main-image"
                 src={selectedProduct.images[imageIndex]}
-                alt={`${selectedProduct.name} ${imageIndex + 1}`}
+                alt={`${selectedProduct.name} photo ${imageIndex + 1}`}
               />
 
               <button
                 type="button"
-                className="el-gallery-arrow"
+                className="el-gallery-arrow el-gallery-next"
                 onClick={() => moveImage(1)}
-                aria-label="Next image"
+                aria-label="Next photo"
               >
                 ›
               </button>
             </div>
 
-            <p className="el-gallery-counter">
+            <p className="el-gallery-count">
               Photo {imageIndex + 1} of {selectedProduct.images.length}
             </p>
 
@@ -797,7 +823,7 @@ export default function CustomerHome({
                 <button
                   type="button"
                   key={`${selectedProduct.id}-${index}`}
-                  className={imageIndex === index ? "is-selected" : ""}
+                  className={index === imageIndex ? "is-selected" : ""}
                   onClick={() => setImageIndex(index)}
                   aria-label={`View photo ${index + 1}`}
                 >
@@ -809,28 +835,30 @@ export default function CustomerHome({
             <div className="el-gallery-product-info">
               <div>
                 <strong>{selectedProduct.name}</strong>
-                <p>{selectedProduct.bn} · {selectedProduct.unit}</p>
-                <b>{money(selectedProduct.price)}</b>
+                <p>{selectedProduct.bn}</p>
+                <span>{selectedProduct.unit}</span>
               </div>
 
-              <button
-                type="button"
-                className="el-add-button"
-                onClick={() => changeQuantity(selectedProduct, 1)}
-              >
-                + Add
-              </button>
+              <strong className="el-product-price">
+                {money(selectedProduct.price)}
+              </strong>
             </div>
-          </div>
+
+            <button
+              type="button"
+              className="el-gallery-add-button"
+              onClick={() => {
+                changeQuantity(selectedProduct, 1);
+              }}
+            >
+              + Add to Cart
+            </button>
+          </section>
         </div>
       )}
 
-      {/* SMALL CART FEEDBACK */}
-      {notice && (
-        <div className="el-toast" role="status">
-          ✓ {notice}
-        </div>
-      )}
+      {/* TEMPORARY ACTION MESSAGE */}
+      {notice && <div className="el-toast">{notice}</div>}
     </div>
   );
 }
