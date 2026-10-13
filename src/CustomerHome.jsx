@@ -1,782 +1,1013 @@
+
 import { useMemo, useState } from "react";
 import "./CustomerHome.css";
 
-const GREEN = "#218344";
-
-const categories = [
-  { name: "Vegetables", bn: "শাকসবজি", emoji: "🥬" },
-  { name: "Fruits", bn: "ফলমূল", emoji: "🍎" },
-  { name: "Rice & Grains", bn: "চাল ও শস্য", emoji: "🍚" },
-  { name: "Fish & Meat", bn: "মাছ ও মাংস", emoji: "🐟" },
-  { name: "Dairy & Eggs", bn: "দুধ ও ডিম", emoji: "🥛" },
-  { name: "Cooking Oil", bn: "রান্নার তেল", emoji: "🫒" },
-  { name: "Snacks", bn: "স্ন্যাকস", emoji: "🍪" },
-  { name: "Beverages", bn: "পানীয়", emoji: "🧃" },
-  { name: "Household", bn: "ঘর-গৃহস্থালি", emoji: "🧹" },
+const CATEGORIES = [
+  { id: "all", name: "All", emoji: "🛍️" },
+  { id: "vegetables", name: "Vegetables", emoji: "🥬" },
+  { id: "fruits", name: "Fruits", emoji: "🍎" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
+  { id: "rice", name: "Rice & Grains", emoji: "🍚" },
+  { id: "meat", name: "Meat & Fish", emoji: "🐟" },
+  { id: "snacks", name: "Snacks", emoji: "🍪" },
+  { id: "beverages", name: "Beverages", emoji: "🧃" },
+  { id: "household", name: "Household", emoji: "🧹" },
 ];
 
-const products = [
+const PRODUCTS = [
   {
     id: 1,
     name: "Fresh Tomatoes",
-    bn: "তাজা টমেটো",
-    category: "Vegetables",
+    category: "vegetables",
     price: 40,
     unit: "500 g",
-    badge: "Popular",
-    images: [
+    badge: "Fresh",
+    image:
       "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1546470427-e5d89cd4b0c3?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1546470427-e5b89cd1a5c7?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 2,
     name: "Fresh Bananas",
-    bn: "পাকা কলা",
-    category: "Fruits",
+    category: "fruits",
     price: 60,
     unit: "1 dozen",
-    badge: "Fresh",
-    images: [
+    badge: "Popular",
+    image:
       "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 3,
     name: "Fresh Milk",
-    bn: "দুধ",
-    category: "Dairy & Eggs",
+    category: "dairy",
     price: 90,
     unit: "1 litre",
-    badge: "Everyday",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 4,
-    name: "Premium Rice",
-    bn: "প্রিমিয়াম চাল",
-    category: "Rice & Grains",
-    price: 75,
-    unit: "1 kg",
-    badge: "Popular",
+    name: "Fresh Eggs",
+    category: "dairy",
+    price: 65,
+    unit: "4 pieces",
+    badge: "Daily Essential",
+    image:
+      "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1592997571659-0b21ff64313b?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 5,
-    name: "Fresh Red Apples",
-    bn: "লাল আপেল",
-    category: "Fruits",
-    price: 180,
-    unit: "1 kg",
-    badge: "Fresh",
+    name: "Fresh Carrots",
+    category: "vegetables",
+    price: 45,
+    unit: "500 g",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 6,
-    name: "Fresh Carrots",
-    bn: "তাজা গাজর",
-    category: "Vegetables",
-    price: 50,
-    unit: "500 g",
-    badge: "Fresh",
+    name: "White Rice",
+    category: "rice",
+    price: 75,
+    unit: "1 kg",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1582515073490-39981397c445?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 7,
-    name: "Cooking Oil",
-    bn: "রান্নার তেল",
-    category: "Cooking Oil",
-    price: 175,
-    unit: "1 litre",
-    badge: "Everyday",
+    name: "Red Apples",
+    category: "fruits",
+    price: 180,
+    unit: "1 kg",
+    badge: "Popular",
+    image:
+      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=85",
     ],
   },
   {
     id: 8,
-    name: "Farm Fresh Eggs",
-    bn: "ডিম",
-    category: "Dairy & Eggs",
-    price: 65,
-    unit: "4 pieces",
-    badge: "Fresh",
+    name: "Potatoes",
+    category: "vegetables",
+    price: 35,
+    unit: "1 kg",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=700&q=80",
     images: [
-      "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?auto=format&fit=crop&w=700&q=80",
-      "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=700&q=80",
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=85",
+    ],
+  },
+  {
+    id: 9,
+    name: "Fresh Lemons",
+    category: "vegetables",
+    price: 30,
+    unit: "4 pieces",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&fit=crop&w=900&q=85",
+    ],
+  },
+  {
+    id: 10,
+    name: "Orange Juice",
+    category: "beverages",
+    price: 85,
+    unit: "1 pack",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=85",
+    ],
+  },
+  {
+    id: 11,
+    name: "Potato Chips",
+    category: "snacks",
+    price: 30,
+    unit: "1 pack",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=900&q=85",
+    ],
+  },
+  {
+    id: 12,
+    name: "Fresh Fish",
+    category: "meat",
+    price: 220,
+    unit: "500 g",
+    badge: "",
+    image:
+      "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=700&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=900&q=85",
     ],
   },
 ];
 
-const offers = [
+const OFFERS = [
   {
-    id: "daily",
+    id: 1,
     eyebrow: "FRESH EVERY DAY",
-    title: "Everyday Essentials",
-    description: "Your daily grocery, made easy.",
+    title: "Fresh Picks for Your Family",
+    description: "Everyday grocery essentials in one place.",
     button: "Shop Now",
+    theme: "offer-green",
     emoji: "🥬",
-    category: "",
+    category: "vegetables",
   },
   {
-    id: "popular",
-    eyebrow: "CUSTOMER FAVOURITES",
-    title: "Popular Picks",
-    description: "Discover what everyone loves.",
+    id: 2,
+    eyebrow: "SMART SHOPPING",
+    title: "Your Daily Essentials",
+    description: "Find your everyday favourites with ease.",
     button: "Explore Now",
+    theme: "offer-mint",
     emoji: "🛒",
-    category: "Popular",
+    category: "all",
   },
   {
-    id: "fruit",
-    eyebrow: "FRESH & DELICIOUS",
-    title: "Fresh Fruits",
-    description: "Bring freshness to your table.",
+    id: 3,
+    eyebrow: "FRUITFUL DAYS",
+    title: "Bring Home Fresh Fruits",
+    description: "Discover colourful everyday favourites.",
     button: "Shop Fruits",
+    theme: "offer-lime",
     emoji: "🍎",
-    category: "Fruits",
+    category: "fruits",
   },
 ];
 
-const money = (amount) => `৳${amount}`;
+function formatPrice(price) {
+  return `৳${price}`;
+}
 
-export default function CustomerHome({
-  onNavigate = () => {},
-  cartCount = 0,
-  deliveryAddress = "কামরাঙ্গীরচর, ঢাকা",
-  onAddToCart,
-  setNotice,
-  setFavourites,
-  setSelectedProduct,
-  setImageIndex,
-  setActiveCategory,
-  setShowAllProducts,
-  scrollTo,
-  filteredProducts,
-  currentCartCount
-}) {
+function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [search, setSearch] = useState("");
-  const [quantities, setQuantities] = useState({});
-  const [offerIndex, setOfferIndex] = useState(0);
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [expandedSections, setExpandedSections] = useState({});
+  const [cart, setCart] = useState({});
+  const [wishlist, setWishlist] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [activeOffer, setActiveOffer] = useState(0);
+  const [notice, setNotice] = useState("");
 
-  const localCartCount = Object.values(quantities).reduce(
-    (total, quantity) => total + quantity,
+  const cartQuantity = Object.values(cart).reduce(
+    (sum, quantity) => sum + quantity,
     0
   );
 
-  const calculatedCartCount =
-    cartCount > 0 ? cartCount : localCartCount;
+  const visibleCartCount = Math.max(
+    cartQuantity,
+    Number(externalCartCount) || 0
+  );
 
-  const calculatedFilteredProducts = useMemo(() => {
-    if (filteredProducts) return filteredProducts;
+  const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return products.filter((product) => {
+    return PRODUCTS.filter((product) => {
+      const matchesCategory =
+        activeCategory === "all" ||
+        product.category === activeCategory;
+
       const matchesSearch =
         !query ||
         product.name.toLowerCase().includes(query) ||
-        product.bn.includes(query) ||
         product.category.toLowerCase().includes(query);
 
-      const matchesCategory =
-        !activeCategory ||
-        activeCategory === "Popular" ||
-        product.category === activeCategory;
-
-      return matchesSearch && matchesCategory;
+      return matchesCategory && matchesSearch;
     });
-  }, [search, activeCategory, filteredProducts]);
+  }, [search, activeCategory]);
 
-  const defaultScrollTo = (id) => {
-    if (scrollTo) {
-      scrollTo(id);
-      return;
-    }
-    document.getElementById(id)?.scrollIntoView({
+  const changeQuantity = (productId, change) => {
+    setCart((previous) => {
+      const nextQuantity = (previous[productId] || 0) + change;
+      const next = { ...previous };
+
+      if (nextQuantity <= 0) {
+        delete next[productId];
+      } else {
+        next[productId] = nextQuantity;
+      }
+
+      return next;
+    });
+
+    setNotice(change > 0 ? "Added to your cart" : "Cart updated");
+    window.setTimeout(() => setNotice(""), 1800);
+  };
+
+  const toggleWishlist = (productId) => {
+    setWishlist((previous) =>
+      previous.includes(productId)
+        ? previous.filter((id) => id !== productId)
+        : [...previous, productId]
+    );
+  };
+
+  const openProduct = (product) => {
+    setSelectedProduct(product);
+    setActiveImageIndex(0);
+  };
+
+  const closeProduct = () => {
+    setSelectedProduct(null);
+    setActiveImageIndex(0);
+  };
+
+  const selectCategory = (categoryId) => {
+    setActiveCategory(categoryId);
+    setSearch("");
+  };
+
+  const goToProducts = (categoryId = "all") => {
+    setActiveCategory(categoryId);
+    setSearch("");
+    document.getElementById("el-products")?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
   };
 
-  const selectCategory = (category) => {
-    if (setActiveCategory) setActiveCategory(category);
-    if (setShowAllProducts) setShowAllProducts(true);
-    defaultScrollTo("el-products");
-  };
-
-  const changeQuantity = (product, change) => {
-    const current = quantities[product.id] || 0;
-    const next = Math.max(0, current + change);
-
-    setQuantities((previous) => ({
-      ...previous,
-      [product.id]: next,
-    }));
-
-    if (change > 0 && onAddToCart) {
-      onAddToCart(product);
-    }
-
-    if (setNotice) {
-      setNotice(
-        next > current
-          ? `${product.bn} — যোগ করা হয়েছে`
-          : `${product.bn} — পরিমাণ পরিবর্তন হয়েছে`
-      );
-
-      window.setTimeout(() => setNotice(""), 1800);
-    }
-  };
-
-  const toggleFavourite = (productId) => {
-    if (setFavourites) {
-      setFavourites((previous) =>
-        previous.includes(productId)
-          ? previous.filter((id) => id !== productId)
-          : [...previous, productId]
-      );
-    }
-  };
-
-  const openProduct = (product) => {
-    if (setSelectedProduct) setSelectedProduct(product);
-    if (setImageIndex) setImageIndex(0);
-  };
-
-  const moveImage = (direction) => {
-    if (!setSelectedProduct) return;
-  };
-
   const handleNavigation = (destination) => {
     if (destination === "home") {
+      setActiveCategory("all");
+      setSearch("");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     if (destination === "categories") {
-      defaultScrollTo("el-categories");
+      document.getElementById("el-categories")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
       return;
     }
 
     if (destination === "popular") {
-      if (setActiveCategory) setActiveCategory("Popular");
-      if (setShowAllProducts) setShowAllProducts(true);
-      defaultScrollTo("el-products");
+      goToProducts("all");
       return;
     }
 
-    onNavigate(destination);
+    if (destination === "offers") {
+      document.getElementById("el-offers")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+
+    if (destination === "cart") {
+      if (typeof onNavigate === "function") {
+        onNavigate("cart", cart);
+      } else {
+        setNotice("Cart screen will be connected in the next step.");
+      }
+      return;
+    }
+
+    if (destination === "account") {
+      if (typeof onNavigate === "function") {
+        onNavigate("account");
+      }
+      return;
+    }
+
+    if (destination === "orders") {
+      if (typeof onNavigate === "function") {
+        onNavigate("orders");
+      } else {
+        setNotice("My Orders will be connected in the next step.");
+      }
+      return;
+    }
+
+    if (destination === "guide") {
+      if (typeof onNavigate === "function") {
+        onNavigate("guide");
+      } else {
+        setNotice("Information Guide will be connected in the next step.");
+      }
+    }
   };
 
-  const finalFilteredProducts = calculatedFilteredProducts || products;
-  const finalShowAllProducts = false;
+  const productCard = (product) => {
+    const quantity = cart[product.id] || 0;
+    const isFavourite = wishlist.includes(product.id);
+    const imageCount = product.images.length;
 
-  const visibleProducts = finalShowAllProducts
-    ? finalFilteredProducts
-    : finalFilteredProducts.slice(0, 4);
-
-  return (
-    <div className="el-page">
-      {/* HEADER */}
-      <header className="el-header">
-        <button
-          type="button"
-          className="el-brand"
-          onClick={() => handleNavigation("home")}
-          aria-label="EKHONI LAGBE Home"
-        >
-          <img src="/logo.png" alt="EKHONI LAGBE logo" />
-
-          <span className="el-brand-copy">
-            <strong>এখনই লাগবে</strong>
-            <small>EKHONI LAGBE</small>
-            <span>15-Minute Delivery — Right to Your Hands</span>
-          </span>
-        </button>
-
-        <div className="el-header-actions">
+    return (
+      <article className="el-product-card" key={product.id}>
+        <div className="el-product-image-wrap">
           <button
+            className="el-product-image-button"
             type="button"
-            className="el-header-icon el-cart-header"
-            onClick={() => handleNavigation("cart")}
-            aria-label="Cart"
+            onClick={() => openProduct(product)}
+            aria-label={`View ${product.name} images`}
           >
-            <span className="el-icon">🛒</span>
-            <span className="el-header-label">Cart</span>
-            {calculatedCartCount > 0 && (
-              <span className="el-count">{calculatedCartCount}</span>
-            )}
+            <img
+              className="el-product-image"
+              src={product.image}
+              alt={product.name}
+              loading="lazy"
+            />
           </button>
 
-          <button
-            type="button"
-            className="el-header-icon"
-            onClick={() => handleNavigation("account")}
-            aria-label="Account"
-          >
-            <span className="el-icon">♙</span>
-            <span className="el-header-label">Account</span>
-          </button>
-
-          <button
-            type="button"
-            className="el-header-icon"
-            onClick={() => handleNavigation("notifications")}
-            aria-label="Notifications"
-          >
-            <span className="el-icon">♧</span>
-            <span className="el-header-label">Alerts</span>
-          </button>
-        </div>
-      </header>
-
-      {/* DELIVERY ADDRESS */}
-      <div className="el-address-strip">
-        <span>📍</span>
-        <span>
-          Delivering to <strong>{deliveryAddress}</strong>
-        </span>
-      </div>
-
-      {/* SEARCH */}
-      <section className="el-search-wrap">
-        <label className="el-search">
-          <span className="el-search-symbol">⌕</span>
-
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              if (setShowAllProducts) setShowAllProducts(true);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") defaultScrollTo("el-products");
-            }}
-            placeholder="Search groceries..."
-            aria-label="Search groceries"
-          />
-
-          {search && (
-            <button
-              type="button"
-              className="el-search-clear"
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-            >
-              ×
-            </button>
+          {product.badge && (
+            <span className="el-product-badge">{product.badge}</span>
           )}
 
           <button
             type="button"
-            className="el-search-button"
-            onClick={() => {
-              if (setShowAllProducts) setShowAllProducts(true);
-              defaultScrollTo("el-products");
-            }}
-          >
-            Search
-          </button>
-        </label>
-        <p className="el-search-hint">
-          Find your everyday essentials in seconds
-        </p>
-      </section>
-
-      {/* CATEGORIES */}
-      <section className="el-section" id="el-categories">
-        <div className="el-section-heading">
-          <div>
-            <h2>Shop by Category</h2>
-            <p>সব প্রয়োজনীয় পণ্য এক জায়গায়</p>
-          </div>
-
-          <button
-            type="button"
-            className="el-text-link"
-            onClick={() => handleNavigation("categories")}
-          >
-            View All →
-          </button>
-        </div>
-
-        <div className="el-horizontal-scroll el-category-row">
-          <button
-            type="button"
-            className={`el-category ${
-              !activeCategory ? "is-active" : ""
+            className={`el-heart-button ${
+              isFavourite ? "is-favourite" : ""
             }`}
-            onClick={() => selectCategory("")}
+            onClick={() => toggleWishlist(product.id)}
+            aria-label={
+              isFavourite ? "Remove from wishlist" : "Add to wishlist"
+            }
           >
-            <span className="el-category-emoji">🛍️</span>
-            <span>All Items</span>
-          </button>
-
-          {categories.map((category) => (
-            <button
-              type="button"
-              key={category.name}
-              className={`el-category ${
-                activeCategory === category.name ? "is-active" : ""
-              }`}
-              onClick={() => selectCategory(category.name)}
-            >
-              <span className="el-category-emoji">
-                {category.emoji}
-              </span>
-              <span>{category.name}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* PROMOTIONAL BANNER */}
-      <section className="el-banner-area">
-        <div className="el-banner">
-          <div className="el-banner-copy">
-            <span className="el-banner-eyebrow">
-              {offers[offerIndex].eyebrow}
-            </span>
-
-            <h1>{offers[offerIndex].title}</h1>
-            <p>{offers[offerIndex].description}</p>
-
-            <button
-              type="button"
-              className="el-shop-button"
-              onClick={() => selectCategory(offers[offerIndex].category)}
-            >
-              {offers[offerIndex].button} <span>→</span>
-            </button>
-
-            <div className="el-banner-dots">
-              {offers.map((offer, index) => (
-                <button
-                  type="button"
-                  key={offer.id}
-                  onClick={() => setOfferIndex(index)}
-                  className={index === offerIndex ? "active" : ""}
-                  aria-label={`Show banner ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="el-banner-art" aria-hidden="true">
-            <span className="el-banner-circle" />
-            <span className="el-banner-emoji">
-              {offers[offerIndex].emoji}
-            </span>
-            <span className="el-banner-leaf">🌿</span>
-          </div>
-        </div>
-      </section>
-
-      {/* OFFERS AND POPULAR SHORTCUTS */}
-      <section className="el-section el-quick-section">
-        <div className="el-section-heading">
-          <div>
-            <h2>Discover More</h2>
-            <p>Explore your everyday favourites</p>
-          </div>
-        </div>
-
-        <div className="el-horizontal-scroll el-promo-row">
-          <button
-            type="button"
-            className="el-promo-card el-promo-dark"
-            onClick={() => handleNavigation("popular")}
-          >
-            <span className="el-promo-emoji">🔥</span>
-            <span className="el-promo-copy">
-              <strong>Popular Picks</strong>
-              <small>Customer favourites</small>
-            </span>
-            <span className="el-promo-arrow">→</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
+            </svg>
           </button>
 
           <button
+            className="el-image-count"
             type="button"
-            className="el-promo-card el-promo-light"
-            onClick={() => handleNavigation("offers")}
+            onClick={() => openProduct(product)}
+            aria-label={`Open ${imageCount} product images`}
           >
-            <span className="el-promo-emoji">🎁</span>
-            <span className="el-promo-copy">
-              <strong>My Offers</strong>
-              <small>Explore available deals</small>
-            </span>
-            <span className="el-promo-arrow">→</span>
+            ▧ {imageCount} {imageCount === 1 ? "photo" : "photos"}
           </button>
-
-          <button
-            type="button"
-            className="el-promo-card el-promo-yellow"
-            onClick={() => selectCategory("Dairy & Eggs")}
-          >
-            <span className="el-promo-emoji">🥚</span>
-            <span className="el-promo-copy">
-              <strong>Everyday Essentials</strong>
-              <small>Shop daily needs</small>
-            </span>
-            <span className="el-promo-arrow">→</span>
-          </button>
-        </div>
-      </section>
-
-      {/* PRODUCTS */}
-      <section
-        className="el-section el-products-section"
-        id="el-products"
-      >
-        <div className="el-section-heading">
-          <div>
-            <h2>
-              {search
-                ? "Search Results"
-                : activeCategory === "Popular"
-                  ? "Popular Products"
-                  : activeCategory || "Popular Products"}
-            </h2>
-            <p>{finalFilteredProducts.length} items to explore</p>
-          </div>
-
-          <button
-            type="button"
-            className="el-text-link"
-            onClick={() => {
-              if (setShowAllProducts) setShowAllProducts((previous) => !previous);
-            }}
-          >
-            {finalShowAllProducts ? "Show Less ↑" : "View More →"}
-          </button>
-        </div>
-
-        {visibleProducts.length > 0 ? (
-          <div className="el-product-grid">
-            {visibleProducts.map((product) => {
-              const quantity = quantities[product.id] || 0;
-              const isFavourite = false;
-
-              return (
-                <article className="el-product-card" key={product.id}>
-                  <div className="el-product-image-wrap">
-                    <button
-                      type="button"
-                      className="el-product-image-button"
-                      onClick={() => openProduct(product)}
-                      aria-label={`View ${product.name} images`}
-                    >
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        loading="lazy"
-                      />
-                    </button>
-
-                    <span className="el-product-badge">
-                      {product.badge}
-                    </span>
-
-                    <button
-                      type="button"
-                      className={`el-heart ${
-                        isFavourite ? "is-favourite" : ""
-                      }`}
-                      onClick={() => toggleFavourite(product.id)}
-                      aria-label={
-                        isFavourite
-                          ? "Remove from favourites"
-                          : "Add to favourites"
-                      }
-                    >
-                      {isFavourite ? "♥" : "♡"}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="el-photo-count"
-                      onClick={() => openProduct(product)}
-                    >
-                      ▧ {product.images.length} Photos
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="el-product-info"
-                    onClick={() => openProduct(product)}
-                  >
-                    <strong>{product.name}</strong>
-                    <span>{product.bn}</span>
-                  </button>
-
-                  <div className="el-product-unit">{product.unit}</div>
-
-                  <div className="el-product-bottom">
-                    <strong className="el-product-price">
-                      {money(product.price)}
-                    </strong>
-
-                    {quantity === 0 ? (
-                      <button
-                        type="button"
-                        className="el-add-button"
-                        onClick={() => changeQuantity(product, 1)}
-                      >
-                        + Add
-                      </button>
-                    ) : (
-                      <div className="el-quantity-control">
-                        <button
-                          type="button"
-                          onClick={() => changeQuantity(product, -1)}
-                          aria-label="Decrease quantity"
-                        >
-                          −
-                        </button>
-
-                        <span>{quantity}</span>
-
-                        <button
-                          type="button"
-                          onClick={() => changeQuantity(product, 1)}
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="el-empty-results">
-            <span>🔎</span>
-            <h3>No products found</h3>
-            <p>অন্য নামে সার্চ করুন অথবা অন্য ক্যাটাগরি বেছে নিন।</p>
-            <button
-              type="button"
-              className="el-shop-button"
-              onClick={() => {
-                setSearch("");
-                if (setActiveCategory) setActiveCategory("");
-                if (setShowAllProducts) setShowAllProducts(false);
-              }}
-            >
-              Show All Products
-            </button>
-          </div>
-        )}
-
-        {finalFilteredProducts.length > 4 && (
-          <button
-            type="button"
-            className="el-view-all-products"
-            onClick={() => {
-              if (setShowAllProducts) setShowAllProducts((previous) => !previous);
-            }}
-          >
-            {finalShowAllProducts ? "Show Less ↑" : "View All Products →"}
-          </button>
-        )}
-      </section>
-
-      {/* SMALL FOOTER BANNER */}
-      <section className="el-bottom-banner">
-        <div>
-          <strong>Your daily groceries, made easier.</strong>
-          <p>Shop smart. Live fresh.</p>
         </div>
 
         <button
+          className="el-product-name-button"
           type="button"
-          onClick={() => {
-            if (setActiveCategory) setActiveCategory("");
-            setSearch("");
-            if (setShowAllProducts) setShowAllProducts(true);
-            defaultScrollTo("el-products");
-          }}
+          onClick={() => openProduct(product)}
         >
-          Shop Now →
+          {product.name}
         </button>
+
+        <div className="el-product-unit">{product.unit}</div>
+
+        <div className="el-product-bottom">
+          <strong className="el-product-price">
+            {formatPrice(product.price)}
+          </strong>
+
+          {quantity === 0 ? (
+            <button
+              type="button"
+              className="el-add-button"
+              onClick={() => changeQuantity(product.id, 1)}
+            >
+              <span>+</span> Add
+            </button>
+          ) : (
+            <div className="el-quantity-control">
+              <button
+                type="button"
+                onClick={() => changeQuantity(product.id, -1)}
+                aria-label={`Remove one ${product.name}`}
+              >
+                −
+              </button>
+              <span>{quantity}</span>
+              <button
+                type="button"
+                onClick={() => changeQuantity(product.id, 1)}
+                aria-label={`Add one ${product.name}`}
+              >
+                +
+              </button>
+            </div>
+          )}
+        </div>
+      </article>
+    );
+  };
+
+  const renderSection = (title, subtitle, products, sectionId) => {
+    const isExpanded = Boolean(expandedSections[sectionId]);
+    const displayedProducts = isExpanded
+      ? products
+      : products.slice(0, 4);
+
+    if (!products.length) return null;
+
+    return (
+      <section className="el-section" key={sectionId}>
+        <div className="el-section-heading">
+          <div>
+            <h2>{title}</h2>
+            {subtitle && <p>{subtitle}</p>}
+          </div>
+
+          {products.length > 4 && (
+            <button
+              type="button"
+              className="el-view-more"
+              onClick={() =>
+                setExpandedSections((previous) => ({
+                  ...previous,
+                  [sectionId]: !previous[sectionId],
+                }))
+              }
+            >
+              {isExpanded ? "View Less ↑" : "View More →"}
+            </button>
+          )}
+        </div>
+
+        <div className="el-product-grid">
+          {displayedProducts.map(productCard)}
+        </div>
       </section>
+    );
+  };
+
+  return (
+    <div className="el-page">
+      <header className="el-header">
+        <div className="el-header-inner">
+          <button
+            type="button"
+            className="el-brand"
+            onClick={() => handleNavigation("home")}
+            aria-label="EKHONI LAGBE Home"
+          >
+            <img src="/logo.png" alt="EKHONI LAGBE logo" />
+            <span className="el-brand-copy">
+              <strong>EKHONI LAGBE</strong>
+              <small>15-Minute Delivery — Right to Your Hands</small>
+            </span>
+          </button>
+
+          <div className="el-header-actions">
+            <button
+              type="button"
+              className="el-header-icon el-header-cart"
+              onClick={() => handleNavigation("cart")}
+              aria-label="Shopping cart"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 3h2l2.3 11.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.5L22 7H6" />
+                <circle cx="10" cy="20" r="1.4" />
+                <circle cx="18" cy="20" r="1.4" />
+              </svg>
+              <span>Cart</span>
+              {visibleCartCount > 0 && (
+                <b className="el-cart-count">{visibleCartCount}</b>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className="el-header-icon"
+              onClick={() => handleNavigation("account")}
+              aria-label="Account"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+              </svg>
+              <span>Account</span>
+            </button>
+
+            <button
+              type="button"
+              className="el-header-icon el-notification-button"
+              onClick={() =>
+                setNotice("You have no new notifications.")
+              }
+              aria-label="Notifications"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                <path d="M10 21h4" />
+              </svg>
+              <span>Alerts</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="el-search-row">
+          <form
+            className="el-search-bar"
+            onSubmit={(event) => {
+              event.preventDefault();
+              goToProducts(activeCategory);
+            }}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.8" cy="10.8" r="6.8" />
+              <path d="m16 16 5 5" />
+            </svg>
+
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search groceries, fruits, vegetables..."
+              aria-label="Search products"
+            />
+
+            {search && (
+              <button
+                type="button"
+                className="el-clear-search"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+
+            <button type="submit" className="el-search-submit">
+              Search
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <main className="el-main">
+        <section className="el-categories-section" id="el-categories">
+          <div className="el-section-heading el-category-heading">
+            <div>
+              <h2>Shop by Category</h2>
+            </div>
+            <span className="el-swipe-hint">Swipe →</span>
+          </div>
+
+          <div className="el-category-scroller">
+            {CATEGORIES.map((category) => (
+              <button
+                type="button"
+                key={category.id}
+                className={`el-category-item ${
+                  activeCategory === category.id ? "is-active" : ""
+                }`}
+                onClick={() => selectCategory(category.id)}
+              >
+                <span className="el-category-icon">{category.emoji}</span>
+                <span>{category.name}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="el-offers-section" id="el-offers">
+          <div className="el-section-heading">
+            <div>
+              <h2>Special for You</h2>
+            </div>
+            <span className="el-swipe-hint">Swipe →</span>
+          </div>
+
+          <div className="el-offer-scroller">
+            {OFFERS.map((offer, index) => (
+              <article
+                className={`el-offer-banner ${offer.theme}`}
+                key={offer.id}
+              >
+                <div className="el-offer-copy">
+                  <span className="el-offer-eyebrow">
+                    {offer.eyebrow}
+                  </span>
+                  <h2>{offer.title}</h2>
+                  <p>{offer.description}</p>
+                  <button
+                    type="button"
+                    className="el-shop-now"
+                    onClick={() => {
+                      setActiveOffer(index);
+                      goToProducts(offer.category);
+                    }}
+                  >
+                    {offer.button} <span>→</span>
+                  </button>
+                </div>
+
+                <div className="el-offer-art" aria-hidden="true">
+                  <span>{offer.emoji}</span>
+                  <i>✦</i>
+                  <b>✿</b>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="el-offer-dots" aria-label="Offer banners">
+            {OFFERS.map((offer, index) => (
+              <button
+                type="button"
+                key={offer.id}
+                className={activeOffer === index ? "is-active" : ""}
+                onClick={() => setActiveOffer(index)}
+                aria-label={`Offer ${index + 1}`}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="el-quick-links">
+          <button
+            type="button"
+            onClick={() => handleNavigation("offers")}
+          >
+            <span>🏷️</span>
+            <span>My Offers</span>
+            <b>→</b>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNavigation("popular")}
+          >
+            <span>🔥</span>
+            <span>Popular</span>
+            <b>→</b>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNavigation("orders")}
+          >
+            <span>🔄</span>
+            <span>Buy Again</span>
+            <b>→</b>
+          </button>
+        </section>
+
+        {search.trim() ? (
+          <section className="el-section" id="el-products">
+            <div className="el-section-heading">
+              <div>
+                <h2>Search Results</h2>
+                <p>
+                  {filteredProducts.length} product
+                  {filteredProducts.length === 1 ? "" : "s"} found
+                </p>
+              </div>
+            </div>
+
+            {filteredProducts.length ? (
+              <div className="el-product-grid">
+                {filteredProducts.map(productCard)}
+              </div>
+            ) : (
+              <div className="el-empty-state">
+                <span>🔎</span>
+                <h3>No products found</h3>
+                <p>Try another product name or category.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveCategory("all");
+                  }}
+                >
+                  Clear Search
+                </button>
+              </div>
+            )}
+          </section>
+        ) : (
+          <>
+            {activeCategory !== "all" ? (
+              renderSection(
+                CATEGORIES.find((item) => item.id === activeCategory)
+                  ?.name || "Products",
+                "Explore products in this category",
+                filteredProducts,
+                `category-${activeCategory}`
+              )
+            ) : (
+              <>
+                {renderSection(
+                  "Popular Products",
+                  "Everyday favourites for your home",
+                  PRODUCTS.filter((product) =>
+                    [2, 4, 7, 1].includes(product.id)
+                  ),
+                  "popular"
+                )}
+
+                {renderSection(
+                  "Fresh Vegetables",
+                  "Fresh picks for everyday cooking",
+                  PRODUCTS.filter(
+                    (product) => product.category === "vegetables"
+                  ),
+                  "vegetables"
+                )}
+
+                {renderSection(
+                  "Fruits & Dairy",
+                  "Everyday essentials for your family",
+                  PRODUCTS.filter((product) =>
+                    ["fruits", "dairy"].includes(product.category)
+                  ),
+                  "fruits-dairy"
+                )}
+
+                {renderSection(
+                  "Rice, Snacks & More",
+                  "More essentials to complete your basket",
+                  PRODUCTS.filter((product) =>
+                    ["rice", "snacks", "beverages", "meat"].includes(
+                      product.category
+                    )
+                  ),
+                  "other-products"
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        <section className="el-bottom-promo">
+          <div>
+            <span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span>
+            <h2>Everything you need, in one place.</h2>
+            <p>Find your favourites and build your grocery basket.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => goToProducts("all")}
+          >
+            Shop All <span>→</span>
+          </button>
+        </section>
+      </main>
 
       <footer className="el-footer">
         <img src="/logo.png" alt="" />
-        <div>
-          <strong>এখনই লাগবে · EKHONI LAGBE</strong>
-          <p>15-Minute Delivery — Right to Your Hands</p>
-        </div>
+        <span>EKHONI LAGBE</span>
+        <small>15-Minute Delivery — Right to Your Hands</small>
       </footer>
 
-      {/* MOBILE BOTTOM NAVIGATION */}
-      <nav className="el-mobile-nav" aria-label="Main navigation">
+      <nav className="el-bottom-nav" aria-label="Main navigation">
         <button
           type="button"
-          className="is-current"
+          className="is-active"
           onClick={() => handleNavigation("home")}
         >
-          <span>⌂</span>
-          <small>Home</small>
+          <span className="el-nav-icon">⌂</span>
+          <span>Home</span>
         </button>
 
         <button
           type="button"
           onClick={() => handleNavigation("categories")}
         >
-          <span>▦</span>
-          <small>Categories</small>
+          <span className="el-nav-icon">▦</span>
+          <span>Categories</span>
         </button>
 
         <button
           type="button"
           onClick={() => handleNavigation("popular")}
         >
-          <span>★</span>
-          <small>Popular</small>
+          <span className="el-nav-icon">♨</span>
+          <span>Popular</span>
         </button>
 
         <button
           type="button"
           onClick={() => handleNavigation("orders")}
         >
-          <span>▤</span>
-          <small>My Orders</small>
+          <span className="el-nav-icon">▤</span>
+          <span>My Orders</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleNavigation("cart")}
+        >
+          <span className="el-nav-icon">🛒</span>
+          <span>Cart</span>
+          {visibleCartCount > 0 && (
+            <b className="el-nav-cart-count">{visibleCartCount}</b>
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => handleNavigation("guide")}
         >
-          <span>ⓘ</span>
-          <small>Guide</small>
+          <span className="el-nav-icon">☰</span>
+          <span>Guide</span>
         </button>
       </nav>
+
+      {notice && (
+        <div className="el-toast" role="status">
+          <span>✓</span> {notice}
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+            aria-label="Dismiss message"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {selectedProduct && (
+        <div
+          className="el-gallery-backdrop"
+          role="presentation"
+          onClick={closeProduct}
+        >
+          <section
+            className="el-gallery-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedProduct.name} product images`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="el-gallery-close"
+              onClick={closeProduct}
+              aria-label="Close product details"
+            >
+              ×
+            </button>
+
+            <div className="el-gallery-main-image">
+              <img
+                src={selectedProduct.images[activeImageIndex]}
+                alt={selectedProduct.name}
+              />
+              {selectedProduct.images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="el-gallery-arrow el-gallery-prev"
+                    onClick={() =>
+                      setActiveImageIndex((previous) =>
+                        previous === 0
+                          ? selectedProduct.images.length - 1
+                          : previous - 1
+                      )
+                    }
+                    aria-label="Previous image"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    className="el-gallery-arrow el-gallery-next"
+                    onClick={() =>
+                      setActiveImageIndex((previous) =>
+                        (previous + 1) % selectedProduct.images.length
+                      )
+                    }
+                    aria-label="Next image"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+              <span className="el-gallery-counter">
+                {activeImageIndex + 1} / {selectedProduct.images.length}
+              </span>
+            </div>
+
+            <div className="el-gallery-thumbnails">
+              {selectedProduct.images.map((image, index) => (
+                <button
+                  type="button"
+                  key={image}
+                  className={
+                    activeImageIndex === index ? "is-active" : ""
+                  }
+                  onClick={() => setActiveImageIndex(index)}
+                  aria-label={`View image ${index + 1}`}
+                >
+                  <img src={image} alt="" />
+                </button>
+              ))}
+            </div>
+
+            <div className="el-gallery-info">
+              <div>
+                <h2>{selectedProduct.name}</h2>
+                <p>{selectedProduct.unit}</p>
+                <strong>{formatPrice(selectedProduct.price)}</strong>
+              </div>
+
+              {(cart[selectedProduct.id] || 0) === 0 ? (
+                <button
+                  type="button"
+                  className="el-add-button el-gallery-add"
+                  onClick={() => changeQuantity(selectedProduct.id, 1)}
+                >
+                  + Add to Cart
+                </button>
+              ) : (
+                <div className="el-quantity-control">
+                  <button
+                    type="button"
+                    onClick={() => changeQuantity(selectedProduct.id, -1)}
+                    aria-label="Remove one"
+                  >
+                    −
+                  </button>
+                  <span>{cart[selectedProduct.id]}</span>
+                  <button
+                    type="button"
+                    onClick={() => changeQuantity(selectedProduct.id, 1)}
+                    aria-label="Add one"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
+
+export default CustomerHome;
