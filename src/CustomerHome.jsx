@@ -59,6 +59,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationSearch, setLocationSearch] = useState("");
   const [locationConfirmed, setLocationConfirmed] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [checkoutName, setCheckoutName] = useState("");
+  const [checkoutPhone, setCheckoutPhone] = useState("");
+  const [checkoutAddress, setCheckoutAddress] = useState("");
+  const [checkoutInstructions, setCheckoutInstructions] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [checkoutError, setCheckoutError] = useState("");
+  const [demoOrderNumber, setDemoOrderNumber] = useState("");
+  const demoDeliveryFee = 20;
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
@@ -304,7 +314,46 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             </div>
             <section style={{ background: "white", borderRadius: 16, padding: 16, marginTop: 16, boxShadow: "0 3px 14px #173b250b" }}>
               <h3 style={{ margin: "0 0 14px" }}>Bill Summary</h3><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}><span>Items subtotal</span><strong>৳{cartSubtotal}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, color: "#647568" }}><span>Delivery fee</span><span>Calculated at checkout</span></div><div style={{ borderTop: "1px solid #e4ece5", paddingTop: 12, display: "flex", justifyContent: "space-between", fontSize: 18 }}><strong>Subtotal</strong><strong style={{ color: "#16803d" }}>৳{cartSubtotal}</strong></div>
-              <button type="button" onClick={() => showNotice("Checkout is not connected yet. Your cart is saved on this page.")} style={{ width: "100%", marginTop: 16, border: 0, borderRadius: 12, padding: 14, background: "#16803d", color: "white", fontWeight: 800, fontSize: 16 }}>Continue to Checkout →</button><p style={{ fontSize: 12, color: "#718075", margin: "10px 0 0", lineHeight: 1.5 }}>Demo cart only: prices and stock are sample data. Checkout and order placement are not connected yet.</p>
+              <button type="button" onClick={() => { if (!cartProducts.length) { showNotice("Please add groceries first."); return; } setCartOpen(false); setCheckoutError(""); setCheckoutOpen(true); }} style={{ width: "100%", marginTop: 16, border: 0, borderRadius: 12, padding: 14, background: "#16803d", color: "white", fontWeight: 800, fontSize: 16 }}>Continue to Checkout →</button><p style={{ fontSize: 12, color: "#718075", margin: "10px 0 0", lineHeight: 1.5 }}>Demo checkout: prices, delivery fee and stock are sample data. No real order will be sent or saved.</p>
+            </section>
+          </>}
+        </div>
+      </div>}
+
+      {checkoutOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-checkout-title" style={{ position: "fixed", inset: 0, zIndex: 1100, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
+        <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#16803d", color: "white", boxShadow: "0 2px 10px #0002" }}>
+          <button type="button" onClick={() => { setCheckoutOpen(false); setCartOpen(true); }} aria-label="Back to cart" style={{ border: 0, background: "#ffffff22", color: "white", borderRadius: 10, width: 40, height: 40, fontSize: 24 }}>‹</button>
+          <div style={{ flex: 1 }}><h2 id="el-checkout-title" style={{ margin: 0, fontSize: 20 }}>Checkout</h2><small>Delivery details & payment</small></div>
+        </header>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: 16, paddingBottom: 40 }}>
+          {orderComplete ? <section style={{ background: "white", borderRadius: 18, padding: "30px 20px", marginTop: 14, textAlign: "center", boxShadow: "0 4px 18px #173b250c" }}>
+            <div style={{ margin: "0 auto 14px", width: 64, height: 64, borderRadius: 50, background: "#e3f6e8", color: "#16803d", fontSize: 38, display: "grid", placeItems: "center" }}>✓</div>
+            <h2 style={{ margin: "0 0 8px" }}>Demo order preview complete</h2><p style={{ color: "#647568", lineHeight: 1.6 }}>Reference: <strong>{demoOrderNumber}</strong></p>
+            <p style={{ color: "#647568", lineHeight: 1.6 }}>This is only a front-end demo. Your order was <strong>not sent to a merchant</strong> and was not saved to a database.</p>
+            <button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setCart({}); setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress(""); setCheckoutInstructions(""); setLocationConfirmed(false); setSelectedZone(SERVICE_ZONES[0]); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ width: "100%", marginTop: 12, border: 0, borderRadius: 12, padding: 14, background: "#16803d", color: "white", fontWeight: 800 }}>Back to shopping</button>
+          </section> : <>
+            <section style={{ background: "white", borderRadius: 16, padding: 16, marginTop: 8, boxShadow: "0 3px 14px #173b250b" }}>
+              <h3 style={{ margin: "0 0 14px" }}>1. Delivery information</h3>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 6 }} htmlFor="el-checkout-name">Full name</label><input id="el-checkout-name" value={checkoutName} onChange={(e) => setCheckoutName(e.target.value)} placeholder="Enter receiver's name" autoComplete="name" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 13, marginBottom: 13, fontSize: 15 }} />
+              <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 6 }} htmlFor="el-checkout-phone">Bangladesh mobile number</label><input id="el-checkout-phone" value={checkoutPhone} onChange={(e) => setCheckoutPhone(e.target.value)} placeholder="01XXXXXXXXX" inputMode="numeric" autoComplete="tel" maxLength={11} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 13, marginBottom: 13, fontSize: 15 }} />
+              <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 6 }} htmlFor="el-checkout-zone">Delivery area</label><select id="el-checkout-zone" value={selectedZone.id} onChange={(e) => { const zone = SERVICE_ZONES.find((item) => item.id === e.target.value); if (zone) { setSelectedZone(zone); setLocationConfirmed(true); } }} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 13, marginBottom: 13, background: "white", fontSize: 15 }}>{SERVICE_ZONES.map((zone) => <option key={zone.id} value={zone.id}>{zone.name}</option>)}</select>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 6 }} htmlFor="el-checkout-address">Full address within Kamrangirchar</label><textarea id="el-checkout-address" value={checkoutAddress} onChange={(e) => setCheckoutAddress(e.target.value)} placeholder="House/building, road, lane, nearby landmark" rows={3} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 13, resize: "vertical", fontSize: 15 }} />
+              <label style={{ display: "block", fontSize: 14, fontWeight: 700, margin: "13px 0 6px" }} htmlFor="el-checkout-instructions">Delivery instructions (optional)</label><textarea id="el-checkout-instructions" value={checkoutInstructions} onChange={(e) => setCheckoutInstructions(e.target.value)} placeholder="Floor, gate, or nearby landmark" rows={2} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 13, resize: "vertical", fontSize: 15 }} />
+              <p style={{ margin: "12px 0 0", color: "#647568", fontSize: 12, lineHeight: 1.5 }}>Address zone check is currently a demo list, not a map or verified service-boundary check. Please use an address inside Kamrangirchar.</p>
+            </section>
+            <section style={{ background: "white", borderRadius: 16, padding: 16, marginTop: 14, boxShadow: "0 3px 14px #173b250b" }}>
+              <h3 style={{ margin: "0 0 12px" }}>2. Payment method</h3>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, border: `1px solid ${paymentMethod === "cod" ? "#16803d" : "#d6e3d8"}`, borderRadius: 12, marginBottom: 8 }}><input type="radio" name="el-payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} /><span><strong>Cash on Delivery</strong><small style={{ display: "block", color: "#647568", marginTop: 3 }}>Pay when groceries arrive (demo selection)</small></span></label>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, border: `1px solid ${paymentMethod === "online" ? "#16803d" : "#d6e3d8"}`, borderRadius: 12 }}><input type="radio" name="el-payment" value="online" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} /><span><strong>Online payment</strong><small style={{ display: "block", color: "#647568", marginTop: 3 }}>Not available yet; demo only</small></span></label>
+            </section>
+            <section style={{ background: "white", borderRadius: 16, padding: 16, marginTop: 14, boxShadow: "0 3px 14px #173b250b" }}>
+              <h3 style={{ margin: "0 0 14px" }}>3. Order summary</h3>
+              {cartProducts.map((product) => <div key={product.id} style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, fontSize: 14 }}><span>{product.name} × {cart[product.id]}</span><strong>৳{product.price * cart[product.id]}</strong></div>)}
+              <div style={{ borderTop: "1px solid #e4ece5", paddingTop: 12, display: "grid", gap: 10 }}><div style={{ display: "flex", justifyContent: "space-between" }}><span>Items subtotal</span><strong>৳{cartSubtotal}</strong></div><div style={{ display: "flex", justifyContent: "space-between" }}><span>Estimated delivery fee</span><strong>৳{demoDeliveryFee}</strong></div><div style={{ display: "flex", justifyContent: "space-between", fontSize: 18, color: "#16803d" }}><strong>Total (demo)</strong><strong>৳{cartSubtotal + demoDeliveryFee}</strong></div></div>
+              <p style={{ fontSize: 12, color: "#718075", lineHeight: 1.5, margin: "12px 0" }}>Delivery fee ৳{demoDeliveryFee} is a temporary sample value and must be confirmed before launch. Product prices and stock are also sample data.</p>
+              {checkoutError && <p role="alert" style={{ color: "#b42318", background: "#fff0ef", padding: 11, borderRadius: 9, fontSize: 14 }}>{checkoutError}</p>}
+              <button type="button" onClick={() => { if (!cartProducts.length) { setCheckoutError("Your cart is empty. Add a product before checkout."); return; } if (!checkoutName.trim()) { setCheckoutError("Please enter the receiver's name."); return; } if (!/^01\d{9}$/.test(checkoutPhone.trim())) { setCheckoutError("Please enter a valid 11-digit Bangladesh mobile number starting with 01."); return; } if (!checkoutAddress.trim() || checkoutAddress.trim().length < 8) { setCheckoutError("Please enter the full delivery address inside Kamrangirchar."); return; } if (!locationConfirmed) { setCheckoutError("Please confirm the delivery area before continuing."); setLocationOpen(true); return; } if (paymentMethod === "online") { setCheckoutError("Online payment is not connected yet. Please choose Cash on Delivery for this demo."); return; } setDemoOrderNumber("EL-DEMO-" + Date.now().toString().slice(-6)); setCheckoutError(""); setOrderComplete(true); }} style={{ width: "100%", border: 0, borderRadius: 12, padding: 15, background: "#16803d", color: "white", fontWeight: 800, fontSize: 16 }}>Place demo order · ৳{cartSubtotal + demoDeliveryFee}</button>
+              <p style={{ fontSize: 12, color: "#718075", lineHeight: 1.5, margin: "10px 0 0" }}>Important: this button only displays a demo confirmation. It does not create a real order, contact a shop, or reserve stock.</p>
             </section>
           </>}
         </div>
