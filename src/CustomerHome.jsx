@@ -58,9 +58,12 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
   const [locationConfirmed, setLocationConfirmed] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
+  const cartProducts = PRODUCTS.filter((product) => (cart[product.id] || 0) > 0);
+  const cartSubtotal = cartProducts.reduce((sum, product) => sum + product.price * cart[product.id], 0);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -136,8 +139,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "cart") {
-      if (typeof onNavigate === "function") onNavigate("cart", cart);
-      else showNotice("Cart screen will be connected in the next step.");
+      setCartOpen(true);
       return;
     }
     if (destination === "account") {
@@ -282,6 +284,31 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
         <button type="button" onClick={() => handleNavigation("guide")}><span className="el-nav-icon">☰</span><span>Guide</span></button>
       </nav>
+
+      {cartOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-cart-title" style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
+        <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#16803d", color: "white", boxShadow: "0 2px 10px #0002" }}>
+          <button type="button" onClick={() => setCartOpen(false)} aria-label="Continue shopping" style={{ border: 0, background: "#ffffff22", color: "white", borderRadius: 10, width: 40, height: 40, fontSize: 24 }}>‹</button>
+          <div style={{ flex: 1 }}><h2 id="el-cart-title" style={{ margin: 0, fontSize: 20 }}>My Cart</h2><small>{cartQuantity} item(s) in your basket</small></div>
+          <button type="button" onClick={() => { setCartOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ border: "1px solid #ffffff88", borderRadius: 20, padding: "8px 12px", color: "white", background: "transparent" }}>+ Add more</button>
+        </header>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: 16, paddingBottom: 34 }}>
+          {cartProducts.length === 0 ? <section style={{ textAlign: "center", background: "white", borderRadius: 18, padding: "42px 20px", marginTop: 20, boxShadow: "0 4px 18px #173b250c" }}>
+            <div style={{ fontSize: 54 }}>🛒</div><h3>Your cart is empty</h3><p style={{ color: "#647568" }}>Add groceries you need and they will appear here.</p><button type="button" onClick={() => setCartOpen(false)} style={{ background: "#16803d", color: "white", border: 0, borderRadius: 10, padding: "12px 20px", fontWeight: 700 }}>Browse Groceries</button>
+          </section> : <>
+            <div style={{ display: "grid", gap: 10, marginTop: 8 }}>
+              {cartProducts.map((product) => <article key={product.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, borderRadius: 15, background: "white", boxShadow: "0 3px 14px #173b250b" }}>
+                <img src={product.image} alt={product.name} style={{ width: 76, height: 76, objectFit: "cover", borderRadius: 12, background: "#f1f5f1" }} />
+                <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", lineHeight: 1.3 }}>{product.name}</strong><small style={{ color: "#718075" }}>{product.unit}</small><div style={{ color: "#16803d", fontWeight: 800, marginTop: 5 }}>৳{product.price} <small style={{ color: "#718075", fontWeight: 400 }}>each</small></div></div>
+                <div style={{ textAlign: "right", minWidth: 94 }}><strong style={{ display: "block", marginBottom: 8 }}>৳{product.price * cart[product.id]}</strong><div style={{ display: "inline-flex", alignItems: "center", gap: 12, border: "1px solid #d8e7db", borderRadius: 10, padding: "4px 7px" }}><button type="button" onClick={() => changeQuantity(product.id, -1)} aria-label={`Remove one ${product.name}`} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 21, width: 20 }}>−</button><span style={{ fontWeight: 700 }}>{cart[product.id]}</span><button type="button" onClick={() => changeQuantity(product.id, 1)} aria-label={`Add one ${product.name}`} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 21, width: 20 }}>+</button></div></div>
+              </article>)}
+            </div>
+            <section style={{ background: "white", borderRadius: 16, padding: 16, marginTop: 16, boxShadow: "0 3px 14px #173b250b" }}>
+              <h3 style={{ margin: "0 0 14px" }}>Bill Summary</h3><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}><span>Items subtotal</span><strong>৳{cartSubtotal}</strong></div><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, color: "#647568" }}><span>Delivery fee</span><span>Calculated at checkout</span></div><div style={{ borderTop: "1px solid #e4ece5", paddingTop: 12, display: "flex", justifyContent: "space-between", fontSize: 18 }}><strong>Subtotal</strong><strong style={{ color: "#16803d" }}>৳{cartSubtotal}</strong></div>
+              <button type="button" onClick={() => showNotice("Checkout is not connected yet. Your cart is saved on this page.")} style={{ width: "100%", marginTop: 16, border: 0, borderRadius: 12, padding: 14, background: "#16803d", color: "white", fontWeight: 800, fontSize: 16 }}>Continue to Checkout →</button><p style={{ fontSize: 12, color: "#718075", margin: "10px 0 0", lineHeight: 1.5 }}>Demo cart only: prices and stock are sample data. Checkout and order placement are not connected yet.</p>
+            </section>
+          </>}
+        </div>
+      </div>}
 
       {notice && <div className="el-toast" role="status"><span>✓</span>{notice}<button type="button" onClick={() => setNotice("")} aria-label="Dismiss message">×</button></div>}
 
