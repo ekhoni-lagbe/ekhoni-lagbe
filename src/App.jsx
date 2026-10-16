@@ -1,7 +1,17 @@
+
 import { useState } from "react";
 import CustomerHome from "./CustomerHome";
 
 const SERVICE_AREA = "Kamrangirchar";
+
+const PAGE_TITLES = {
+  categories: "Categories",
+  popular: "Popular Products",
+  offers: "My Offers",
+  cart: "My Cart",
+  orders: "My Orders",
+  guide: "Information Guide",
+};
 
 function App() {
   const [page, setPage] = useState("welcome");
@@ -16,9 +26,10 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [address, setAddress] = useState("");
 
-  // Login form
   const [loginMobile, setLoginMobile] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+
+  const [cartData, setCartData] = useState({});
 
   const openCreateAccount = () => {
     setPage("create-account");
@@ -50,18 +61,16 @@ function App() {
       return;
     }
 
-    // Prototype only: real OTP sending is not connected yet.
     setAccountStep(2);
     alert("Demo mode: OTP sending is not connected yet.");
   };
 
   const handleVerifyOtp = () => {
-    if (otp.length < 4) {
-      alert("Please enter at least 4 digits.");
+    if (!/^\d{4,6}$/.test(otp)) {
+      alert("Please enter 4 to 6 OTP digits.");
       return;
     }
 
-    // Prototype only: this does not verify a real OTP.
     setOtpVerified(true);
     setAccountStep(3);
     alert("Demo mode: OTP accepted for this prototype.");
@@ -78,7 +87,9 @@ function App() {
       return;
     }
 
-    alert("Demo account created! Real account storage is not connected yet.");
+    alert(
+      "Demo account created! Real account storage is not connected yet."
+    );
     setPage("home");
   };
 
@@ -93,20 +104,52 @@ function App() {
       return;
     }
 
-    // Prototype only: no real account/password verification yet.
-    alert("Demo login: real account authentication is not connected yet.");
+    alert(
+      "Demo login: real account authentication is not connected yet."
+    );
     setPage("home");
   };
 
-  // Customer Dashboard navigation
+  // Customer Home navigation
   const handleHomeNavigate = (destination, data) => {
     if (destination === "home") {
       setPage("home");
-    } else if (destination === "account") {
-      openLogin();
-    } else {
-      alert("এই স্ক্রিনটি পরবর্তী ধাপে তৈরি হবে।");
+      return;
     }
+
+    if (destination === "account") {
+      openLogin();
+      return;
+    }
+
+    if (destination === "cart") {
+      if (data && typeof data === "object") {
+        setCartData(data);
+      }
+
+      setPage("cart");
+      return;
+    }
+
+    if (
+      ["categories", "popular", "offers", "orders", "guide"].includes(
+        destination
+      )
+    ) {
+      setPage(destination);
+      return;
+    }
+
+    alert("এই স্ক্রিনটি পরবর্তী ধাপে তৈরি হবে।");
+  };
+
+  const cartItems = Object.entries(cartData).filter(
+    ([, quantity]) =>
+      typeof quantity === "number" && quantity > 0
+  );
+
+  const returnHome = () => {
+    setPage("home");
   };
 
   return (
@@ -202,8 +245,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Grocery Visual */}
-
               <div className="hero-visual">
                 <div className="visual-glow"></div>
 
@@ -225,7 +266,6 @@ function App() {
 
                 <div className="floating-card fast-card">
                   <span>⚡</span>
-
                   <div>
                     <strong>15 min</strong>
                     <small>Fast delivery</small>
@@ -234,7 +274,6 @@ function App() {
 
                 <div className="floating-card fresh-card">
                   <span>✓</span>
-
                   <div>
                     <strong>Fresh &amp; Easy</strong>
                     <small>Everyday groceries</small>
@@ -246,7 +285,6 @@ function App() {
             <section className="benefits">
               <div className="benefit">
                 <span>⚡</span>
-
                 <div>
                   <strong>Fast Delivery</strong>
                   <small>15-minute grocery delivery</small>
@@ -255,7 +293,6 @@ function App() {
 
               <div className="benefit">
                 <span>🛒</span>
-
                 <div>
                   <strong>Everyday Grocery</strong>
                   <small>Your daily essentials in one place</small>
@@ -264,7 +301,6 @@ function App() {
 
               <div className="benefit">
                 <span>📍</span>
-
                 <div>
                   <strong>Kamrangirchar</strong>
                   <small>Currently serving this area</small>
@@ -275,10 +311,7 @@ function App() {
 
           <footer className="footer">
             <div>© {new Date().getFullYear()} EKHONI LAGBE</div>
-
-            <div>
-              15-Minute Delivery — Right to Your Hands
-            </div>
+            <div>15-Minute Delivery — Right to Your Hands</div>
           </footer>
         </>
       )}
@@ -302,7 +335,6 @@ function App() {
             </div>
 
             <h2>Welcome Back</h2>
-
             <p>Login to your EKHONI LAGBE account.</p>
 
             <input
@@ -367,14 +399,10 @@ function App() {
               <p>আপনার EKHONI LAGBE account তৈরি করুন</p>
             </div>
 
-            {/* NAME */}
-
             <div className="account-section">
               <div className="section-number">1</div>
-
               <div className="section-content">
                 <h3>Your Name</h3>
-
                 <input
                   type="text"
                   placeholder="আপনার নাম লিখুন"
@@ -384,11 +412,8 @@ function App() {
               </div>
             </div>
 
-            {/* MOBILE */}
-
             <div className="account-section">
               <div className="section-number">2</div>
-
               <div className="section-content">
                 <h3>Mobile Number</h3>
 
@@ -430,12 +455,9 @@ function App() {
               </div>
             </div>
 
-            {/* OTP */}
-
             {accountStep >= 2 && (
               <div className="account-section active-section">
                 <div className="section-number">3</div>
-
                 <div className="section-content">
                   <h3>OTP Verification</h3>
 
@@ -473,13 +495,10 @@ function App() {
               </div>
             )}
 
-            {/* PASSWORD + ADDRESS */}
-
             {otpVerified && (
               <>
                 <div className="account-section active-section">
                   <div className="section-number">4</div>
-
                   <div className="section-content">
                     <h3>Create Password</h3>
 
@@ -510,7 +529,6 @@ function App() {
 
                 <div className="account-section">
                   <div className="section-number">5</div>
-
                   <div className="section-content">
                     <h3>
                       Delivery Address
@@ -552,7 +570,6 @@ function App() {
 
             <div className="account-footer">
               <span>Already have an account?</span>
-
               <button type="button" onClick={openLogin}>
                 Log In
               </button>
@@ -561,10 +578,210 @@ function App() {
         </div>
       )}
 
-      {/* HOME / CUSTOMER DASHBOARD */}
+      {/* CUSTOMER HOME
+          Keep mounted when opening another page so its local cart
+          state is not immediately lost. */}
 
-      {page === "home" && (
-        <CustomerHome onNavigate={handleHomeNavigate} />
+      {(page === "home" ||
+        ["cart", "categories", "popular", "offers", "orders", "guide"].includes(
+          page
+        )) && (
+        <div style={{ display: page === "home" ? "block" : "none" }}>
+          <CustomerHome onNavigate={handleHomeNavigate} />
+        </div>
+      )}
+
+      {/* CART PAGE */}
+
+      {page === "cart" && (
+        <main
+          style={{
+            minHeight: "100vh",
+            padding: "24px 16px 40px",
+            background: "#f7fbf7",
+          }}
+        >
+          <div
+            style={{
+              width: "min(720px, 100%)",
+              margin: "0 auto",
+            }}
+          >
+            <button
+              type="button"
+              onClick={returnHome}
+              style={{
+                border: 0,
+                background: "transparent",
+                color: "#166534",
+                fontWeight: 800,
+                padding: "8px 0 18px",
+              }}
+            >
+              ← Continue Shopping
+            </button>
+
+            <section
+              style={{
+                background: "#fff",
+                border: "1px solid #e2ece5",
+                borderRadius: 20,
+                padding: 22,
+                boxShadow: "0 12px 35px rgba(31,80,45,0.06)",
+              }}
+            >
+              <h1 style={{ color: "#14532d", fontSize: 26 }}>
+                My Cart
+              </h1>
+
+              <p style={{ color: "#718076", marginTop: 8 }}>
+                Review your selected grocery items.
+              </p>
+
+              {cartItems.length === 0 ? (
+                <div style={{ padding: "35px 0 20px", textAlign: "center" }}>
+                  <div style={{ fontSize: 42 }}>🛒</div>
+                  <h2 style={{ marginTop: 12, color: "#23432c" }}>
+                    Your cart is empty
+                  </h2>
+                  <p style={{ marginTop: 8, color: "#718076" }}>
+                    Add grocery products before continuing.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={returnHome}
+                    style={{
+                      marginTop: 20,
+                      padding: "13px 20px",
+                      border: 0,
+                      borderRadius: 12,
+                      background: "#16803d",
+                      color: "#fff",
+                      fontWeight: 800,
+                    }}
+                  >
+                    Browse Groceries
+                  </button>
+                </div>
+              ) : (
+                <div style={{ marginTop: 22 }}>
+                  <p style={{ color: "#23432c", fontWeight: 700 }}>
+                    Selected item entries: {cartItems.length}
+                  </p>
+
+                  <div style={{ marginTop: 14 }}>
+                    {cartItems.map(([productId, quantity]) => (
+                      <div
+                        key={productId}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          padding: "14px 0",
+                          borderBottom: "1px solid #edf2ee",
+                        }}
+                      >
+                        <span style={{ color: "#23432c", overflowWrap: "anywhere" }}>
+                          Product reference: {productId}
+                        </span>
+                        <strong style={{ color: "#166534" }}>
+                          Qty: {quantity}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p style={{ marginTop: 18, color: "#718076", fontSize: 13 }}>
+                    Product names, prices and checkout are not connected to
+                    a verified product database yet.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={returnHome}
+                    style={{
+                      width: "100%",
+                      marginTop: 20,
+                      padding: 14,
+                      border: 0,
+                      borderRadius: 12,
+                      background: "#16803d",
+                      color: "#fff",
+                      fontWeight: 800,
+                    }}
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              )}
+            </section>
+          </div>
+        </main>
+      )}
+
+      {/* OTHER SCREENS — navigation placeholders */}
+
+      {["categories", "popular", "offers", "orders", "guide"].includes(
+        page
+      ) && (
+        <main
+          style={{
+            minHeight: "100vh",
+            padding: "24px 16px",
+            background: "#f7fbf7",
+          }}
+        >
+          <div
+            style={{
+              width: "min(720px, 100%)",
+              margin: "0 auto",
+              padding: 24,
+              background: "#fff",
+              border: "1px solid #e2ece5",
+              borderRadius: 20,
+            }}
+          >
+            <button
+              type="button"
+              onClick={returnHome}
+              style={{
+                border: 0,
+                background: "transparent",
+                color: "#166534",
+                fontWeight: 800,
+                paddingBottom: 20,
+              }}
+            >
+              ← Back to Home
+            </button>
+
+            <h1 style={{ color: "#14532d", fontSize: 26 }}>
+              {PAGE_TITLES[page]}
+            </h1>
+
+            <p style={{ marginTop: 12, color: "#718076", lineHeight: 1.7 }}>
+              এই স্ক্রিনটি এখনো সম্পূর্ণভাবে তৈরি হয়নি। পরবর্তী ধাপে
+              সংশ্লিষ্ট ফিচার যুক্ত করা হবে।
+            </p>
+
+            <button
+              type="button"
+              onClick={returnHome}
+              style={{
+                marginTop: 22,
+                padding: "13px 20px",
+                border: 0,
+                borderRadius: 12,
+                background: "#16803d",
+                color: "#fff",
+                fontWeight: 800,
+              }}
+            >
+              Return to Home
+            </button>
+          </div>
+        </main>
       )}
     </div>
   );
