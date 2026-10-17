@@ -295,6 +295,25 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("guide")}><span className="el-nav-icon">☰</span><span>Guide</span></button>
       </nav>
 
+      <style>{`
+        [aria-labelledby="el-cart-title"],[aria-labelledby="el-checkout-title"]{background:#f5f8f5!important;color:#173b25!important}
+        [aria-labelledby="el-cart-title"]>header,[aria-labelledby="el-checkout-title"]>header{background:#fff!important;color:#173b25!important;border-bottom:1px solid #e2ebe3;box-shadow:none!important;padding:9px 12px!important}
+        [aria-labelledby="el-cart-title"]>header button,[aria-labelledby="el-checkout-title"]>header button{color:#176b36!important;background:#eaf6ed!important;border:0!important;border-radius:9px!important;width:auto!important;height:34px!important;padding:6px 10px!important;font-size:12px!important}
+        [aria-labelledby="el-cart-title"] h2,[aria-labelledby="el-checkout-title"] h2{font-size:17px!important}
+        [aria-labelledby="el-cart-title"]>div:not(.el-cart-bottom),[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){max-width:780px!important;padding:10px!important}
+        [aria-labelledby="el-cart-title"] article{padding:8px!important;border:1px solid #e8eee8!important;border-radius:12px!important;box-shadow:none!important;gap:9px!important}
+        [aria-labelledby="el-cart-title"] article img{width:58px!important;height:58px!important;border-radius:9px!important}
+        [aria-labelledby="el-cart-title"] section,[aria-labelledby="el-checkout-title"] section{padding:12px!important;border:1px solid #e8eee8!important;border-radius:12px!important;box-shadow:none!important}
+        [aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){max-width:780px!important}
+        [aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section:not(.el-order-success){margin-top:8px!important}
+        [aria-labelledby="el-checkout-title"] label{font-size:12px!important}
+        [aria-labelledby="el-checkout-title"] input:not([type=radio]),[aria-labelledby="el-checkout-title"] select,[aria-labelledby="el-checkout-title"] textarea{padding:9px!important;border-radius:8px!important;font-size:13px!important;margin-bottom:8px!important}
+        [aria-labelledby="el-checkout-title"] h3{font-size:14px!important;margin-bottom:10px!important}
+        [aria-labelledby="el-cart-title"] button[style*="width: 100%"],[aria-labelledby="el-checkout-title"] button[style*="width: 100%"]{padding:12px!important;border-radius:10px!important}
+        @media(min-width:680px){[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){display:grid!important;grid-template-columns:minmax(0,1fr) 270px!important;gap:10px!important;align-items:start!important}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section{margin:0!important}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section:nth-of-type(1){grid-column:1;grid-row:1}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section:nth-of-type(2){grid-column:1;grid-row:2}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section:nth-of-type(3){grid-column:2;grid-row:1 / span 2;position:sticky;top:70px}}
+        @media(max-width:679px){[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){padding:8px!important;padding-bottom:100px!important}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section{margin-top:8px!important}[aria-labelledby="el-cart-title"]>div:not(.el-cart-bottom){padding-bottom:92px!important}}
+      `}</style>
+
       {cartOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-cart-title" style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#16803d", color: "white", boxShadow: "0 2px 10px #0002" }}>
           <button type="button" onClick={() => setCartOpen(false)} aria-label="Continue shopping" style={{ border: 0, background: "#ffffff22", color: "white", borderRadius: 10, width: 40, height: 40, fontSize: 24 }}>‹</button>
