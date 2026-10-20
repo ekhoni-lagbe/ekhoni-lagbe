@@ -406,8 +406,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
               <h3 style={{ margin: "0 0 7px", fontSize: 14 }}>Order Summary</h3>
               <div className="el-summary-line"><span>Subtotal</span><strong>৳{cartSubtotal}</strong></div>
               <div className="el-summary-line"><span>Delivery Fee</span><strong>৳{cartProducts.length ? demoDeliveryFee : 0}</strong></div>
-              <div className="el-coupon-row"><input aria-label="কুপন বা রেফার কোড" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} placeholder="Coupon / Referral Code (Optional)" /><button type="button" onClick={() => { const code = couponInput.trim().toUpperCase(); if (code === "SAVE10" || code === "SAVE20") { setAppliedCoupon(code); setCouponMessage(`${code} কোডটি প্রয়োগ হয়েছে।`); } else if (!code) { setAppliedCoupon(""); setCouponMessage("কোনো কুপন যোগ করা হয়নি।"); } else { setAppliedCoupon(""); setCouponMessage("এই Demo Code সঠিক নয়। SAVE10 বা SAVE20 ব্যবহার করুন।"); } }}>Apply</button></div>
-              {couponMessage && <p role="status" style={{ margin: "5px 0", color: appliedCoupon ? "#16803d" : "#8a5b13", fontSize: 10 }}>{couponMessage}</p>}
               {couponDiscount > 0 && <div className="el-summary-line" style={{ color: "#16803d" }}><span>Coupon Discount</span><strong>−৳{couponDiscount}</strong></div>}
               <div className="el-summary-line el-summary-total"><span>Total Payable</span><strong>৳{finalTotal}</strong></div>
               {checkoutError && <p role="alert" style={{ color: "#b42318", background: "#fff0ef", padding: 8, borderRadius: 8, fontSize: 11, margin: "7px 0" }}>{checkoutError}</p>}
