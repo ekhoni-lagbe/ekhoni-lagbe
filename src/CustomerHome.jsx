@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import "./CustomerHome.css";
 
 const SERVICE_ZONES = [
@@ -69,19 +69,14 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [buyAgainName, setBuyAgainName] = useState("");
   const [buyAgainPhone, setBuyAgainPhone] = useState("");
   const [buyAgainAddress, setBuyAgainAddress] = useState("");
+  const [buyAgainInstructions, setBuyAgainInstructions] = useState("");
+  const [buyAgainSearch, setBuyAgainSearch] = useState("");
   const [buyAgainCoupon, setBuyAgainCoupon] = useState("");
   const [buyAgainError, setBuyAgainError] = useState("");
   const [trackingOrderId, setTrackingOrderId] = useState("");
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
   });
-  const [completedAtMap, setCompletedAtMap] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem("el-order-completed-at") || "{}"); } catch { return {}; }
-  });
-  const [reviewDrafts, setReviewDrafts] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem("el-order-reviews") || "{}"); } catch { return {}; }
-  });
-  const [reviewOrderId, setReviewOrderId] = useState("");
   const [demoOrders, setDemoOrders] = useState(() => {
     try {
       const saved = window.localStorage.getItem("el-demo-orders");
@@ -90,28 +85,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return [];
     }
   });
-  useEffect(() => {
-    // Browser demo cleanup: only completed orders expire, seven days after receipt confirmation.
-    const now = Date.now();
-    const expiredIds = new Set(demoOrders.filter((order) => {
-      if (!receivedOrderIds.includes(order.id)) return false;
-      const completedAt = completedAtMap[order.id] || order.createdAt;
-      return now - new Date(completedAt).getTime() >= 7 * 24 * 60 * 60 * 1000;
-    }).map((order) => order.id));
-    if (!expiredIds.size) return;
-    const nextOrders = demoOrders.filter((order) => !expiredIds.has(order.id));
-    const nextReceived = receivedOrderIds.filter((id) => !expiredIds.has(id));
-    const nextCompleted = Object.fromEntries(Object.entries(completedAtMap).filter(([id]) => !expiredIds.has(id)));
-    const nextReviews = Object.fromEntries(Object.entries(reviewDrafts).filter(([id]) => !expiredIds.has(id)));
-    setDemoOrders(nextOrders); setReceivedOrderIds(nextReceived); setCompletedAtMap(nextCompleted); setReviewDrafts(nextReviews);
-    try {
-      window.localStorage.setItem("el-demo-orders", JSON.stringify(nextOrders));
-      window.localStorage.setItem("el-received-order-ids", JSON.stringify(nextReceived));
-      window.localStorage.setItem("el-order-completed-at", JSON.stringify(nextCompleted));
-      window.localStorage.setItem("el-order-reviews", JSON.stringify(nextReviews));
-    } catch {}
-  }, [demoOrders, receivedOrderIds, completedAtMap, reviewDrafts]);
-
   const [checkoutName, setCheckoutName] = useState("");
   const [checkoutPhone, setCheckoutPhone] = useState("");
   const [checkoutAddress, setCheckoutAddress] = useState("");
@@ -224,7 +197,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
     if (destination === "buy-again") {
       const latest = demoOrders[0];
       setBuyAgainItems(Object.fromEntries((latest?.items || []).map((item) => [item.id, item.quantity])));
-      setBuyAgainName(latest?.name || ""); setBuyAgainPhone(latest?.phone || ""); setBuyAgainAddress(latest?.address || "");
+      setBuyAgainName(latest?.name || ""); setBuyAgainPhone(latest?.phone || ""); setBuyAgainAddress(latest?.address || ""); setBuyAgainInstructions(latest?.instructions || ""); setBuyAgainSearch("");
       setBuyAgainCoupon(""); setBuyAgainError(""); setBuyAgainOpen(true); return;
     }
     if (destination === "guide") {
@@ -464,7 +437,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
               {couponDiscount > 0 && <div className="el-summary-line" style={{ color: "#16803d" }}><span>Coupon Discount</span><strong>−৳{couponDiscount}</strong></div>}
               <div className="el-summary-line el-summary-total"><span>Total Payable</span><strong>৳{finalTotal}</strong></div>
               {checkoutError && <p role="alert" style={{ color: "#b42318", background: "#fff0ef", padding: 8, borderRadius: 8, fontSize: 11, margin: "7px 0" }}>{checkoutError}</p>}
-              <button type="button" onClick={() => { if (!cartProducts.length) { setCheckoutError("আপনার Cart খালি। আগে পণ্য যোগ করুন।"); return; } if (!checkoutName.trim()) { setCheckoutError("আপনার নাম লিখুন।"); document.getElementById("el-checkout-name")?.focus(); return; } if (!isValidBangladeshMobile(checkoutPhone.trim())) { setCheckoutError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); document.getElementById("el-checkout-phone")?.focus(); return; } if (!checkoutAddress.trim() || checkoutAddress.trim().length < 8) { setCheckoutError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); document.getElementById("el-checkout-address")?.focus(); return; } const orderNumber = "EL-DEMO-" + Date.now().toString().slice(-6); const orderRecord = { id: orderNumber, createdAt: new Date().toISOString(), name: checkoutName.trim(), phone: checkoutPhone.trim(), address: checkoutAddress.trim(), instructions: checkoutInstructions.trim(), location: liveLocation, items: cartProducts.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: cart[product.id], image: product.image })), subtotal: cartSubtotal, savings: cartSavings, deliveryFee: cartProducts.length ? demoDeliveryFee : 0, discount: couponDiscount, total: finalTotal, payment: paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod, status: "Demo only — not submitted" }; setDemoOrderNumber(orderNumber); setDemoOrders((previous) => { const next = [orderRecord, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; }); setCheckoutError(""); setOrderComplete(true); }} style={{ width: "100%", border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800, fontSize: 14 }}>Confirm Order · ৳{finalTotal}</button>
+              <button type="button" onClick={() => { if (!cartProducts.length) { setCheckoutError("আপনার Cart খালি। আগে পণ্য যোগ করুন।"); return; } if (!checkoutName.trim()) { setCheckoutError("আপনার নাম লিখুন।"); document.getElementById("el-checkout-name")?.focus(); return; } if (!isValidBangladeshMobile(checkoutPhone.trim())) { setCheckoutError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); document.getElementById("el-checkout-phone")?.focus(); return; } if (!checkoutAddress.trim() || checkoutAddress.trim().length < 8) { setCheckoutError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); document.getElementById("el-checkout-address")?.focus(); return; } const orderNumber = "EL-DEMO-" + Date.now().toString().slice(-6); const orderRecord = { id: orderNumber, createdAt: new Date().toISOString(), name: checkoutName.trim(), phone: checkoutPhone.trim(), address: checkoutAddress.trim(), items: cartProducts.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: cart[product.id], image: product.image })), subtotal: cartSubtotal, savings: cartSavings, deliveryFee: cartProducts.length ? demoDeliveryFee : 0, discount: couponDiscount, total: finalTotal, payment: "Cash on Delivery", status: "Demo only — not submitted" }; setDemoOrderNumber(orderNumber); setDemoOrders((previous) => { const next = [orderRecord, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; }); setCheckoutError(""); setOrderComplete(true); }} style={{ width: "100%", border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800, fontSize: 14 }}>Confirm Order · ৳{finalTotal}</button>
               <p style={{ fontSize: 10, color: "#718075", lineHeight: 1.4, margin: "6px 0 0" }}>Demo version: অর্ডারটি এখনো সেভ হবে না বা Merchant-এর কাছে যাবে না।</p>
             </section>
           </>}
@@ -472,66 +445,50 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </div>}
       {ordersOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-orders-title" style={{ position: "fixed", inset: 0, zIndex: 1200, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
-          <button type="button" onClick={() => trackingOrderId ? (setTrackingOrderId(""), setReviewOrderId("")) : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
-          <div style={{ flex: 1 }}><h2 id="el-orders-title" style={{ margin: 0, fontSize: 18 }}>{trackingOrderId ? "Order Details & Tracking" : "My Orders"}</h2><small style={{ color: "#718075" }}>{trackingOrderId ? "প্রতিটি অর্ডারের তথ্য আলাদা" : "সক্রিয় অর্ডার এবং শেষ ৭ দিনের সম্পন্ন অর্ডার"}</small></div>
+          <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
+          <div style={{ flex: 1 }}><h2 id="el-orders-title" style={{ margin: 0, fontSize: 18 }}>{trackingOrderId ? "Track Order" : "My Orders"}</h2><small style={{ color: "#718075" }}>{trackingOrderId ? "প্রতিটি অর্ডারের ট্র্যাকিং আলাদা" : "Active orders + completed orders from the last 7 days"}</small></div>
+          {!trackingOrderId && <button type="button" onClick={() => { setOrdersOpen(false); handleNavigation("buy-again"); }} style={{ border: 0, borderRadius: 9, padding: "8px 10px", color: "#176b36", background: "#eaf6ed", fontWeight: 750, fontSize: 12 }}>Buy Again</button>}
         </header>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: 12, paddingBottom: 30 }}>
-          <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 11, marginBottom: 10, color: "#76551b", fontSize: 12, lineHeight: 1.5 }}><strong>ডেমো সংস্করণ:</strong> অর্ডারের তথ্য এই ব্রাউজারে থাকে। বাস্তব Rider GPS, লাইভ ETA, Merchant status এবং Rider message Backend যুক্ত হলে চালু হবে। এখানে কোনো ভুয়া live location দেখানো হচ্ছে না।</div>
+          <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 11, marginBottom: 10, color: "#76551b", fontSize: 12, lineHeight: 1.5 }}><strong>Prototype notice:</strong> These are browser-saved order previews. Live merchant updates, rider GPS, ETA and rider messaging are not connected yet. No fake live location or ETA is shown.</div>
           {trackingOrderId ? (() => {
             const order = demoOrders.find((item) => item.id === trackingOrderId);
-            if (!order) return <section style={{ background: "white", borderRadius: 12, padding: 18 }}>এই অর্ডারটি পাওয়া যায়নি। <button type="button" onClick={() => setTrackingOrderId("")}>ফিরে যান</button></section>;
+            if (!order) return <p>এই অর্ডারটি পাওয়া যায়নি।</p>;
             const received = receivedOrderIds.includes(order.id);
-            const completedAt = completedAtMap[order.id];
-            const review = reviewDrafts[order.id] || { rider: { rating: 0, text: "" }, merchant: { rating: 0, text: "" }, products: { rating: 0, text: "" }, submitted: false };
-            const updateReview = (kind, key, value) => setReviewDrafts((previous) => {
-              const next = { ...previous, [order.id]: { ...(previous[order.id] || review), [kind]: { ...((previous[order.id] || review)[kind] || { rating: 0, text: "" }), [key]: value } } };
-              try { window.localStorage.setItem("el-order-reviews", JSON.stringify(next)); } catch {}
-              return next;
-            });
-            const removeOrder = () => {
-              if (!window.confirm("এই সম্পন্ন অর্ডারটি মুছে ফেলতে চান? এটি শুধু এই ব্রাউজারের ডেমো ইতিহাস থেকে মুছবে।")) return;
-              const nextOrders = demoOrders.filter((item) => item.id !== order.id);
-              const nextReceived = receivedOrderIds.filter((id) => id !== order.id);
-              const nextCompleted = { ...completedAtMap }; delete nextCompleted[order.id];
-              const nextReviews = { ...reviewDrafts }; delete nextReviews[order.id];
-              setDemoOrders(nextOrders); setReceivedOrderIds(nextReceived); setCompletedAtMap(nextCompleted); setReviewDrafts(nextReviews); setTrackingOrderId("");
-              try { window.localStorage.setItem("el-demo-orders", JSON.stringify(nextOrders)); window.localStorage.setItem("el-received-order-ids", JSON.stringify(nextReceived)); window.localStorage.setItem("el-order-completed-at", JSON.stringify(nextCompleted)); window.localStorage.setItem("el-order-reviews", JSON.stringify(nextReviews)); } catch {}
-              showNotice("অর্ডারটি এই ব্রাউজারের ডেমো ইতিহাস থেকে মুছে ফেলা হয়েছে।");
-            };
             return <div style={{ display: "grid", gap: 10 }}>
               <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 13 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}><div><strong style={{ color: "#176b36", fontSize: 15 }}>{order.id}</strong><small style={{ display: "block", color: "#718075", marginTop: 3 }}>{new Date(order.createdAt).toLocaleString()}</small></div><span style={{ background: received ? "#e3f6e8" : "#fff3d8", color: received ? "#176b36" : "#8a5b13", padding: "5px 7px", borderRadius: 7, fontSize: 10, fontWeight: 800 }}>{received ? "Order Received" : "Order in progress (demo)"}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}><div><strong style={{ color: "#176b36", fontSize: 15 }}>{order.id}</strong><small style={{ display: "block", color: "#718075", marginTop: 3 }}>{new Date(order.createdAt).toLocaleString()}</small></div><span style={{ background: received ? "#e3f6e8" : "#fff3d8", color: received ? "#176b36" : "#8a5b13", padding: "5px 7px", borderRadius: 7, fontSize: 10, fontWeight: 800 }}>{received ? "Received (demo)" : "Preview only"}</span></div>
                 <h3 style={{ margin: "14px 0 8px", fontSize: 14 }}>Order progress</h3>
-                {["Order confirmed", "Merchant preparing items", "Rider assigned", "Rider picked up order", "On the way", "Order received"].map((step, index) => <div key={step} style={{ display: "flex", gap: 9, alignItems: "center", padding: "8px 0", borderBottom: index < 5 ? "1px solid #edf1ed" : 0 }}><span style={{ width: 24, height: 24, display: "grid", placeItems: "center", borderRadius: 99, background: received && index === 5 ? "#16803d" : "#edf2ed", color: received && index === 5 ? "white" : "#6b7b6e", fontSize: 12 }}>{received && index === 5 ? "✓" : index + 1}</span><span style={{ fontSize: 12, fontWeight: 650 }}>{step}</span><small style={{ marginLeft: "auto", color: "#7b887e", fontSize: 10 }}>{received && index === 5 ? "Confirmed by customer" : "Backend update pending"}</small></div>)}
-                <div style={{ marginTop: 12, padding: 11, borderRadius: 9, background: "#f4f8f4", fontSize: 12, lineHeight: 1.6 }}><strong>Parcel location & Rider messages</strong><p style={{ margin: "5px 0 0", color: "#718075" }}>Rider-এর নাম, বর্তমান GPS অবস্থান, সঠিক ETA এবং তার পাঠানো বার্তা Backend ও Rider app সংযুক্ত না হওয়া পর্যন্ত পাওয়া যাবে না।</p><div style={{ marginTop: 8, borderTop: "1px solid #e2ebe3", paddingTop: 8 }}><strong>Rider messages</strong><p style={{ margin: "4px 0 0", color: "#718075" }}>এখনও কোনো বাস্তব Rider message নেই।</p></div></div>
-                {!received && <button type="button" onClick={() => { const next = [...receivedOrderIds, order.id]; const nextTimes = { ...completedAtMap, [order.id]: new Date().toISOString() }; setReceivedOrderIds(next); setCompletedAtMap(nextTimes); try { window.localStorage.setItem("el-received-order-ids", JSON.stringify(next)); window.localStorage.setItem("el-order-completed-at", JSON.stringify(nextTimes)); } catch {} showNotice("ডেমোতে অর্ডার গ্রহণ নিশ্চিত হয়েছে। এখন Review দিতে পারবেন।"); }} style={{ width: "100%", marginTop: 12, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>✓ Order Received</button>}
-                {received && <div style={{ marginTop: 12, background: "#eff9f1", padding: 11, borderRadius: 10 }}><strong style={{ fontSize: 13 }}>Rate Your Experience</strong><p style={{ color: "#647568", fontSize: 11, margin: "5px 0 9px" }}>অর্ডার গ্রহণ নিশ্চিত করার পরই রিভিউ দেওয়া যাবে।</p>{[ ["rider", "Rider"], ["merchant", "Merchant"], ["products", "Products"] ].map(([kind, label]) => <div key={kind} style={{ borderTop: "1px solid #dcebe0", padding: "9px 0" }}><strong style={{ fontSize: 12 }}>{label}</strong><div style={{ display: "flex", gap: 5, margin: "6px 0" }}>{[1,2,3,4,5].map((star) => <button key={star} type="button" aria-label={`${label} ${star} stars`} onClick={() => updateReview(kind, "rating", star)} style={{ border: 0, background: "transparent", color: star <= (review[kind]?.rating || 0) ? "#e8a400" : "#aab5ac", fontSize: 25, padding: "0 2px" }}>★</button>)}</div><textarea value={review[kind]?.text || ""} onChange={(e) => updateReview(kind, "text", e.target.value)} rows={2} placeholder={`${label} সম্পর্কে আপনার মতামত (ঐচ্ছিক)`} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, font: "inherit", fontSize: 12 }} /></div>)}<button type="button" onClick={() => { const next = { ...reviewDrafts, [order.id]: { ...review, submitted: true } }; setReviewDrafts(next); try { window.localStorage.setItem("el-order-reviews", JSON.stringify(next)); } catch {} showNotice("রিভিউ এই ব্রাউজারে ডেমো হিসেবে সংরক্ষিত হয়েছে; এখনো সার্ভারে জমা হয়নি।"); }} style={{ width: "100%", border: 0, borderRadius: 8, padding: 10, background: "#16803d", color: "white", fontWeight: 800 }}>{review.submitted ? "Review Saved (demo)" : "Submit Review"}</button><small style={{ display: "block", color: "#718075", marginTop: 6 }}>রিভিউ এই ডিভাইসে ডেমো হিসেবে থাকবে, Backend যুক্ত হলে বাস্তবভাবে জমা হবে।</small></div>}
-                {received && <div style={{ textAlign: "right", marginTop: 10, fontSize: 11, color: "#718075" }}>Completed: {completedAt ? new Date(completedAt).toLocaleString() : "time not recorded"}<button type="button" onClick={removeOrder} style={{ display: "block", marginLeft: "auto", marginTop: 6, border: "1px solid #f0d2d2", background: "white", color: "#a12b2b", borderRadius: 7, padding: "5px 8px", fontSize: 11 }}>Delete order</button></div>}
+                {["Order confirmed", "Merchant preparing items", "Rider assigned", "Rider picked up order", "On the way", "Order received"].map((step, index) => <div key={step} style={{ display: "flex", gap: 9, alignItems: "center", padding: "8px 0", borderBottom: index < 5 ? "1px solid #edf1ed" : 0 }}><span style={{ width: 24, height: 24, display: "grid", placeItems: "center", borderRadius: 99, background: received && index === 5 ? "#16803d" : "#edf2ed", color: received && index === 5 ? "white" : "#6b7b6e", fontSize: 12 }}>{received && index === 5 ? "✓" : index + 1}</span><span style={{ fontSize: 12, fontWeight: 650 }}>{step}</span><small style={{ marginLeft: "auto", color: "#7b887e", fontSize: 10 }}>{received && index === 5 ? "Confirmed by customer" : "Awaiting real backend"}</small></div>)}
+                <p style={{ color: "#718075", fontSize: 11, lineHeight: 1.5, marginBottom: 0 }}>Rider name, live location, ETA and chat will appear here after rider and backend integration. This demo does not claim a rider has been assigned.</p>
+                {!received && <button type="button" onClick={() => { const next = [...receivedOrderIds, order.id]; setReceivedOrderIds(next); try { window.localStorage.setItem("el-received-order-ids", JSON.stringify(next)); } catch {} showNotice("Received confirmation saved in this browser (demo)."); }} style={{ width: "100%", marginTop: 12, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Order Received (demo only)</button>}
+                {received && <div style={{ marginTop: 12, background: "#eff9f1", padding: 11, borderRadius: 10 }}><strong style={{ fontSize: 13 }}>Review after delivery</strong><p style={{ color: "#647568", fontSize: 11, margin: "5px 0 9px" }}>Real reviews will be saved after review backend integration.</p><div style={{ display: "grid", gap: 7 }}>{["Rate Rider", "Rate Merchant", "Rate Products"].map((label) => <button key={label} type="button" onClick={() => showNotice("Review form will be connected with the review backend.")} style={{ border: "1px solid #cfe2d2", background: "white", color: "#176b36", borderRadius: 8, padding: 9, fontWeight: 750 }}>{label} ☆</button>)}</div></div>}
               </section>
               <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 13 }}>
-                <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Items & full bill</h3>
-                {(order.items || []).map((item) => <div key={`${order.id}-${item.id}`} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: "1px solid #edf1ed" }}><img src={item.image} alt={item.name} style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 7 }} /><span style={{ flex: 1, fontSize: 12 }}>{item.name}<small style={{ display: "block", color: "#718075" }}>{item.unit || ""} · ৳{item.price} × {item.quantity}</small></span><strong style={{ fontSize: 12 }}>৳{item.price * item.quantity}</strong></div>)}
-                <div className="el-summary-line"><span>Subtotal</span><strong>৳{order.subtotal}</strong></div><div className="el-summary-line"><span>Total product savings</span><strong>৳{order.savings || 0}</strong></div><div className="el-summary-line"><span>Delivery fee</span><strong>৳{order.deliveryFee}</strong></div><div className="el-summary-line"><span>Discount</span><strong>−৳{order.discount || 0}</strong></div><div className="el-summary-line el-summary-total"><span>Total payable</span><strong>৳{order.total}</strong></div>
-                <p style={{ color: "#718075", fontSize: 11, lineHeight: 1.7 }}>Customer name: {order.name || "—"}<br />Phone: {order.phone || "—"}<br />Delivery address: {order.address || "—"}<br />Payment method: {order.payment || "Cash on Delivery"}<br />Extra delivery instructions: {order.instructions || "No extra instructions"}<br />GPS location: {order.location ? `${order.location.latitude}, ${order.location.longitude}` : "Not attached to saved demo order"}</p>
+                <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Items & bill</h3>
+                {(order.items || []).map((item) => <div key={`${order.id}-${item.id}`} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: "1px solid #edf1ed" }}><img src={item.image} alt={item.name} style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 7 }} /><span style={{ flex: 1, fontSize: 12 }}>{item.name} × {item.quantity}</span><strong style={{ fontSize: 12 }}>৳{item.price * item.quantity}</strong></div>)}
+                <div className="el-summary-line"><span>Subtotal</span><strong>৳{order.subtotal}</strong></div><div className="el-summary-line"><span>Product savings</span><strong>৳{order.savings || 0}</strong></div><div className="el-summary-line"><span>Delivery fee</span><strong>৳{order.deliveryFee}</strong></div>{order.discount > 0 && <div className="el-summary-line"><span>Discount</span><strong>−৳{order.discount}</strong></div>}<div className="el-summary-line el-summary-total"><span>Total payable</span><strong>৳{order.total}</strong></div>
+                <p style={{ color: "#718075", fontSize: 11, lineHeight: 1.6 }}>Name: {order.name}<br />Phone: {order.phone}<br />Delivery address: {order.address}<br />Payment: {order.payment}</p>
               </section>
             </div>;
           })() : (() => {
+            const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
             const visibleOrders = demoOrders.filter((order) => {
-              if (!receivedOrderIds.includes(order.id)) return true;
-              const completedAt = completedAtMap[order.id] || order.createdAt;
-              return Date.now() - new Date(completedAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+              const completed = receivedOrderIds.includes(order.id);
+              return !completed || new Date(order.createdAt).getTime() >= cutoff;
             });
-            return visibleOrders.length === 0 ? <section style={{ background: "white", border: "1px solid #e8eee8", borderRadius: 12, padding: "28px 16px", textAlign: "center" }}><div style={{ fontSize: 38 }}>🧾</div><h3 style={{ margin: "8px 0" }}>No orders yet</h3><p style={{ color: "#718075", fontSize: 13 }}>অর্ডার করলে এখানে দেখা যাবে। সক্রিয় অর্ডার থাকবে; Order Received নিশ্চিত করার পর সম্পন্ন অর্ডার ৭ দিন রাখা হবে।</p><button type="button" onClick={() => setOrdersOpen(false)} style={{ background: "#16803d", color: "white", border: 0, borderRadius: 9, padding: "10px 15px", fontWeight: 800 }}>Start Shopping</button></section> : <div style={{ display: "grid", gap: 9 }}>{visibleOrders.map((order) => {
+            return visibleOrders.length === 0 ? <section style={{ background: "white", border: "1px solid #e8eee8", borderRadius: 12, padding: "28px 16px", textAlign: "center" }}><div style={{ fontSize: 38 }}>🧾</div><h3 style={{ margin: "8px 0" }}>No orders yet</h3><p style={{ color: "#718075", fontSize: 13 }}>আপনার অর্ডার করলে এখানে দেখা যাবে। ডেলিভারি সম্পন্ন অর্ডার সর্বশেষ ৭ দিন থাকবে; সক্রিয় অর্ডার ডেলিভারি না হওয়া পর্যন্ত থাকবে।</p><button type="button" onClick={() => setOrdersOpen(false)} style={{ background: "#16803d", color: "white", border: 0, borderRadius: 9, padding: "10px 15px", fontWeight: 800 }}>Start Shopping</button></section> : <div style={{ display: "grid", gap: 9 }}>{visibleOrders.map((order) => {
               const received = receivedOrderIds.includes(order.id);
               return <article key={order.id} style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}><div><strong style={{ color: "#176b36", fontSize: 14 }}>{order.id}</strong><small style={{ display: "block", color: "#718075", marginTop: 3, fontSize: 11 }}>{new Date(order.createdAt).toLocaleString()}</small></div><span style={{ background: received ? "#e3f6e8" : "#fff3d8", color: received ? "#176b36" : "#8a5b13", padding: "5px 7px", borderRadius: 7, fontSize: 10, fontWeight: 800 }}>{received ? "Order Received" : "Active · demo"}</span></div>
-                <div style={{ display: "flex", gap: 7, alignItems: "center", margin: "10px 0" }}>{(order.items || []).slice(0, 4).map((item) => <img key={`${order.id}-${item.id}`} src={item.image} alt={item.name} title={item.name} style={{ width: 39, height: 39, objectFit: "cover", borderRadius: 7, border: "1px solid #edf1ed" }} />)}<span style={{ fontSize: 11, color: "#718075" }}>{order.items?.length || 0} product types · {(order.items || []).reduce((sum, item) => sum + item.quantity, 0)} items</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}><div><strong style={{ fontSize: 14 }}>৳{order.total}</strong><small style={{ display: "block", color: "#718075", fontSize: 10, marginTop: 3 }}>{received ? "Received · kept 7 days" : "Tracking / order details"}</small></div><button type="button" onClick={() => setTrackingOrderId(order.id)} style={{ border: 0, borderRadius: 8, padding: "9px 11px", background: "#16803d", color: "white", fontWeight: 800, fontSize: 12 }}>{received ? "View Order" : "Track Order"}</button></div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}><div><strong style={{ color: "#176b36", fontSize: 14 }}>{order.id}</strong><small style={{ display: "block", color: "#718075", marginTop: 3, fontSize: 11 }}>{new Date(order.createdAt).toLocaleString()}</small></div><span style={{ background: received ? "#e3f6e8" : "#fff3d8", color: received ? "#176b36" : "#8a5b13", padding: "5px 7px", borderRadius: 7, fontSize: 10, fontWeight: 800 }}>{received ? "Received (demo)" : "Preview only"}</span></div>
+                <div style={{ display: "flex", gap: 7, alignItems: "center", margin: "10px 0" }}>{(order.items || []).slice(0, 4).map((item) => <img key={`${order.id}-${item.id}`} src={item.image} alt={item.name} title={item.name} style={{ width: 39, height: 39, objectFit: "cover", borderRadius: 7, border: "1px solid #edf1ed" }} />)}<span style={{ fontSize: 11, color: "#718075" }}>{order.items?.length || 0} product types</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}><div><strong style={{ fontSize: 14 }}>৳{order.total}</strong><small style={{ display: "block", color: "#718075", fontSize: 10, marginTop: 3 }}>{received ? "Order received" : "Tracking details available in order view"}</small></div><button type="button" onClick={() => setTrackingOrderId(order.id)} style={{ border: 0, borderRadius: 8, padding: "9px 11px", background: "#16803d", color: "white", fontWeight: 800, fontSize: 12 }}>{received ? "View Order" : "Track Order"}</button></div>
               </article>;
             })}</div>;
           })()}
         </div>
       </div>}
+
       {buyAgainOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-buy-again-title" style={{ position: "fixed", inset: 0, zIndex: 1250, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         {(() => {
           const lastOrder = demoOrders[0];
@@ -542,6 +499,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           const code = buyAgainCoupon.trim().toUpperCase();
           const discount = code === "SAVE10" ? Math.min(10, subtotal) : code === "SAVE20" ? Math.min(20, subtotal) : 0;
           const total = Math.max(0, subtotal + (items.length ? demoDeliveryFee : 0) - discount);
+          const availableToAdd = PRODUCTS.filter((product) => !(buyAgainItems[product.id] > 0) && (!buyAgainSearch.trim() || product.name.toLowerCase().includes(buyAgainSearch.trim().toLowerCase()) || product.category.toLowerCase().includes(buyAgainSearch.trim().toLowerCase())));
           const setItemQuantity = (id, nextQty) => setBuyAgainItems((prev) => { const next = { ...prev }; if (nextQty <= 0) delete next[id]; else next[id] = nextQty; return next; });
           const updateDraftQty = (id, delta) => setItemQuantity(id, (buyAgainItems[id] || 0) + delta);
           const createRepeatOrder = () => {
@@ -550,7 +508,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             if (!isValidBangladeshMobile(buyAgainPhone.trim())) { setBuyAgainError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
             if (!buyAgainAddress.trim() || buyAgainAddress.trim().length < 8) { setBuyAgainError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); return; }
             const orderId = "EL-DEMO-" + Date.now().toString().slice(-6);
-            const newOrder = { id: orderId, createdAt: new Date().toISOString(), name: buyAgainName.trim(), phone: buyAgainPhone.trim(), address: buyAgainAddress.trim(), items: items.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: buyAgainItems[product.id], image: product.image })), subtotal, savings, deliveryFee: demoDeliveryFee, discount, total, payment: "Cash on Delivery", status: "Demo only — not submitted" };
+            const newOrder = { id: orderId, createdAt: new Date().toISOString(), name: buyAgainName.trim(), phone: buyAgainPhone.trim(), address: buyAgainAddress.trim(), instructions: buyAgainInstructions.trim(), items: items.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: buyAgainItems[product.id], image: product.image })), subtotal, savings, deliveryFee: demoDeliveryFee, discount, total, payment: "Cash on Delivery", status: "Demo only — not submitted" };
             setDemoOrders((previous) => { const next = [newOrder, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; });
             setDemoOrderNumber(orderId); setBuyAgainOpen(false); setOrdersOpen(true); setTrackingOrderId(orderId); setBuyAgainError("");
             showNotice("New order preview created. It has not been sent to a merchant.");
@@ -559,7 +517,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
               <button type="button" onClick={() => setBuyAgainOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
               <div style={{ flex: 1 }}><h2 id="el-buy-again-title" style={{ margin: 0, fontSize: 18 }}>Buy Again</h2><small style={{ color: "#718075" }}>Edit your latest order before reordering</small></div>
-              <button type="button" onClick={() => { setBuyAgainItems({}); setBuyAgainName(""); setBuyAgainPhone(""); setBuyAgainAddress(""); setBuyAgainCoupon(""); setBuyAgainError(""); showNotice("Buy Again draft cleared. The previous order remains unchanged."); }} style={{ border: "1px solid #e1e9e2", borderRadius: 8, padding: "8px 9px", background: "white", color: "#9b2c2c", fontWeight: 750, fontSize: 11 }}>Clear draft</button>
+              <button type="button" onClick={() => { setBuyAgainItems({}); setBuyAgainCoupon(""); setBuyAgainError(""); showNotice("Buy Again draft cleared. The previous order remains unchanged."); }} style={{ border: "1px solid #e1e9e2", borderRadius: 8, padding: "8px 9px", background: "white", color: "#9b2c2c", fontWeight: 750, fontSize: 11 }}>Clear draft</button>
             </header>
             <div style={{ maxWidth: 720, margin: "0 auto", padding: 12, paddingBottom: 32 }}>
               <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 10, marginBottom: 10, color: "#76551b", fontSize: 11, lineHeight: 1.5 }}>This is a separate reorder page, not order history. Confirming creates a new order preview; it does not cancel or replace an already submitted real order. This demo saves locally only.</div>
@@ -570,16 +528,17 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
                     <img src={product.image} alt={product.name} style={{ width: 54, height: 54, objectFit: "cover", borderRadius: 8 }} />
                     <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", fontSize: 12 }}>{product.name}</strong><small style={{ color: "#718075", fontSize: 10 }}>{product.unit}</small><div style={{ color: "#16803d", fontWeight: 800, fontSize: 12, marginTop: 3 }}>৳{product.price} <span style={{ color: "#718075", textDecoration: "line-through", fontWeight: 500 }}>৳{product.oldPrice}</span></div></div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, border: "1px solid #cfe2d2", borderRadius: 8, padding: "3px 5px" }}><button type="button" onClick={() => updateDraftQty(product.id, -1)} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 19 }}>−</button><strong style={{ fontSize: 12 }}>{buyAgainItems[product.id] || 0}</strong><button type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 19 }}>+</button></div>
-                    <button type="button" onClick={() => setItemQuantity(product.id, 0)} style={{ border: 0, background: "#fff0ef", color: "#a12b2b", borderRadius: 7, padding: "7px 8px", fontSize: 10, fontWeight: 800 }}>Delete</button>
+                    <button type="button" onClick={() => setItemQuantity(product.id, 0)} aria-label={`Delete ${product.name} from Buy Again`} title="Remove product" style={{ border: 0, background: "#fff0ef", color: "#a12b2b", borderRadius: 7, padding: "7px 8px", fontSize: 15, fontWeight: 800 }}>🗑</button>
                   </article>)}
-                  <h4 style={{ margin: "12px 0 7px", fontSize: 13 }}>+ Add More Products</h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(135px,1fr))", gap: 7 }}>{PRODUCTS.filter((product) => !(buyAgainItems[product.id] > 0)).map((product) => <button key={product.id} type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ display: "flex", alignItems: "center", gap: 7, textAlign: "left", border: "1px solid #e3ebe4", borderRadius: 9, padding: 7, background: "white", color: "#173b25" }}><img src={product.image} alt="" style={{ width: 38, height: 38, objectFit: "cover", borderRadius: 6 }} /><span style={{ minWidth: 0, fontSize: 11, fontWeight: 700 }}>{product.name}<small style={{ display: "block", color: "#16803d" }}>৳{product.price} · + Add</small></span></button>)}</div>
+                  <h4 style={{ margin: "12px 0 7px", fontSize: 13 }}>＋ Add More Products</h4>
+                  <input aria-label="Search products to add" value={buyAgainSearch} onChange={(event) => setBuyAgainSearch(event.target.value)} placeholder="Search products to add…" style={{ width: "100%", boxSizing: "border-box", padding: 10, marginBottom: 8, border: "1px solid #d6e3d8", borderRadius: 8, background: "#fbfdfb" }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(135px,1fr))", gap: 7 }}>{availableToAdd.map((product) => <button key={product.id} type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ display: "flex", alignItems: "center", gap: 7, textAlign: "left", border: "1px solid #e3ebe4", borderRadius: 9, padding: 7, background: "white", color: "#173b25" }}><img src={product.image} alt="" style={{ width: 38, height: 38, objectFit: "cover", borderRadius: 6 }} /><span style={{ minWidth: 0, fontSize: 11, fontWeight: 700 }}>{product.name}<small style={{ display: "block", color: "#16803d" }}>৳{product.price} · + Add</small></span></button>)}</div>
                 </section>
                 <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
                   <h3 style={{ margin: "0 0 9px", fontSize: 14 }}>Delivery details</h3>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Full name</label><input value={buyAgainName} onChange={(e) => setBuyAgainName(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 9 }} />
                   <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Mobile number</label><input value={buyAgainPhone} onChange={(e) => setBuyAgainPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} inputMode="numeric" maxLength={11} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 9 }} />
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Delivery address</label><textarea value={buyAgainAddress} onChange={(e) => setBuyAgainAddress(e.target.value)} rows={3} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, resize: "vertical" }} />
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Delivery address</label><textarea value={buyAgainAddress} onChange={(e) => setBuyAgainAddress(e.target.value)} rows={3} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, resize: "vertical", marginBottom: 9 }} /><label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Delivery instructions (optional)</label><textarea value={buyAgainInstructions} onChange={(e) => setBuyAgainInstructions(e.target.value)} rows={2} placeholder="যেমন: বাসার গেটের সামনে ফোন করবেন" style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, resize: "vertical" }} />
                 </section>
                 <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12 }}>
                   <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Bill summary</h3><div className="el-summary-line"><span>Products total</span><strong>৳{subtotal}</strong></div><div className="el-summary-line"><span>Product savings</span><strong>৳{savings}</strong></div><div className="el-summary-line"><span>Delivery fee</span><strong>৳{items.length ? demoDeliveryFee : 0}</strong></div><div className="el-summary-line"><span>Discount</span><strong>−৳{discount}</strong></div><div className="el-summary-line el-summary-total"><span>Total payable</span><strong>৳{total}</strong></div>
