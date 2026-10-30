@@ -64,13 +64,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
-  const [buyAgainOpen, setBuyAgainOpen] = useState(false);
-  const [buyAgainItems, setBuyAgainItems] = useState({});
-  const [buyAgainName, setBuyAgainName] = useState("");
-  const [buyAgainPhone, setBuyAgainPhone] = useState("");
-  const [buyAgainAddress, setBuyAgainAddress] = useState("");
-  const [buyAgainCoupon, setBuyAgainCoupon] = useState("");
-  const [buyAgainError, setBuyAgainError] = useState("");
   const [trackingOrderId, setTrackingOrderId] = useState("");
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -192,32 +185,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       setTrackingOrderId("");
       return;
     }
-    if (destination === "buy-again") {
-      const latest = demoOrders[0];
-      if (!latest || !Array.isArray(latest.items) || latest.items.length === 0) {
-        showNotice("আগে কোনো অর্ডার নেই। পণ্য বেছে নিয়ে কার্টে যোগ করুন।");
-        setCartOpen(true);
-        return;
-      }
-      // Reorder only the products and quantities from the latest order.
-      // Merge with the current cart; do not copy customer/address/payment data.
-      setCart((previous) => {
-        const next = { ...previous };
-        latest.items.forEach((item) => {
-          const product = PRODUCTS.find((candidate) => String(candidate.id) === String(item.id));
-          if (!product) return;
-          const quantity = Math.max(0, Number(item.quantity) || 0);
-          if (quantity > 0) next[product.id] = (Number(next[product.id]) || 0) + quantity;
-        });
-        return next;
-      });
-      setBuyAgainOpen(false);
-      setOrdersOpen(false);
-      setTrackingOrderId("");
-      setCartOpen(true);
-      showNotice("সর্বশেষ অর্ডারের পণ্যগুলো Cart-এ যোগ হয়েছে।");
-      return;
-    }
     if (destination === "guide") {
       if (typeof onNavigate === "function") onNavigate("guide");
       else showNotice("Information Guide will be connected in the next step.");
@@ -333,8 +300,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <section className="el-quick-links">
           <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
-          <button type="button" onClick={() => handleNavigation("buy-again")}><span>🔄</span><span>Buy Again</span><b>→</b></button>
           <button type="button" onClick={() => showNotice(wishlist.length ? `${wishlist.length} saved favourite product(s)` : "Your wishlist is empty yet.")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
+          <button type="button" onClick={() => handleNavigation("guide")}><span>☰</span><span>Guide</span><b>→</b></button>
           <button type="button" onClick={() => showNotice("Recently viewed products will appear here.")}><span>◷</span><span>Recently Viewed</span><b>→</b></button>
         </section>
 
@@ -350,10 +317,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       <nav className="el-bottom-nav" aria-label="Main navigation">
         <button type="button" className="is-active" onClick={() => handleNavigation("home")}><span className="el-nav-icon">⌂</span><span>Home</span></button>
         <button type="button" onClick={() => handleNavigation("categories")}><span className="el-nav-icon">▦</span><span>Categories</span></button>
-        <button type="button" onClick={() => handleNavigation("popular")}><span className="el-nav-icon">♨</span><span>Popular</span></button>
         <button type="button" onClick={() => handleNavigation("orders")}><span className="el-nav-icon">▤</span><span>My Orders</span></button>
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
-        <button type="button" onClick={() => handleNavigation("guide")}><span className="el-nav-icon">☰</span><span>Guide</span></button>
       </nav>
 
       <style>{`
@@ -465,7 +430,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
           <div style={{ flex: 1 }}><h2 id="el-orders-title" style={{ margin: 0, fontSize: 18 }}>{trackingOrderId ? "Track Order" : "My Orders"}</h2><small style={{ color: "#718075" }}>{trackingOrderId ? "প্রতিটি অর্ডারের ট্র্যাকিং আলাদা" : "Active orders + completed orders from the last 7 days"}</small></div>
-          {!trackingOrderId && <button type="button" onClick={() => { setOrdersOpen(false); handleNavigation("buy-again"); }} style={{ border: 0, borderRadius: 9, padding: "8px 10px", color: "#176b36", background: "#eaf6ed", fontWeight: 750, fontSize: 12 }}>Buy Again</button>}
         </header>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: 12, paddingBottom: 30 }}>
           <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 11, marginBottom: 10, color: "#76551b", fontSize: 12, lineHeight: 1.5 }}><strong>Prototype notice:</strong> These are browser-saved order previews. Live merchant updates, rider GPS, ETA and rider messaging are not connected yet. No fake live location or ETA is shown.</div>
@@ -505,66 +469,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             })}</div>;
           })()}
         </div>
-      </div>}
-
-      {buyAgainOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-buy-again-title" style={{ position: "fixed", inset: 0, zIndex: 1250, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
-        {(() => {
-          const lastOrder = demoOrders[0];
-          const items = PRODUCTS.filter((product) => (buyAgainItems[product.id] || 0) > 0);
-          const subtotal = items.reduce((sum, product) => sum + product.price * buyAgainItems[product.id], 0);
-          const compare = items.reduce((sum, product) => sum + (product.oldPrice || product.price) * buyAgainItems[product.id], 0);
-          const savings = Math.max(0, compare - subtotal);
-          const code = buyAgainCoupon.trim().toUpperCase();
-          const discount = code === "SAVE10" ? Math.min(10, subtotal) : code === "SAVE20" ? Math.min(20, subtotal) : 0;
-          const total = Math.max(0, subtotal + (items.length ? demoDeliveryFee : 0) - discount);
-          const setItemQuantity = (id, nextQty) => setBuyAgainItems((prev) => { const next = { ...prev }; if (nextQty <= 0) delete next[id]; else next[id] = nextQty; return next; });
-          const updateDraftQty = (id, delta) => setItemQuantity(id, (buyAgainItems[id] || 0) + delta);
-          const createRepeatOrder = () => {
-            if (!items.length) { setBuyAgainError("কমপক্ষে একটি পণ্য রাখুন অথবা Add More Products চাপুন।"); return; }
-            if (!buyAgainName.trim()) { setBuyAgainError("আপনার নাম লিখুন।"); return; }
-            if (!isValidBangladeshMobile(buyAgainPhone.trim())) { setBuyAgainError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
-            if (!buyAgainAddress.trim() || buyAgainAddress.trim().length < 8) { setBuyAgainError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); return; }
-            const orderId = "EL-DEMO-" + Date.now().toString().slice(-6);
-            const newOrder = { id: orderId, createdAt: new Date().toISOString(), name: buyAgainName.trim(), phone: buyAgainPhone.trim(), address: buyAgainAddress.trim(), items: items.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: buyAgainItems[product.id], image: product.image })), subtotal, savings, deliveryFee: demoDeliveryFee, discount, total, payment: "Cash on Delivery", status: "Demo only — not submitted" };
-            setDemoOrders((previous) => { const next = [newOrder, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; });
-            setDemoOrderNumber(orderId); setBuyAgainOpen(false); setOrdersOpen(true); setTrackingOrderId(orderId); setBuyAgainError("");
-            showNotice("New order preview created. It has not been sent to a merchant.");
-          };
-          return <>
-            <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
-              <button type="button" onClick={() => setBuyAgainOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
-              <div style={{ flex: 1 }}><h2 id="el-buy-again-title" style={{ margin: 0, fontSize: 18 }}>Buy Again</h2><small style={{ color: "#718075" }}>Edit your latest order before reordering</small></div>
-              <button type="button" onClick={() => { setBuyAgainItems({}); setBuyAgainName(""); setBuyAgainPhone(""); setBuyAgainAddress(""); setBuyAgainCoupon(""); setBuyAgainError(""); showNotice("Buy Again draft cleared. The previous order remains unchanged."); }} style={{ border: "1px solid #e1e9e2", borderRadius: 8, padding: "8px 9px", background: "white", color: "#9b2c2c", fontWeight: 750, fontSize: 11 }}>Clear draft</button>
-            </header>
-            <div style={{ maxWidth: 720, margin: "0 auto", padding: 12, paddingBottom: 32 }}>
-              <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 10, marginBottom: 10, color: "#76551b", fontSize: 11, lineHeight: 1.5 }}>This is a separate reorder page, not order history. Confirming creates a new order preview; it does not cancel or replace an already submitted real order. This demo saves locally only.</div>
-              {!lastOrder ? <section style={{ background: "white", borderRadius: 12, padding: 20, textAlign: "center" }}><div style={{ fontSize: 36 }}>🛒</div><h3>No previous order yet</h3><p style={{ color: "#718075", fontSize: 12 }}>আপনার প্রথম অর্ডারের পর এখানে আগের পণ্য ও ডেলিভারি তথ্য দেখানো হবে। এখন চাইলে পণ্য বেছে নিতে পারেন।</p><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(135px,1fr))", gap: 7, textAlign: "left" }}>{PRODUCTS.map((product) => <button key={product.id} type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ display: "flex", alignItems: "center", gap: 7, border: "1px solid #e3ebe4", borderRadius: 9, padding: 7, background: "white", color: "#173b25" }}><img src={product.image} alt="" style={{ width: 38, height: 38, objectFit: "cover", borderRadius: 6 }} /><span style={{ fontSize: 11, fontWeight: 700 }}>{product.name}<small style={{ display: "block", color: "#16803d" }}>৳{product.price} · + Add</small></span></button>)}</div><p style={{ color: "#718075", fontSize: 11 }}>Add products here, then fill in your delivery details below.</p><label style={{ display: "block", textAlign: "left", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Full name</label><input value={buyAgainName} onChange={(e) => setBuyAgainName(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 8 }} /><label style={{ display: "block", textAlign: "left", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Mobile number</label><input value={buyAgainPhone} onChange={(e) => setBuyAgainPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} inputMode="numeric" maxLength={11} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 8 }} /><label style={{ display: "block", textAlign: "left", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Delivery address</label><textarea value={buyAgainAddress} onChange={(e) => setBuyAgainAddress(e.target.value)} rows={2} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8 }} />{buyAgainError && <p role="alert" style={{ color: "#a12b2b", fontSize: 12 }}>{buyAgainError}</p>}<button type="button" onClick={() => { const picked = PRODUCTS.filter((product) => (buyAgainItems[product.id] || 0) > 0); const sub = picked.reduce((sum, product) => sum + product.price * buyAgainItems[product.id], 0); const save = picked.reduce((sum, product) => sum + (product.oldPrice || product.price) * buyAgainItems[product.id], 0) - sub; if (!picked.length) { setBuyAgainError("কমপক্ষে একটি পণ্য যোগ করুন।"); return; } if (!buyAgainName.trim() || !isValidBangladeshMobile(buyAgainPhone.trim()) || buyAgainAddress.trim().length < 8) { setBuyAgainError("সঠিক নাম, ১১ সংখ্যার মোবাইল ও সম্পূর্ণ ঠিকানা দিন।"); return; } const id = "EL-DEMO-" + Date.now().toString().slice(-6); const record = { id, createdAt: new Date().toISOString(), name: buyAgainName.trim(), phone: buyAgainPhone.trim(), address: buyAgainAddress.trim(), items: picked.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: buyAgainItems[product.id], image: product.image })), subtotal: sub, savings: Math.max(0, save), deliveryFee: demoDeliveryFee, discount: 0, total: sub + demoDeliveryFee, payment: "Cash on Delivery", status: "Demo only — not submitted" }; setDemoOrders((previous) => { const next = [record, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; }); setBuyAgainOpen(false); setOrdersOpen(true); setTrackingOrderId(id); showNotice("Order preview saved in this browser only."); }} style={{ width: "100%", marginTop: 10, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Confirm New Order</button></section> : <>
-                <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
-                  <h3 style={{ margin: "0 0 10px", fontSize: 14 }}>Products from {lastOrder.id}</h3>
-                  {items.map((product) => <article key={product.id} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 0", borderBottom: "1px solid #edf1ed" }}>
-                    <img src={product.image} alt={product.name} style={{ width: 54, height: 54, objectFit: "cover", borderRadius: 8 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", fontSize: 12 }}>{product.name}</strong><small style={{ color: "#718075", fontSize: 10 }}>{product.unit}</small><div style={{ color: "#16803d", fontWeight: 800, fontSize: 12, marginTop: 3 }}>৳{product.price} <span style={{ color: "#718075", textDecoration: "line-through", fontWeight: 500 }}>৳{product.oldPrice}</span></div></div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, border: "1px solid #cfe2d2", borderRadius: 8, padding: "3px 5px" }}><button type="button" onClick={() => updateDraftQty(product.id, -1)} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 19 }}>−</button><strong style={{ fontSize: 12 }}>{buyAgainItems[product.id] || 0}</strong><button type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 19 }}>+</button></div>
-                    <button type="button" onClick={() => setItemQuantity(product.id, 0)} style={{ border: 0, background: "#fff0ef", color: "#a12b2b", borderRadius: 7, padding: "7px 8px", fontSize: 10, fontWeight: 800 }}>Delete</button>
-                  </article>)}
-                  <h4 style={{ margin: "12px 0 7px", fontSize: 13 }}>+ Add More Products</h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(135px,1fr))", gap: 7 }}>{PRODUCTS.filter((product) => !(buyAgainItems[product.id] > 0)).map((product) => <button key={product.id} type="button" onClick={() => updateDraftQty(product.id, 1)} style={{ display: "flex", alignItems: "center", gap: 7, textAlign: "left", border: "1px solid #e3ebe4", borderRadius: 9, padding: 7, background: "white", color: "#173b25" }}><img src={product.image} alt="" style={{ width: 38, height: 38, objectFit: "cover", borderRadius: 6 }} /><span style={{ minWidth: 0, fontSize: 11, fontWeight: 700 }}>{product.name}<small style={{ display: "block", color: "#16803d" }}>৳{product.price} · + Add</small></span></button>)}</div>
-                </section>
-                <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
-                  <h3 style={{ margin: "0 0 9px", fontSize: 14 }}>Delivery details</h3>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Full name</label><input value={buyAgainName} onChange={(e) => setBuyAgainName(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 9 }} />
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Mobile number</label><input value={buyAgainPhone} onChange={(e) => setBuyAgainPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} inputMode="numeric" maxLength={11} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, marginBottom: 9 }} />
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 4 }}>Delivery address</label><textarea value={buyAgainAddress} onChange={(e) => setBuyAgainAddress(e.target.value)} rows={3} style={{ width: "100%", boxSizing: "border-box", padding: 10, border: "1px solid #d6e3d8", borderRadius: 8, resize: "vertical" }} />
-                </section>
-                <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 12 }}>
-                  <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Bill summary</h3><div className="el-summary-line"><span>Products total</span><strong>৳{subtotal}</strong></div><div className="el-summary-line"><span>Product savings</span><strong>৳{savings}</strong></div><div className="el-summary-line"><span>Delivery fee</span><strong>৳{items.length ? demoDeliveryFee : 0}</strong></div><div className="el-summary-line"><span>Discount</span><strong>−৳{discount}</strong></div><div className="el-summary-line el-summary-total"><span>Total payable</span><strong>৳{total}</strong></div>
-                  {buyAgainError && <p role="alert" style={{ background: "#fff0ef", color: "#a12b2b", padding: 9, borderRadius: 8, fontSize: 12 }}>{buyAgainError}</p>}
-                  <button type="button" onClick={createRepeatOrder} style={{ width: "100%", marginTop: 8, border: 0, borderRadius: 9, padding: 12, background: "#16803d", color: "white", fontWeight: 800 }}>Confirm New Order · ৳{total}</button>
-                </section>
-              </>}
-            </div>
-          </>;
-        })()}
       </div>}
 
       {notice && <div className="el-toast" role="status"><span>✓</span>{notice}<button type="button" onClick={() => setNotice("")} aria-label="Dismiss message">×</button></div>}
