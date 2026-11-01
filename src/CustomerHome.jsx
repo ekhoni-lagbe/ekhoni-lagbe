@@ -64,19 +64,23 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [orderComplete, setOrderComplete] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
-  
-  // New States for Account Auth & Notifications
+
+  // Account Page States (Create Account / Login Separate Pages)
   const [accountOpen, setAccountOpen] = useState(false);
-  const [authStep, setAuthStep] = useState("phone"); // 'phone', 'otp', 'register'
-  const [authPhone, setAuthPhone] = useState("");
-  const [authName, setAuthName] = useState("");
-  const [authOtp, setAuthOtp] = useState("");
+  const [accountMode, setAccountMode] = useState("register"); // 'register' or 'login'
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regOtp, setRegOtp] = useState("");
+  const [loginPhone, setLoginPhone] = useState("");
+  const [loginOtp, setLoginOtp] = useState("");
+  const [accountError, setAccountError] = useState("");
   const [userProfile, setUserProfile] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-user-profile")) || null; } catch { return null; }
   });
-  const [authError, setAuthError] = useState("");
+
+  // Notification Page States
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]); // Empty by default as requested
 
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -191,6 +195,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
     }
     if (destination === "account") {
       setAccountOpen(true);
+      setAccountError("");
       return;
     }
     if (destination === "notifications") {
@@ -326,7 +331,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
         ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
-        <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Find your favourites and build your grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
+        <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Product favourites and grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
 
       <footer className="el-footer"><img src="/logo.png" alt="" /><span>EKHONI LAGBE</span><small>15-Minute Delivery — Right to Your Hands</small></footer>
@@ -338,75 +343,73 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
       </nav>
 
-      {/* Account Modal (New Account Registration & Login with OTP) */}
-      {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 15 }}>
-        <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 14, padding: 20, position: "relative", color: "#173b25" }}>
-          <button type="button" onClick={() => { setAccountOpen(false); setAuthStep("phone"); setAuthError(""); }} style={{ position: "absolute", top: 12, right: 12, border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: "50%", width: 30, height: 30, fontSize: 16, fontWeight: 800 }}>×</button>
-          
+      {/* Account Page Modal (Create Account / Login Separate View) */}
+      {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
+            <button type="button" onClick={() => setAccountOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "6px 12px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18 }}>{accountMode === "register" ? "Create Account" : "Login"}</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
           {userProfile ? (
-            <div>
-              <h2 style={{ margin: "0 0 10px", fontSize: 18 }}>My Account</h2>
-              <div style={{ background: "#f5f8f5", padding: 12, borderRadius: 10, marginBottom: 15 }}>
-                <p style={{ margin: "4px 0" }}><strong>Name:</strong> {userProfile.name}</p>
-                <p style={{ margin: "4px 0" }}><strong>Phone:</strong> {userProfile.phone}</p>
-              </div>
-              <button type="button" onClick={() => { setUserProfile(null); window.localStorage.removeItem("el-user-profile"); showNotice("Logged out successfully."); }} style={{ width: "100%", border: 0, background: "#ffebee", color: "#c62828", borderRadius: 9, padding: 11, fontWeight: 800 }}>Log Out</button>
+            <div style={{ textAlign: "center", padding: "30px 0" }}>
+              <div style={{ fontSize: 50, marginBottom: 10 }}>👤</div>
+              <h3 style={{ margin: "5px 0" }}>{userProfile.name}</h3>
+              <p style={{ color: "#647568", margin: "0 0 20px" }}>{userProfile.phone}</p>
+              <button type="button" onClick={() => { setUserProfile(null); window.localStorage.removeItem("el-user-profile"); showNotice("Logged out successfully."); }} style={{ width: "100%", border: 0, background: "#ffebee", color: "#c62828", borderRadius: 9, padding: 12, fontWeight: 800 }}>Log Out</button>
             </div>
           ) : (
             <div>
-              <h2 style={{ margin: "0 0 5px", fontSize: 18 }}>{authStep === "phone" ? "Login or Sign Up" : authStep === "register" ? "Create Account" : "OTP Verification"}</h2>
-              <p style={{ color: "#647568", fontSize: 12, margin: "0 0 15px" }}>{authStep === "phone" ? "Enter your mobile number to continue" : authStep === "register" ? "Please enter your name" : "Enter the 4-digit OTP sent to your phone"}</p>
+              {/* Mode Toggle Switch */}
+              <div style={{ display: "flex", background: "#f5f8f5", borderRadius: 9, padding: 4, marginBottom: 20 }}>
+                <button type="button" onClick={() => { setAccountMode("register"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "register" ? "white" : "transparent", color: accountMode === "register" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "register" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Create Account</button>
+                <button type="button" onClick={() => { setAccountMode("login"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "login" ? "white" : "transparent", color: accountMode === "login" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "login" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Login</button>
+              </div>
 
-              {authStep === "phone" && (
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile Number</label>
-                  <input value={authPhone} onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13 }} />
-                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
-                  <button type="button" onClick={() => {
-                    if (!isValidBangladeshMobile(authPhone)) { setAuthError("সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (013–019)।"); return; }
-                    setAuthError("");
-                    setAuthStep("otp");
-                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Next →</button>
-                </div>
-              )}
+              {accountError && <p style={{ color: "#b42318", background: "#fff0ef", padding: 9, borderRadius: 8, fontSize: 12, marginBottom: 15 }}>{accountError}</p>}
 
-              {authStep === "otp" && (
+              {accountMode === "register" ? (
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP Code (Demo: use any 4 digits)</label>
-                  <input value={authOtp} onChange={(e) => setAuthOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="1234" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13, textAlign: "center", letterSpacing: 4 }} />
-                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
-                  <button type="button" onClick={() => {
-                    if (authOtp.length < 4) { setAuthError("৪ সংখ্যার ওটিপি কোড দিন।"); return; }
-                    setAuthError("");
-                    // Check if already registered (mock check via local storage or assume new if not saved)
-                    const existingName = window.localStorage.getItem("el-user-name-" + authPhone);
-                    if (existingName) {
-                      const profile = { name: existingName, phone: authPhone };
-                      setUserProfile(profile);
-                      window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
-                      setAccountOpen(false);
-                      showNotice("Successfully logged in!");
-                    } else {
-                      setAuthStep("register");
-                    }
-                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Verify OTP →</button>
-                </div>
-              )}
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Name *</label>
+                  <input value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="আপনার নাম লিখুন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile number *</label>
+                  <input value={regPhone} onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP *</label>
+                  <input value={regOtp} onChange={(e) => setRegOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="৪ ডিজিটের ওটিপি দিন (যেমন: 1234)" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 20, fontSize: 13 }} />
 
-              {authStep === "register" && (
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Your Full Name</label>
-                  <input value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="আপনার নাম লিখুন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13 }} />
-                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
                   <button type="button" onClick={() => {
-                    if (!authName.trim()) { setAuthError("দয়া করে আপনার নাম লিখুন।"); return; }
-                    window.localStorage.setItem("el-user-name-" + authPhone, authName.trim());
-                    const profile = { name: authName.trim(), phone: authPhone };
+                    if (!regName.trim()) { setAccountError("দয়া করে আপনার নাম লিখুন। শহর"); return; }
+                    if (!isValidBangladeshMobile(regPhone)) { setAccountError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
+                    if (regOtp.length < 4) { setAccountError("৪ সংখ্যার ওটিপি (OTP) কোড দিন।"); return; }
+                    
+                    const profile = { name: regName.trim(), phone: regPhone };
                     setUserProfile(profile);
                     window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
                     setAccountOpen(false);
                     showNotice("Account created successfully!");
-                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Create Account & Login</button>
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Create Account</button>
+                </div>
+              ) : (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile number *</label>
+                  <input value={loginPhone} onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP *</label>
+                  <input value={loginOtp} onChange={(e) => setLoginOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="৪ ডিজিটের ওটিপি দিন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 20, fontSize: 13 }} />
+
+                  <button type="button" onClick={() => {
+                    if (!isValidBangladeshMobile(loginPhone)) { setAccountError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
+                    if (loginOtp.length < 4) { setAccountError("৪ সংখ্যার ওটিপি (OTP) কোড দিন।"); return; }
+
+                    const profile = { name: "User (" + loginPhone.slice(-4) + ")", phone: loginPhone };
+                    setUserProfile(profile);
+                    window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
+                    setAccountOpen(false);
+                    showNotice("Logged in successfully!");
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Login</button>
                 </div>
               )}
             </div>
@@ -414,23 +417,26 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
 
-      {/* Notification Modal */}
-      {notificationsOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 15 }}>
-        <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 14, padding: 20, position: "relative", color: "#173b25" }}>
-          <button type="button" onClick={() => setNotificationsOpen(false)} style={{ position: "absolute", top: 12, right: 12, border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: "50%", width: 30, height: 30, fontSize: 16, fontWeight: 800 }}>×</button>
-          <h2 style={{ margin: "0 0 15px", fontSize: 18 }}>Notifications</h2>
-          
+      {/* Notification Page Modal */}
+      {notificationsOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
+            <button type="button" onClick={() => setNotificationsOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "6px 12px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18 }}>Notifications</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
           {notificationsList.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "30px 10px" }}>
-              <div style={{ fontSize: 40, marginBottom: 10 }}>🔔</div>
-              <h3 style={{ margin: "0 0 5px", fontSize: 16 }}>নোটিফিকেশন নেই</h3>
-              <p style={{ color: "#647568", fontSize: 12, margin: "0 0 20px" }}>আপনার জন্য এই মুহূর্তে কোনো নতুন নোটিফিকেশন নেই।</p>
-              <button type="button" onClick={() => setNotificationsOpen(false)} style={{ border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: "10px 20px", fontWeight: 800 }}>কন্টিনিউ শপিং</button>
+            <div style={{ textAlign: "center", padding: "50px 15px" }}>
+              <div style={{ fontSize: 50, marginBottom: 15 }}>🔔</div>
+              <h3 style={{ margin: "0 0 8px", fontSize: 18 }}>নোটিফিকেশন নেই</h3>
+              <p style={{ color: "#647568", fontSize: 13, margin: "0 0 25px" }}>এই মুহূর্তে আপনার কোনো নতুন নোটিফিকেশন নেই।</p>
+              <button type="button" onClick={() => { setNotificationsOpen(false); handleNavigation("home"); }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Continue Shopping</button>
             </div>
           ) : (
-            <div style={{ display: "grid", gap: 10, maxHeight: 300, overflowY: "auto" }}>
+            <div style={{ display: "grid", gap: 10 }}>
               {notificationsList.map((notif, idx) => (
-                <div key={idx} style={{ background: "#f5f8f5", padding: 10, borderRadius: 8, fontSize: 13 }}>{notif}</div>
+                <div key={idx} style={{ background: "#f5f8f5", padding: 12, borderRadius: 8, fontSize: 13, border: "1px solid #e8eee8" }}>{notif}</div>
               ))}
             </div>
           )}
