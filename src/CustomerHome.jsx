@@ -43,7 +43,6 @@ const OFFERS = [
 ];
 
 const formatPrice = (price) => `৳${price}`;
-// Accept standard Bangladesh mobile numbers only: 013–019, exactly 11 digits.
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
@@ -65,6 +64,20 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [orderComplete, setOrderComplete] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
+  
+  // New States for Account Auth & Notifications
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [authStep, setAuthStep] = useState("phone"); // 'phone', 'otp', 'register'
+  const [authPhone, setAuthPhone] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authOtp, setAuthOtp] = useState("");
+  const [userProfile, setUserProfile] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem("el-user-profile")) || null; } catch { return null; }
+  });
+  const [authError, setAuthError] = useState("");
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState([]);
+
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
   });
@@ -177,7 +190,11 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "account") {
-      if (typeof onNavigate === "function") onNavigate("account");
+      setAccountOpen(true);
+      return;
+    }
+    if (destination === "notifications") {
+      setNotificationsOpen(true);
       return;
     }
     if (destination === "orders") {
@@ -257,8 +274,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             <button type="button" className="el-header-icon" onClick={() => handleNavigation("account")} aria-label="Account">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></svg><span>Account</span>
             </button>
-            <button type="button" className="el-header-icon el-notification-button" onClick={() => showNotice("You have no new notifications.")} aria-label="Notifications">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg><span>Alerts</span>
+            <button type="button" className="el-header-icon el-notification-button" onClick={() => handleNavigation("notifications")} aria-label="Notifications">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg><span>Notification</span>
             </button>
           </div>
         </div>
@@ -320,6 +337,105 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("orders")}><span className="el-nav-icon">▤</span><span>My Orders</span></button>
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
       </nav>
+
+      {/* Account Modal (New Account Registration & Login with OTP) */}
+      {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 15 }}>
+        <div style={{ background: "white", width: "100%", maxWidth: 400, borderRadius: 14, padding: 20, position: "relative", color: "#173b25" }}>
+          <button type="button" onClick={() => { setAccountOpen(false); setAuthStep("phone"); setAuthError(""); }} style={{ position: "absolute", top: 12, right: 12, border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: "50%", width: 30, height: 30, fontSize: 16, fontWeight: 800 }}>×</button>
+          
+          {userProfile ? (
+            <div>
+              <h2 style={{ margin: "0 0 10px", fontSize: 18 }}>My Account</h2>
+              <div style={{ background: "#f5f8f5", padding: 12, borderRadius: 10, marginBottom: 15 }}>
+                <p style={{ margin: "4px 0" }}><strong>Name:</strong> {userProfile.name}</p>
+                <p style={{ margin: "4px 0" }}><strong>Phone:</strong> {userProfile.phone}</p>
+              </div>
+              <button type="button" onClick={() => { setUserProfile(null); window.localStorage.removeItem("el-user-profile"); showNotice("Logged out successfully."); }} style={{ width: "100%", border: 0, background: "#ffebee", color: "#c62828", borderRadius: 9, padding: 11, fontWeight: 800 }}>Log Out</button>
+            </div>
+          ) : (
+            <div>
+              <h2 style={{ margin: "0 0 5px", fontSize: 18 }}>{authStep === "phone" ? "Login or Sign Up" : authStep === "register" ? "Create Account" : "OTP Verification"}</h2>
+              <p style={{ color: "#647568", fontSize: 12, margin: "0 0 15px" }}>{authStep === "phone" ? "Enter your mobile number to continue" : authStep === "register" ? "Please enter your name" : "Enter the 4-digit OTP sent to your phone"}</p>
+
+              {authStep === "phone" && (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile Number</label>
+                  <input value={authPhone} onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13 }} />
+                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
+                  <button type="button" onClick={() => {
+                    if (!isValidBangladeshMobile(authPhone)) { setAuthError("সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (013–019)।"); return; }
+                    setAuthError("");
+                    setAuthStep("otp");
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Next →</button>
+                </div>
+              )}
+
+              {authStep === "otp" && (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP Code (Demo: use any 4 digits)</label>
+                  <input value={authOtp} onChange={(e) => setAuthOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="1234" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13, textAlign: "center", letterSpacing: 4 }} />
+                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
+                  <button type="button" onClick={() => {
+                    if (authOtp.length < 4) { setAuthError("৪ সংখ্যার ওটিপি কোড দিন।"); return; }
+                    setAuthError("");
+                    // Check if already registered (mock check via local storage or assume new if not saved)
+                    const existingName = window.localStorage.getItem("el-user-name-" + authPhone);
+                    if (existingName) {
+                      const profile = { name: existingName, phone: authPhone };
+                      setUserProfile(profile);
+                      window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
+                      setAccountOpen(false);
+                      showNotice("Successfully logged in!");
+                    } else {
+                      setAuthStep("register");
+                    }
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Verify OTP →</button>
+                </div>
+              )}
+
+              {authStep === "register" && (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Your Full Name</label>
+                  <input value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="আপনার নাম লিখুন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 10, fontSize: 13 }} />
+                  {authError && <p style={{ color: "#b42318", fontSize: 11, margin: "0 0 10px" }}>{authError}</p>}
+                  <button type="button" onClick={() => {
+                    if (!authName.trim()) { setAuthError("দয়া করে আপনার নাম লিখুন।"); return; }
+                    window.localStorage.setItem("el-user-name-" + authPhone, authName.trim());
+                    const profile = { name: authName.trim(), phone: authPhone };
+                    setUserProfile(profile);
+                    window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
+                    setAccountOpen(false);
+                    showNotice("Account created successfully!");
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 11, fontWeight: 800 }}>Create Account & Login</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>}
+
+      {/* Notification Modal */}
+      {notificationsOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 15 }}>
+        <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 14, padding: 20, position: "relative", color: "#173b25" }}>
+          <button type="button" onClick={() => setNotificationsOpen(false)} style={{ position: "absolute", top: 12, right: 12, border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: "50%", width: 30, height: 30, fontSize: 16, fontWeight: 800 }}>×</button>
+          <h2 style={{ margin: "0 0 15px", fontSize: 18 }}>Notifications</h2>
+          
+          {notificationsList.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "30px 10px" }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>🔔</div>
+              <h3 style={{ margin: "0 0 5px", fontSize: 16 }}>নোটিফিকেশন নেই</h3>
+              <p style={{ color: "#647568", fontSize: 12, margin: "0 0 20px" }}>আপনার জন্য এই মুহূর্তে কোনো নতুন নোটিফিকেশন নেই।</p>
+              <button type="button" onClick={() => setNotificationsOpen(false)} style={{ border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: "10px 20px", fontWeight: 800 }}>কন্টিনিউ শপিং</button>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 10, maxHeight: 300, overflowY: "auto" }}>
+              {notificationsList.map((notif, idx) => (
+                <div key={idx} style={{ background: "#f5f8f5", padding: 10, borderRadius: 8, fontSize: 13 }}>{notif}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>}
 
       <style>{`
         .el-product-pricing{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:7px}
@@ -426,6 +542,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </>}
         </div>
       </div>}
+      
       {ordersOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-orders-title" style={{ position: "fixed", inset: 0, zIndex: 1200, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
