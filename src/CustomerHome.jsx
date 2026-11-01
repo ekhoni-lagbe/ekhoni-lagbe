@@ -52,7 +52,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [expandedSections, setExpandedSections] = useState({});
   const [cart, setCart] = useState({});
   const [wishlist, setWishlist] = useState([]);
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
@@ -134,7 +133,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   );
 
   const openProduct = (product) => {
-    setRecentlyViewed((previous) => [product.id, ...previous.filter((id) => id !== product.id)].slice(0, 8));
     setSelectedProduct(product);
     setActiveImageIndex(0);
   };
@@ -167,15 +165,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "popular") {
-      document.getElementById("el-popular")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-    if (destination === "wishlist") {
-      document.getElementById("el-wishlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-    if (destination === "recently-viewed") {
-      document.getElementById("el-recently-viewed")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      goToProducts("all");
       return;
     }
     if (destination === "offers") {
@@ -296,45 +286,28 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        {/* Homepage sections follow the requested order: Offers, Popular, Wishlist, Guide, Recently Viewed. */}
-        <section className="el-offers-section" id="el-offers">
-          <div className="el-section-heading"><div><h2>My Offers</h2></div><span className="el-swipe-hint">Swipe →</span></div>
-          <div className="el-offer-scroller">{OFFERS.map((offer, index) => <article className={`el-offer-banner ${offer.theme}`} key={offer.id}><div className="el-offer-copy"><span className="el-offer-eyebrow">{offer.eyebrow}</span><h2>{offer.title}</h2><p>{offer.description}</p><button type="button" className="el-shop-now" onClick={() => { setActiveOffer(index); goToProducts(offer.category); }}>{offer.button} <span>→</span></button></div><div className="el-offer-art" aria-hidden="true"><span>{offer.emoji}</span><i>✦</i><b>✿</b></div></article>)}</div>
-          <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
-        </section>
-
-        <section className="el-section" id="el-popular">
-          <div className="el-section-heading"><div><h2>Popular</h2><p>Everyday favourites for your home</p></div></div>
-          <div className="el-product-grid">{PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)).map(productCard)}</div>
-        </section>
-
-        <section className="el-section" id="el-wishlist">
-          <div className="el-section-heading"><div><h2>My Wishlist</h2><p>Your saved favourite products</p></div></div>
-          {wishlist.length ? <div className="el-product-grid">{PRODUCTS.filter((product) => wishlist.includes(product.id)).map(productCard)}</div> : <div className="el-empty-state"><span>♡</span><h3>Your wishlist is empty</h3><p>Tap the heart on a product to save it here.</p><button type="button" onClick={() => goToProducts("all")}>Explore Products</button></div>}
-        </section>
-
-        <section className="el-section" id="el-guide">
-          <div className="el-section-heading"><div><h2>Guide</h2><p>How to shop with Ekhoni Lagbe</p></div></div>
-          <div className="el-guide-steps" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: 10 }}>
-            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>01 · Choose</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Browse categories or search for the products you need.</p></article>
-            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>02 · Add</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Add products to your cart and adjust quantities.</p></article>
-            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>03 · Checkout</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Enter your delivery details and review your order.</p></article>
-          </div>
-        </section>
-
-        <section className="el-section" id="el-recently-viewed">
-          <div className="el-section-heading"><div><h2>Recently Viewed</h2><p>Products you opened recently in this visit</p></div></div>
-          {recentlyViewed.length ? <div className="el-product-grid">{PRODUCTS.filter((product) => recentlyViewed.includes(product.id)).sort((a, b) => recentlyViewed.indexOf(a.id) - recentlyViewed.indexOf(b.id)).map(productCard)}</div> : <div className="el-empty-state"><span>◷</span><h3>No recently viewed products</h3><p>Products you open will appear here.</p></div>}
-        </section>
-
         <section className="el-categories-section" id="el-categories">
           <div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div>
           <div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div>
         </section>
 
+        <section className="el-offers-section" id="el-offers">
+          <div className="el-section-heading"><div><h2>Special for You</h2></div><span className="el-swipe-hint">Swipe →</span></div>
+          <div className="el-offer-scroller">{OFFERS.map((offer, index) => <article className={`el-offer-banner ${offer.theme}`} key={offer.id}><div className="el-offer-copy"><span className="el-offer-eyebrow">{offer.eyebrow}</span><h2>{offer.title}</h2><p>{offer.description}</p><button type="button" className="el-shop-now" onClick={() => { setActiveOffer(index); goToProducts(offer.category); }}>{offer.button} <span>→</span></button></div><div className="el-offer-art" aria-hidden="true"><span>{offer.emoji}</span><i>✦</i><b>✿</b></div></article>)}</div>
+          <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
+        </section>
+
+        <section className="el-quick-links">
+          <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
+          <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
+          <button type="button" onClick={() => showNotice(wishlist.length ? `${wishlist.length} saved favourite product(s)` : "Your wishlist is empty yet.")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
+          <button type="button" onClick={() => handleNavigation("guide")}><span>☰</span><span>Guide</span><b>→</b></button>
+          <button type="button" onClick={() => showNotice("Recently viewed products will appear here.")}><span>◷</span><span>Recently Viewed</span><b>→</b></button>
+        </section>
+
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
-        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
+        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
         <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Find your favourites and build your grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
