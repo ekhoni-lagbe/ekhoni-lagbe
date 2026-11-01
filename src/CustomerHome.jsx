@@ -34,18 +34,6 @@ const PRODUCTS = [
   { id: 10, name: "Orange Juice", category: "beverages", price: 85, oldPrice: 95, unit: "1 pack", badge: "", image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=85"] },
   { id: 11, name: "Potato Chips", category: "snacks", price: 30, oldPrice: 35, unit: "1 pack", badge: "", image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=900&q=85"] },
   { id: 12, name: "Fresh Fish", category: "meat", price: 220, oldPrice: 240, unit: "500 g", badge: "", image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=900&q=85"] },
-  { id: 13, name: "Red Onions", category: "vegetables", price: 55, oldPrice: 65, unit: "1 kg", badge: "Daily Essential", image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=900&q=85"] },
-  { id: 14, name: "Green Cucumbers", category: "vegetables", price: 35, oldPrice: 45, unit: "500 g", badge: "Fresh", image: "https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=900&q=85"] },
-  { id: 15, name: "Sweet Oranges", category: "fruits", price: 120, oldPrice: 140, unit: "1 kg", badge: "Seasonal", image: "https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=900&q=85"] },
-  { id: 16, name: "Green Grapes", category: "fruits", price: 160, oldPrice: 180, unit: "500 g", badge: "", image: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=900&q=85"] },
-  { id: 17, name: "Plain Yogurt", category: "dairy", price: 75, oldPrice: 85, unit: "500 g", badge: "", image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=85"] },
-  { id: 18, name: "Butter", category: "dairy", price: 95, oldPrice: 110, unit: "200 g", badge: "", image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=85"] },
-  { id: 19, name: "Red Lentils", category: "rice", price: 130, oldPrice: 145, unit: "1 kg", badge: "Pantry", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=85"] },
-  { id: 20, name: "Cooking Oil", category: "rice", price: 175, oldPrice: 190, unit: "1 litre", badge: "Essential", image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=85"] },
-  { id: 21, name: "Fresh Bread", category: "snacks", price: 55, oldPrice: 65, unit: "1 loaf", badge: "", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85"] },
-  { id: 22, name: "Black Tea", category: "beverages", price: 110, oldPrice: 125, unit: "200 g", badge: "Popular", image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=900&q=85"] },
-  { id: 23, name: "Bathing Soap", category: "household", price: 45, oldPrice: 50, unit: "1 piece", badge: "", image: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&w=900&q=85"] },
-  { id: 24, name: "Laundry Detergent", category: "household", price: 85, oldPrice: 95, unit: "500 g", badge: "Home Care", image: "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=700&q=80", images: ["https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=900&q=85"] },
 ];
 
 const OFFERS = [
@@ -63,17 +51,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedSections, setExpandedSections] = useState({});
   const [cart, setCart] = useState({});
-  const [wishlist, setWishlist] = useState(() => { try { return JSON.parse(window.localStorage.getItem("el-wishlist") || "[]"); } catch { return []; } });
-  const [recentlyViewed, setRecentlyViewed] = useState(() => { try { return JSON.parse(window.localStorage.getItem("el-recently-viewed") || "[]"); } catch { return []; } });
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [authMode, setAuthMode] = useState("signup");
-  const [accountName, setAccountName] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
-  const [authOtp, setAuthOtp] = useState("");
-  const [demoOtp, setDemoOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [authError, setAuthError] = useState("");
-  const [accountProfile, setAccountProfile] = useState(() => { try { return JSON.parse(window.localStorage.getItem("el-customer-account") || "null"); } catch { return null; } });
+  const [wishlist, setWishlist] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
@@ -110,7 +89,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [couponMessage, setCouponMessage] = useState("");
   const [liveLocation, setLiveLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const demoDeliveryFee = 30;
+  const demoDeliveryFee = 20;
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
@@ -150,20 +129,14 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
     showNotice(change > 0 ? "Added to your cart" : "Cart updated");
   };
 
-  const toggleWishlist = (productId) => setWishlist((previous) => {
-    const next = previous.includes(productId) ? previous.filter((id) => id !== productId) : [...previous, productId];
-    try { window.localStorage.setItem("el-wishlist", JSON.stringify(next)); } catch {}
-    return next;
-  });
+  const toggleWishlist = (productId) => setWishlist((previous) =>
+    previous.includes(productId) ? previous.filter((id) => id !== productId) : [...previous, productId]
+  );
 
   const openProduct = (product) => {
+    setRecentlyViewed((previous) => [product.id, ...previous.filter((id) => id !== product.id)].slice(0, 8));
     setSelectedProduct(product);
     setActiveImageIndex(0);
-    setRecentlyViewed((previous) => {
-      const next = [product.id, ...previous.filter((id) => id !== product.id)].slice(0, 12);
-      try { window.localStorage.setItem("el-recently-viewed", JSON.stringify(next)); } catch {}
-      return next;
-    });
   };
 
   const closeProduct = () => {
@@ -194,7 +167,15 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "popular") {
-      goToProducts("all");
+      document.getElementById("el-popular")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (destination === "wishlist") {
+      document.getElementById("el-wishlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (destination === "recently-viewed") {
+      document.getElementById("el-recently-viewed")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     if (destination === "offers") {
@@ -206,11 +187,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "account") {
-      setAccountOpen(true);
-      setAuthMode(accountProfile ? "login" : "signup");
-      setAuthPhone(accountProfile?.phone || "");
-      setAuthError("");
-      setOtpSent(false);
+      if (typeof onNavigate === "function") onNavigate("account");
       return;
     }
     if (destination === "orders") {
@@ -219,30 +196,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "guide") {
-      document.getElementById("el-guide")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (typeof onNavigate === "function") onNavigate("guide");
+      else showNotice("Information Guide will be connected in the next step.");
     }
-  };
-
-  const requestDemoOtp = () => {
-    if (!isValidBangladeshMobile(authPhone)) { setAuthError("সঠিক ১১ সংখ্যার বাংলাদেশি নম্বর দিন (013–019)।"); return; }
-    const code = "123456";
-    setDemoOtp(code);
-    setOtpSent(true);
-    setAuthOtp("");
-    setAuthError("ডেমো OTP: 123456 (বাস্তবে SMS পাঠাতে SMS Gateway সংযোগ প্রয়োজন)।");
-  };
-
-  const verifyDemoOtp = () => {
-    if (authOtp !== demoOtp || !demoOtp) { setAuthError("OTP সঠিক নয়। আবার চেষ্টা করুন।"); return; }
-    const profile = { name: authMode === "signup" ? accountName.trim() : (accountProfile?.name || ""), phone: authPhone, verified: true };
-    try { window.localStorage.setItem("el-customer-account", JSON.stringify(profile)); } catch {}
-    setAccountProfile(profile);
-    setAccountOpen(false);
-    setOtpSent(false);
-    setDemoOtp("");
-    setAuthOtp("");
-    setAuthError("");
-    showNotice(authMode === "signup" ? "Account created (demo verification)." : "Login successful (demo verification).");
   };
 
   const productCard = (product) => {
@@ -340,22 +296,45 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
+        {/* Homepage sections follow the requested order: Offers, Popular, Wishlist, Guide, Recently Viewed. */}
         <section className="el-offers-section" id="el-offers">
-          <div className="el-section-heading"><div><h2>My Offers</h2><p>Fresh deals picked for your daily shopping</p></div><span className="el-swipe-hint">Swipe →</span></div>
+          <div className="el-section-heading"><div><h2>My Offers</h2></div><span className="el-swipe-hint">Swipe →</span></div>
           <div className="el-offer-scroller">{OFFERS.map((offer, index) => <article className={`el-offer-banner ${offer.theme}`} key={offer.id}><div className="el-offer-copy"><span className="el-offer-eyebrow">{offer.eyebrow}</span><h2>{offer.title}</h2><p>{offer.description}</p><button type="button" className="el-shop-now" onClick={() => { setActiveOffer(index); goToProducts(offer.category); }}>{offer.button} <span>→</span></button></div><div className="el-offer-art" aria-hidden="true"><span>{offer.emoji}</span><i>✦</i><b>✿</b></div></article>)}</div>
           <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
         </section>
 
+        <section className="el-section" id="el-popular">
+          <div className="el-section-heading"><div><h2>Popular</h2><p>Everyday favourites for your home</p></div></div>
+          <div className="el-product-grid">{PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)).map(productCard)}</div>
+        </section>
+
+        <section className="el-section" id="el-wishlist">
+          <div className="el-section-heading"><div><h2>My Wishlist</h2><p>Your saved favourite products</p></div></div>
+          {wishlist.length ? <div className="el-product-grid">{PRODUCTS.filter((product) => wishlist.includes(product.id)).map(productCard)}</div> : <div className="el-empty-state"><span>♡</span><h3>Your wishlist is empty</h3><p>Tap the heart on a product to save it here.</p><button type="button" onClick={() => goToProducts("all")}>Explore Products</button></div>}
+        </section>
+
+        <section className="el-section" id="el-guide">
+          <div className="el-section-heading"><div><h2>Guide</h2><p>How to shop with Ekhoni Lagbe</p></div></div>
+          <div className="el-guide-steps" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: 10 }}>
+            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>01 · Choose</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Browse categories or search for the products you need.</p></article>
+            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>02 · Add</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Add products to your cart and adjust quantities.</p></article>
+            <article style={{ background: "#fff", border: "1px solid #e5eee6", borderRadius: 12, padding: 12 }}><strong style={{ color: "#16803d" }}>03 · Checkout</strong><p style={{ margin: "7px 0 0", color: "#627267", fontSize: 12, lineHeight: 1.5 }}>Enter your delivery details and review your order.</p></article>
+          </div>
+        </section>
+
+        <section className="el-section" id="el-recently-viewed">
+          <div className="el-section-heading"><div><h2>Recently Viewed</h2><p>Products you opened recently in this visit</p></div></div>
+          {recentlyViewed.length ? <div className="el-product-grid">{PRODUCTS.filter((product) => recentlyViewed.includes(product.id)).sort((a, b) => recentlyViewed.indexOf(a.id) - recentlyViewed.indexOf(b.id)).map(productCard)}</div> : <div className="el-empty-state"><span>◷</span><h3>No recently viewed products</h3><p>Products you open will appear here.</p></div>}
+        </section>
+
+        <section className="el-categories-section" id="el-categories">
+          <div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div>
+          <div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div>
+        </section>
+
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
-        ) : <>{activeCategory === "all" ? <>
-          {renderSection("Popular", "Trending everyday essentials — swipe to explore", PRODUCTS.filter((product) => [2, 4, 7, 1, 3, 5, 6, 8, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22].includes(product.id)), "popular")}
-          {renderSection("My Wishlist", "Your saved favourites", PRODUCTS.filter((product) => wishlist.includes(product.id)), "wishlist") || <section className="el-section"><div className="el-section-heading"><div><h2>My Wishlist</h2><p>Your saved favourites will appear here</p></div></div><div className="el-empty-state"><span>♡</span><h3>No favourites yet</h3><p>Tap the heart on any product to save it here.</p></div></section>}
-          <section className="el-section" id="el-guide"><div className="el-section-heading"><div><h2>Guide</h2><p>Shopping made simple</p></div></div><div className="el-guide-grid"><article><span>🛍️</span><strong>Choose products</strong><small>Browse categories or search for daily essentials.</small></article><article><span>🛒</span><strong>Add to cart</strong><small>Select quantity and review your basket.</small></article><article><span>📍</span><strong>Delivery details</strong><small>Enter your Bangladesh mobile number and delivery address.</small></article><article><span>💵</span><strong>Pay on delivery</strong><small>Pay when your order reaches you.</small></article></div></section>
-          {renderSection("Recently Viewed", "Products you opened recently", PRODUCTS.filter((product) => recentlyViewed.includes(product.id)).sort((a,b) => recentlyViewed.indexOf(a.id)-recentlyViewed.indexOf(b.id)), "recently-viewed") || <section className="el-section"><div className="el-section-heading"><div><h2>Recently Viewed</h2><p>Products you open will appear here</p></div></div><div className="el-empty-state"><span>◷</span><h3>Nothing viewed yet</h3><p>Open a product to see it here next time.</p></div></section>}
-        </> : renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`)}</>}
-
-        <section className="el-categories-section" id="el-categories"><div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div><div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div></section>
+        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
         <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Find your favourites and build your grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
@@ -370,11 +349,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </nav>
 
       <style>{`
-        .el-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-        .el-guide-grid article{display:grid;gap:6px;padding:13px;border:1px solid #e2ece3;border-radius:13px;background:#fff;min-height:112px}
-        .el-guide-grid article span{font-size:23px}.el-guide-grid article strong{font-size:13px;color:#173b25}.el-guide-grid article small{font-size:11px;line-height:1.45;color:#718075}
-        .el-section{scroll-margin-top:12px}.el-product-card{scroll-snap-align:start}@media(max-width:520px){.el-section .el-product-grid{display:flex;overflow-x:auto;gap:12px;padding:2px 2px 12px;scroll-snap-type:x mandatory}.el-section .el-product-card{flex:0 0 min(72vw,245px);scroll-snap-align:start}.el-section .el-product-image{height:150px;object-fit:cover}}
-        @media(max-width:520px){.el-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
         .el-product-pricing{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:7px}
         .el-product-pricing .el-product-price{font-size:17px;color:#16803d;font-weight:850}
         .el-product-old-price{font-size:11px;color:#77847a;text-decoration:line-through}
@@ -416,7 +390,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       {cartOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-cart-title" style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => setCartOpen(false)} aria-label="Continue shopping" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
-          <div style={{ flex: 1 }}><h2 id="el-cart-title" style={{ margin: 0, fontSize: 17 }}>My Cart</h2><small style={{ color: "#718075" }}>{cartQuantity} item(s)</small></div><button type="button" onClick={() => handleNavigation("account")} style={{ border: 0, borderRadius: 9, padding: "8px 10px", color: "#176b36", background: "#eaf6ed", fontWeight: 750, fontSize: 12 }}>Account</button>
+          <div style={{ flex: 1 }}><h2 id="el-cart-title" style={{ margin: 0, fontSize: 17 }}>My Cart</h2><small style={{ color: "#718075" }}>{cartQuantity} item(s)</small></div>
           <button type="button" onClick={() => { setCartOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ border: 0, borderRadius: 9, padding: "8px 10px", color: "#176b36", background: "#eaf6ed", fontWeight: 750, fontSize: 12 }}>+ Add more</button>
         </header>
         <div style={{ maxWidth: 760, margin: "0 auto", padding: 10, paddingBottom: 22 }}>
@@ -453,10 +427,10 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </header>
         <div style={{ maxWidth: 600, margin: "0 auto", padding: 10, paddingBottom: 18 }}>
           {!orderComplete && <div style={{ display: "flex", alignItems: "center", gap: 9, background: "#eaf7ed", border: "1px solid #d5ead9", borderRadius: 10, padding: "8px 10px", marginBottom: 8 }}><span aria-hidden="true" style={{ fontSize: 20 }}>💵</span><div style={{ flex: 1 }}><strong style={{ display: "block", fontSize: 12 }}>Cash on Delivery</strong><small style={{ color: "#55715c", fontSize: 10 }}>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small></div><span style={{ color: "#16803d", fontSize: 10, fontWeight: 800 }}>Selected</span></div>}
-          {orderComplete ? <section className="el-order-success" style={{ background: "white", borderRadius: 13, padding: "22px 16px", marginTop: 8, textAlign: "center", border: "1px solid #e8eee8" }}><div style={{ margin: "0 auto 10px", width: 48, height: 48, borderRadius: 50, background: "#e3f6e8", color: "#16803d", fontSize: 30, display: "grid", placeItems: "center" }}>✓</div><h2 style={{ margin: "0 0 8px", fontSize: 18 }}>Order Preview Complete</h2><p style={{ color: "#647568", lineHeight: 1.5 }}>Reference: <strong>{demoOrderNumber}</strong></p><p style={{ color: "#647568", lineHeight: 1.5, fontSize: 12 }}>Demo preview saved in this browser only. It has not been sent to a store team or rider.</p><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setOrdersOpen(true); setTrackingOrderId(""); }} style={{ width: "100%", marginTop: 10, border: 0, borderRadius: 9, padding: 11, background: "#e8f5eb", color: "#176b36", fontWeight: 800 }}>View My Orders</button><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setCart({}); setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress(""); setCheckoutInstructions(""); setLocationConfirmed(false); setSelectedZone(SERVICE_ZONES[0]); setCouponInput(""); setAppliedCoupon(""); setCouponMessage(""); setLiveLocation(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ width: "100%", marginTop: 8, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Continue Shopping</button></section> : <>
+          {orderComplete ? <section className="el-order-success" style={{ background: "white", borderRadius: 13, padding: "22px 16px", marginTop: 8, textAlign: "center", border: "1px solid #e8eee8" }}><div style={{ margin: "0 auto 10px", width: 48, height: 48, borderRadius: 50, background: "#e3f6e8", color: "#16803d", fontSize: 30, display: "grid", placeItems: "center" }}>✓</div><h2 style={{ margin: "0 0 8px", fontSize: 18 }}>Order Preview Complete</h2><p style={{ color: "#647568", lineHeight: 1.5 }}>Reference: <strong>{demoOrderNumber}</strong></p><p style={{ color: "#647568", lineHeight: 1.5, fontSize: 12 }}>Demo preview saved in this browser only. It has not been sent to a merchant or rider.</p><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setOrdersOpen(true); setTrackingOrderId(""); }} style={{ width: "100%", marginTop: 10, border: 0, borderRadius: 9, padding: 11, background: "#e8f5eb", color: "#176b36", fontWeight: 800 }}>View My Orders</button><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setCart({}); setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress(""); setCheckoutInstructions(""); setLocationConfirmed(false); setSelectedZone(SERVICE_ZONES[0]); setCouponInput(""); setAppliedCoupon(""); setCouponMessage(""); setLiveLocation(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ width: "100%", marginTop: 8, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Continue Shopping</button></section> : <>
             <section style={{ background: "white", borderRadius: 12, padding: 11, marginTop: 2, border: "1px solid #e8eee8" }}>
               <h3 style={{ margin: "0 0 9px", fontSize: 14 }}>Delivery Details</h3>
-              <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-name">Full Name (Optional)</label><input id="el-checkout-name" value={checkoutName} onChange={(e) => setCheckoutName(e.target.value)} placeholder="আপনার নাম লিখুন" autoComplete="name" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, marginBottom: 8, fontSize: 13 }} />
+              <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-name">Full Name *</label><input id="el-checkout-name" value={checkoutName} onChange={(e) => setCheckoutName(e.target.value)} placeholder="আপনার নাম লিখুন" autoComplete="name" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, marginBottom: 8, fontSize: 13 }} />
               <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-phone">Mobile Number *</label><input id="el-checkout-phone" value={checkoutPhone} onChange={(e) => setCheckoutPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" inputMode="numeric" autoComplete="tel" maxLength={11} pattern="01[3-9][0-9]{8}" aria-describedby="el-phone-help" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, marginBottom: 3, fontSize: 13 }} /><small id="el-phone-help" style={{ display: "block", color: "#718075", fontSize: 10, marginBottom: 8 }}>বাংলাদেশি নম্বর: ১১টি সংখ্যা, 013–019 দিয়ে শুরু হবে।</small>
               <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-address">Delivery Address *</label><textarea id="el-checkout-address" value={checkoutAddress} onChange={(e) => setCheckoutAddress(e.target.value)} placeholder="এলাকা/মহল্লা, রোড, বাড়ি/ফ্ল্যাট, দোকান বা কাছের পরিচিত স্থান লিখুন" rows={3} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, resize: "vertical", fontSize: 13 }} />
               <small style={{ display: "block", color: "#16803d", fontSize: 11, lineHeight: 1.4, marginTop: 5 }}>ডেলিভারি বর্তমানে শুধু কামরাঙ্গীরচর, ঢাকা।</small>
@@ -473,8 +447,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
               {couponDiscount > 0 && <div className="el-summary-line" style={{ color: "#16803d" }}><span>Coupon Discount</span><strong>−৳{couponDiscount}</strong></div>}
               <div className="el-summary-line el-summary-total"><span>Total Payable</span><strong>৳{finalTotal}</strong></div>
               {checkoutError && <p role="alert" style={{ color: "#b42318", background: "#fff0ef", padding: 8, borderRadius: 8, fontSize: 11, margin: "7px 0" }}>{checkoutError}</p>}
-              <button type="button" onClick={() => { if (!cartProducts.length) { setCheckoutError("আপনার Cart খালি। আগে পণ্য যোগ করুন।"); return; } if (!isValidBangladeshMobile(checkoutPhone.trim())) { setCheckoutError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); document.getElementById("el-checkout-phone")?.focus(); return; } if (!checkoutAddress.trim() || checkoutAddress.trim().length < 8) { setCheckoutError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); document.getElementById("el-checkout-address")?.focus(); return; } const orderNumber = "EL-DEMO-" + Date.now().toString().slice(-6); const orderRecord = { id: orderNumber, createdAt: new Date().toISOString(), name: checkoutName.trim() || "Customer", phone: checkoutPhone.trim(), address: checkoutAddress.trim(), items: cartProducts.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: cart[product.id], image: product.image })), subtotal: cartSubtotal, savings: cartSavings, deliveryFee: cartProducts.length ? demoDeliveryFee : 0, discount: couponDiscount, total: finalTotal, payment: "Cash on Delivery", status: "Demo only — not submitted" }; setDemoOrderNumber(orderNumber); setDemoOrders((previous) => { const next = [orderRecord, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; }); setCheckoutError(""); setOrderComplete(true); }} style={{ width: "100%", border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800, fontSize: 14 }}>Confirm Order · ৳{finalTotal}</button>
-              <p style={{ fontSize: 10, color: "#718075", lineHeight: 1.4, margin: "6px 0 0" }}>Demo version: অর্ডারটি এখনো সেভ হবে না বা Store team-এর কাছে যাবে না।</p>
+              <button type="button" onClick={() => { if (!cartProducts.length) { setCheckoutError("আপনার Cart খালি। আগে পণ্য যোগ করুন।"); return; } if (!checkoutName.trim()) { setCheckoutError("আপনার নাম লিখুন।"); document.getElementById("el-checkout-name")?.focus(); return; } if (!isValidBangladeshMobile(checkoutPhone.trim())) { setCheckoutError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); document.getElementById("el-checkout-phone")?.focus(); return; } if (!checkoutAddress.trim() || checkoutAddress.trim().length < 8) { setCheckoutError("সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।"); document.getElementById("el-checkout-address")?.focus(); return; } const orderNumber = "EL-DEMO-" + Date.now().toString().slice(-6); const orderRecord = { id: orderNumber, createdAt: new Date().toISOString(), name: checkoutName.trim(), phone: checkoutPhone.trim(), address: checkoutAddress.trim(), items: cartProducts.map((product) => ({ id: product.id, name: product.name, unit: product.unit, price: product.price, quantity: cart[product.id], image: product.image })), subtotal: cartSubtotal, savings: cartSavings, deliveryFee: cartProducts.length ? demoDeliveryFee : 0, discount: couponDiscount, total: finalTotal, payment: "Cash on Delivery", status: "Demo only — not submitted" }; setDemoOrderNumber(orderNumber); setDemoOrders((previous) => { const next = [orderRecord, ...previous].slice(0, 100); try { window.localStorage.setItem("el-demo-orders", JSON.stringify(next)); } catch {} return next; }); setCheckoutError(""); setOrderComplete(true); }} style={{ width: "100%", border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800, fontSize: 14 }}>Confirm Order · ৳{finalTotal}</button>
+              <p style={{ fontSize: 10, color: "#718075", lineHeight: 1.4, margin: "6px 0 0" }}>Demo version: অর্ডারটি এখনো সেভ হবে না বা Merchant-এর কাছে যাবে না।</p>
             </section>
           </>}
         </div>
@@ -485,7 +459,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <div style={{ flex: 1 }}><h2 id="el-orders-title" style={{ margin: 0, fontSize: 18 }}>{trackingOrderId ? "Track Order" : "My Orders"}</h2><small style={{ color: "#718075" }}>{trackingOrderId ? "প্রতিটি অর্ডারের ট্র্যাকিং আলাদা" : "Active orders + completed orders from the last 7 days"}</small></div>
         </header>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: 12, paddingBottom: 30 }}>
-          <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 11, marginBottom: 10, color: "#76551b", fontSize: 12, lineHeight: 1.5 }}><strong>Prototype notice:</strong> These are browser-saved order previews. Live store team updates, rider GPS, ETA and rider messaging are not connected yet. No fake live location or ETA is shown.</div>
+          <div style={{ background: "#fff8e8", border: "1px solid #f0dfb5", borderRadius: 10, padding: 11, marginBottom: 10, color: "#76551b", fontSize: 12, lineHeight: 1.5 }}><strong>Prototype notice:</strong> These are browser-saved order previews. Live merchant updates, rider GPS, ETA and rider messaging are not connected yet. No fake live location or ETA is shown.</div>
           {trackingOrderId ? (() => {
             const order = demoOrders.find((item) => item.id === trackingOrderId);
             if (!order) return <p>এই অর্ডারটি পাওয়া যায়নি।</p>;
@@ -494,10 +468,10 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
               <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 13 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}><div><strong style={{ color: "#176b36", fontSize: 15 }}>{order.id}</strong><small style={{ display: "block", color: "#718075", marginTop: 3 }}>{new Date(order.createdAt).toLocaleString()}</small></div><span style={{ background: received ? "#e3f6e8" : "#fff3d8", color: received ? "#176b36" : "#8a5b13", padding: "5px 7px", borderRadius: 7, fontSize: 10, fontWeight: 800 }}>{received ? "Received (demo)" : "Preview only"}</span></div>
                 <h3 style={{ margin: "14px 0 8px", fontSize: 14 }}>Order progress</h3>
-                {["Order confirmed", "Our team is preparing your order", "Rider assigned", "Rider picked up order", "On the way", "Order received"].map((step, index) => <div key={step} style={{ display: "flex", gap: 9, alignItems: "center", padding: "8px 0", borderBottom: index < 5 ? "1px solid #edf1ed" : 0 }}><span style={{ width: 24, height: 24, display: "grid", placeItems: "center", borderRadius: 99, background: received && index === 5 ? "#16803d" : "#edf2ed", color: received && index === 5 ? "white" : "#6b7b6e", fontSize: 12 }}>{received && index === 5 ? "✓" : index + 1}</span><span style={{ fontSize: 12, fontWeight: 650 }}>{step}</span><small style={{ marginLeft: "auto", color: "#7b887e", fontSize: 10 }}>{received && index === 5 ? "Confirmed by customer" : "Awaiting real backend"}</small></div>)}
+                {["Order confirmed", "Merchant preparing items", "Rider assigned", "Rider picked up order", "On the way", "Order received"].map((step, index) => <div key={step} style={{ display: "flex", gap: 9, alignItems: "center", padding: "8px 0", borderBottom: index < 5 ? "1px solid #edf1ed" : 0 }}><span style={{ width: 24, height: 24, display: "grid", placeItems: "center", borderRadius: 99, background: received && index === 5 ? "#16803d" : "#edf2ed", color: received && index === 5 ? "white" : "#6b7b6e", fontSize: 12 }}>{received && index === 5 ? "✓" : index + 1}</span><span style={{ fontSize: 12, fontWeight: 650 }}>{step}</span><small style={{ marginLeft: "auto", color: "#7b887e", fontSize: 10 }}>{received && index === 5 ? "Confirmed by customer" : "Awaiting real backend"}</small></div>)}
                 <p style={{ color: "#718075", fontSize: 11, lineHeight: 1.5, marginBottom: 0 }}>Rider name, live location, ETA and chat will appear here after rider and backend integration. This demo does not claim a rider has been assigned.</p>
                 {!received && <button type="button" onClick={() => { const next = [...receivedOrderIds, order.id]; setReceivedOrderIds(next); try { window.localStorage.setItem("el-received-order-ids", JSON.stringify(next)); } catch {} showNotice("Received confirmation saved in this browser (demo)."); }} style={{ width: "100%", marginTop: 12, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Order Received (demo only)</button>}
-                {received && <div style={{ marginTop: 12, background: "#eff9f1", padding: 11, borderRadius: 10 }}><strong style={{ fontSize: 13 }}>Review after delivery</strong><p style={{ color: "#647568", fontSize: 11, margin: "5px 0 9px" }}>Real reviews will be saved after review backend integration.</p><div style={{ display: "grid", gap: 7 }}>{["Rate Rider", "Rate Store Service", "Rate Products"].map((label) => <button key={label} type="button" onClick={() => showNotice("Review form will be connected with the review backend.")} style={{ border: "1px solid #cfe2d2", background: "white", color: "#176b36", borderRadius: 8, padding: 9, fontWeight: 750 }}>{label} ☆</button>)}</div></div>}
+                {received && <div style={{ marginTop: 12, background: "#eff9f1", padding: 11, borderRadius: 10 }}><strong style={{ fontSize: 13 }}>Review after delivery</strong><p style={{ color: "#647568", fontSize: 11, margin: "5px 0 9px" }}>Real reviews will be saved after review backend integration.</p><div style={{ display: "grid", gap: 7 }}>{["Rate Rider", "Rate Merchant", "Rate Products"].map((label) => <button key={label} type="button" onClick={() => showNotice("Review form will be connected with the review backend.")} style={{ border: "1px solid #cfe2d2", background: "white", color: "#176b36", borderRadius: 8, padding: 9, fontWeight: 750 }}>{label} ☆</button>)}</div></div>}
               </section>
               <section style={{ background: "white", border: "1px solid #e3ebe4", borderRadius: 12, padding: 13 }}>
                 <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Items & bill</h3>
@@ -525,15 +499,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </div>}
 
       {notice && <div className="el-toast" role="status"><span>✓</span>{notice}<button type="button" onClick={() => setNotice("")} aria-label="Dismiss message">×</button></div>}
-
-      {accountOpen && <div role="presentation" onClick={() => setAccountOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1500, background: "rgba(10,25,15,.55)", display: "grid", placeItems: "center", padding: 16 }}><section role="dialog" aria-modal="true" aria-labelledby="el-account-title" onClick={(event) => event.stopPropagation()} style={{ width: "100%", maxWidth: 420, background: "#fff", borderRadius: 18, padding: 20, color: "#173b25", boxShadow: "0 18px 60px rgba(0,0,0,.2)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}><div><small style={{ color: "#16803d", fontWeight: 800, letterSpacing: 1 }}>EKHONI LAGBE</small><h2 id="el-account-title" style={{ margin: "5px 0 0", fontSize: 21 }}>{authMode === "signup" ? "Create your account" : "Login to your account"}</h2></div><button type="button" onClick={() => setAccountOpen(false)} aria-label="Close" style={{ border: 0, background: "#eff7f0", borderRadius: 9, width: 34, height: 34, fontSize: 21 }}>×</button></div>
-        <div style={{ display: "flex", gap: 8, margin: "16px 0" }}><button type="button" onClick={() => { setAuthMode("signup"); setOtpSent(false); setAuthError(""); }} style={{ flex: 1, padding: 10, borderRadius: 9, border: "1px solid #cfe2d2", background: authMode === "signup" ? "#eaf6ed" : "white", color: "#176b36", fontWeight: 800 }}>Create Account</button><button type="button" onClick={() => { setAuthMode("login"); setOtpSent(false); setAuthError(""); }} style={{ flex: 1, padding: 10, borderRadius: 9, border: "1px solid #cfe2d2", background: authMode === "login" ? "#eaf6ed" : "white", color: "#176b36", fontWeight: 800 }}>Login</button></div>
-        {!otpSent ? <><label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile Number *</label><input value={authPhone} onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, "").slice(0,11))} placeholder="01XXXXXXXXX" inputMode="numeric" maxLength={11} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 12, fontSize: 15 }} /><small style={{ display: "block", color: "#718075", marginTop: 5 }}>১১ ডিজিট; 013, 014, 015, 016, 017, 018 বা 019 দিয়ে শুরু হবে।</small>{authMode === "signup" && <><label style={{ display: "block", fontSize: 12, fontWeight: 750, margin: "13px 0 5px" }}>Name (Optional)</label><input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder="আপনার নাম (ঐচ্ছিক)" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 12, fontSize: 14 }} /></>}<button type="button" onClick={requestDemoOtp} style={{ width: "100%", border: 0, borderRadius: 10, padding: 13, marginTop: 16, background: "#16803d", color: "white", fontWeight: 850 }}>Send OTP</button></> : <><label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>৬ সংখ্যার OTP</label><input value={authOtp} onChange={(e) => setAuthOtp(e.target.value.replace(/\D/g, "").slice(0,6))} placeholder="Enter OTP" inputMode="numeric" maxLength={6} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 10, padding: 12, fontSize: 18, letterSpacing: 5, textAlign: "center" }} /><button type="button" onClick={verifyDemoOtp} style={{ width: "100%", border: 0, borderRadius: 10, padding: 13, marginTop: 13, background: "#16803d", color: "white", fontWeight: 850 }}>Verify OTP & {authMode === "signup" ? "Create Account" : "Login"}</button><button type="button" onClick={() => { setOtpSent(false); setAuthError(""); }} style={{ width: "100%", border: 0, background: "transparent", padding: 10, color: "#176b36", fontWeight: 750 }}>Change number / Resend OTP</button></>}
-        {authError && <p role="status" style={{ background: "#f0f8f1", color: "#176b36", borderRadius: 9, padding: 10, fontSize: 11, lineHeight: 1.5, margin: "12px 0 0" }}>{authError}</p>}
-        {accountProfile && <p style={{ fontSize: 11, color: "#718075", marginBottom: 0 }}>Signed in as {accountProfile.name || accountProfile.phone}. <button type="button" onClick={() => { try { window.localStorage.removeItem("el-customer-account"); } catch {} setAccountProfile(null); setAuthMode("signup"); setOtpSent(false); }} style={{ border: 0, background: "transparent", color: "#b42318", fontWeight: 750 }}>Logout</button></p>}
-        <p style={{ color: "#88948a", fontSize: 10, lineHeight: 1.5, margin: "12px 0 0" }}>Prototype OTP only: test code 123456. Real SMS OTP requires a secure backend and SMS provider; this screen does not send a real SMS.</p>
-      </section></div>}
 
       {locationOpen && <div className="el-location-backdrop" role="presentation" onClick={() => setLocationOpen(false)}><section className="el-location-dialog" role="dialog" aria-modal="true" aria-labelledby="el-location-title" onClick={(event) => event.stopPropagation()}>
         <button className="el-location-close" type="button" onClick={() => setLocationOpen(false)} aria-label="Close location selector">×</button>
