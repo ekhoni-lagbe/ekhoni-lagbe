@@ -10,15 +10,15 @@ const SERVICE_ZONES = [
 ];
 
 const CATEGORIES = [
-  { id: "all", name: "All Products", emoji: "🛍️", subtitle: "Explore everything we offer" },
-  { id: "vegetables", name: "Fresh Vegetables", emoji: "🥬", subtitle: "Direct from local farms daily" },
-  { id: "fruits", name: "Juicy Fruits", emoji: "🍎", subtitle: "Fresh & premium seasonal picks" },
-  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", subtitle: "Pure milk, butter & farm fresh eggs" },
-  { id: "rice", name: "Rice & Grains", emoji: "🍚", subtitle: "High-quality daily grains & pulses" },
-  { id: "meat", name: "Meat & Fish", emoji: "🐟", subtitle: "Freshly cut quality meat & river fish" },
-  { id: "snacks", name: "Snacks & Munchies", emoji: "🍪", subtitle: "Delicious treats for tea time" },
-  { id: "beverages", name: "Beverages & Drinks", emoji: "🧃", subtitle: "Refreshing juices, tea & cold drinks" },
-  { id: "household", name: "Household Essentials", emoji: "🧹", subtitle: "Keep your home clean & fresh" },
+  { id: "all", name: "All", emoji: "🛍️", desc: "Browse all everyday essentials" },
+  { id: "vegetables", name: "Vegetables", emoji: "🥬", desc: "Farm-fresh & organic vegetables" },
+  { id: "fruits", name: "Fruits", emoji: "🍎", desc: "Fresh & seasonal delicious fruits" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", desc: "Fresh milk, eggs, butter & curd" },
+  { id: "rice", name: "Rice & Grains", emoji: "🍚", desc: "Premium rice, pulses & staples" },
+  { id: "meat", name: "Meat & Fish", emoji: "🐟", desc: "Fresh river fish & quality meats" },
+  { id: "snacks", name: "Snacks", emoji: "🍪", desc: "Biscuits, chips & evening treats" },
+  { id: "beverages", name: "Beverages", emoji: "🧃", desc: "Juices, cold drinks & tea/coffee" },
+  { id: "household", name: "Household", emoji: "🧹", desc: "Cleaning & daily household care" },
 ];
 
 const PRODUCTS = [
@@ -45,17 +45,16 @@ const OFFERS = [
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
-// Helper function to calculate distance using Haversine formula
-function calculateDistanceInKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Radius of earth in km
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLon = (lon2 - lon1) * (Math.PI / 180);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+// Helper function to get time-based greeting in English
+function getTimeBasedGreeting() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    return { title: "Good morning ☀️", subtext: "Fresh groceries delivered in 15 minutes" };
+  } else if (hour >= 12 && hour < 17) {
+    return { title: "Good afternoon ☀️", subtext: "Get your afternoon essentials delivered fast" };
+  } else {
+    return { title: "Good evening 🌙", subtext: "Fresh groceries for your night essentials" };
+  }
 }
 
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
@@ -69,13 +68,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
-  
-  // Time-based Greeting State
-  const [timeGreeting, setTimeGreeting] = useState({
-    title: "Good Day",
-    subtitle: "Welcome to EKHONI LAGBE",
-    icon: "✨"
-  });
+
+  const [greeting, setGreeting] = useState(getTimeBasedGreeting());
 
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -83,9 +77,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
 
-  // Account Page States (Create Account / Login Separate Pages)
+  // Account Page States
   const [accountOpen, setAccountOpen] = useState(false);
-  const [accountMode, setAccountMode] = useState("register"); // 'register' or 'login'
+  const [accountMode, setAccountMode] = useState("register");
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regOtp, setRegOtp] = useState("");
@@ -98,7 +92,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
   // Notification Page States
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([]); // Empty by default as requested
+  const [notificationsList, setNotificationsList] = useState([]);
 
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -125,34 +119,12 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
 
-  // Set time-based greeting on load
+  // Update greeting state periodically
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 4 && hour < 12) {
-      setTimeGreeting({
-        title: "Good Morning ☀️",
-        subtitle: "Start your morning fresh with quick delivery",
-        icon: "🌅"
-      });
-    } else if (hour >= 12 && hour < 17) {
-      setTimeGreeting({
-        title: "Good Afternoon 🌤️",
-        subtitle: "Need anything delivered right now?",
-        icon: "☀️"
-      });
-    } else if (hour >= 17 && hour < 21) {
-      setTimeGreeting({
-        title: "Good Evening 🌆",
-        subtitle: "Get your evening snacks & dinner items ready",
-        icon: "🌙"
-      });
-    } else {
-      setTimeGreeting({
-        title: "Good Night 🌙",
-        subtitle: "Late night cravings? We've got you covered",
-        icon: "⭐"
-      });
-    }
+    const timer = setInterval(() => {
+      setGreeting(getTimeBasedGreeting());
+    }, 60000);
+    return () => clearInterval(timer);
   }, []);
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
@@ -334,16 +306,21 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </div>
         </div>
 
-        {/* Time-Based Dynamic Greeting Banner */}
-        <div className="el-location-row">
-          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", background: "linear-gradient(135deg, #eaf6ed 0%​, #f3fbf4 100%)", border: "1px solid #d5ead9" }}>
-            <span className="el-location-pin" aria-hidden="true" style={{ fontSize: "18px" }}>{timeGreeting.icon}</span>
+        {/* Dynamic Time-Based Greeting Banner */}
+        <div className="el-location-row" style={{ background: "linear-gradient(135deg, #16803d 0%, #176b36 100%)", color: "white", padding: "10px 14px", borderRadius: 12, marginBottom: 10 }}>
+          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", color: "white" }}>
             <span className="el-location-copy">
-              <small style={{ color: "#16803d", fontWeight: "750" }}>{timeGreeting.title}</small>
-              <strong style={{ fontSize: "12px", color: "#33483a" }}>{timeGreeting.subtitle}</strong>
+              <strong style={{ fontSize: 16, display: "block", color: "#ffffff" }}>{greeting.title}</strong>
+              <small style={{ color: "#d1fae5", fontSize: 11 }}>{greeting.subtext}</small>
             </span>
           </div>
-          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~15 min</strong><small>fast delivery</small></span></div>
+          <div className="el-delivery-estimate" style={{ background: "rgba(255, 255, 255, 0.15)", padding: "4px 10px", borderRadius: 8 }}>
+            <span className="el-delivery-dot" style={{ background: "#4ade80" }} />
+            <span style={{ color: "white" }}>
+              <strong style={{ color: "#ffffff" }}>~15 min</strong>
+              <small style={{ color: "#e2e8f0" }}>delivery</small>
+            </span>
+          </div>
         </div>
 
         <div className="el-search-row">
@@ -357,37 +334,25 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        {/* Redesigned & Enhanced Categories Section */}
+        {/* Enhanced Category Navigation */}
         <section className="el-categories-section" id="el-categories">
           <div className="el-section-heading el-category-heading">
             <div>
-              <h2>Explore Categories</h2>
-              <p style={{ fontSize: "12px", color: "#647568", margin: "2px 0 0" }}>Choose a category to browse handpicked fresh essentials</p>
+              <h2>Shop by Category</h2>
+              <p style={{ fontSize: 11, color: "#647568", margin: "2px 0 0" }}>Explore all categories effortlessly</p>
             </div>
             <span className="el-swipe-hint">Swipe →</span>
           </div>
           <div className="el-category-scroller">
             {CATEGORIES.map((category) => (
-              <button 
-                type="button" 
-                key={category.id} 
-                className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} 
+              <button
+                type="button"
+                key={category.id}
+                className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`}
                 onClick={() => selectCategory(category.id)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "12px 14px",
-                  borderRadius: "14px",
-                  border: activeCategory === category.id ? "2px solid #16803d" : "1px solid #e2ebe3",
-                  background: activeCategory === category.id ? "#eaf7ed" : "#ffffff",
-                  transition: "all 0.2s ease",
-                  minWidth: "95px",
-                  boxShadow: activeCategory === category.id ? "0 4px 12px rgba(22, 128, 61, 0.12)" : "0 2px 6px rgba(0,0,0,0.02)"
-                }}
               >
-                <span className="el-category-icon" style={{ fontSize: "26px", marginBottom: "6px" }}>{category.emoji}</span>
-                <span style={{ fontWeight: "750", fontSize: "12px", color: activeCategory === category.id ? "#16803d" : "#173b25", textAlign: "center", whiteSpace: "nowrap" }}>{category.name}</span>
+                <span className="el-category-icon">{category.emoji}</span>
+                <span>{category.name}</span>
               </button>
             ))}
           </div>
@@ -399,7 +364,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
         </section>
 
-        {/* Updated Quick Links (Recently Viewed Removed) */}
+        {/* Quick Links Section (Recently Viewed Deleted) */}
         <section className="el-quick-links">
           <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
@@ -409,7 +374,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
-        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", CATEGORIES.find((item) => item.id === activeCategory)?.subtitle || "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
+        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
         <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Product favourites and grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
@@ -585,6 +550,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         @media(max-width:679px){[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){padding:7px 9px 14px!important}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section{margin-top:7px!important}[aria-labelledby="el-cart-title"]>div:not(.el-cart-bottom){padding-bottom:22px!important}}
       `}</style>
 
+      {/* Cart Modal */}
       {cartOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-cart-title" style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => setCartOpen(false)} aria-label="Continue shopping" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
@@ -617,6 +583,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
 
+      {/* Checkout Modal */}
       {checkoutOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-checkout-title" style={{ position: "fixed", inset: 0, zIndex: 1100, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => { setCheckoutOpen(false); setCartOpen(true); }} aria-label="কার্টে ফিরে যান" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
@@ -652,6 +619,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
       
+      {/* My Orders Modal */}
       {ordersOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-orders-title" style={{ position: "fixed", inset: 0, zIndex: 1200, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
