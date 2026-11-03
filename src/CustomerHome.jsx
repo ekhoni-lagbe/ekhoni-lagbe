@@ -10,15 +10,15 @@ const SERVICE_ZONES = [
 ];
 
 const CATEGORIES = [
-  { id: "all", name: "All Products", emoji: "🛍️" },
-  { id: "vegetables", name: "Vegetables", emoji: "🥬" },
-  { id: "fruits", name: "Fruits", emoji: "🍎" },
-  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
-  { id: "rice", name: "Rice & Grains", emoji: "🍚" },
-  { id: "meat", name: "Meat & Fish", emoji: "🐟" },
-  { id: "snacks", name: "Snacks", emoji: "🍪" },
-  { id: "beverages", name: "Beverages", emoji: "🧃" },
-  { id: "household", name: "Household", emoji: "🧹" },
+  { id: "all", name: "All Products", emoji: "🛍️", subtitle: "Explore everything we offer" },
+  { id: "vegetables", name: "Fresh Vegetables", emoji: "🥬", subtitle: "Direct from local farms daily" },
+  { id: "fruits", name: "Juicy Fruits", emoji: "🍎", subtitle: "Fresh & premium seasonal picks" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", subtitle: "Pure milk, butter & farm fresh eggs" },
+  { id: "rice", name: "Rice & Grains", emoji: "🍚", subtitle: "High-quality daily grains & pulses" },
+  { id: "meat", name: "Meat & Fish", emoji: "🐟", subtitle: "Freshly cut quality meat & river fish" },
+  { id: "snacks", name: "Snacks & Munchies", emoji: "🍪", subtitle: "Delicious treats for tea time" },
+  { id: "beverages", name: "Beverages & Drinks", emoji: "🧃", subtitle: "Refreshing juices, tea & cold drinks" },
+  { id: "household", name: "Household Essentials", emoji: "🧹", subtitle: "Keep your home clean & fresh" },
 ];
 
 const PRODUCTS = [
@@ -44,6 +44,20 @@ const OFFERS = [
 
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
+
+// Helper function to calculate distance using Haversine formula
+function calculateDistanceInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -58,8 +72,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   
   // Time-based Greeting State
   const [timeGreeting, setTimeGreeting] = useState({
-    title: "Welcome to EKHONI LAGBE",
-    subtitle: "15-minute quick delivery"
+    title: "Good Day",
+    subtitle: "Welcome to EKHONI LAGBE",
+    icon: "✨"
   });
 
   const [cartOpen, setCartOpen] = useState(false);
@@ -68,9 +83,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
 
-  // Account Page States
+  // Account Page States (Create Account / Login Separate Pages)
   const [accountOpen, setAccountOpen] = useState(false);
-  const [accountMode, setAccountMode] = useState("register");
+  const [accountMode, setAccountMode] = useState("register"); // 'register' or 'login'
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regOtp, setRegOtp] = useState("");
@@ -83,7 +98,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
   // Notification Page States
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]); // Empty by default as requested
 
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -114,13 +129,29 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 4 && hour < 12) {
-      setTimeGreeting({ title: "Good Morning! ☀️", subtitle: "Start your day with fresh groceries in 15 mins" });
+      setTimeGreeting({
+        title: "Good Morning ☀️",
+        subtitle: "Start your morning fresh with quick delivery",
+        icon: "🌅"
+      });
     } else if (hour >= 12 && hour < 17) {
-      setTimeGreeting({ title: "Good Afternoon! 🌤️", subtitle: "Fast delivery right to your door" });
+      setTimeGreeting({
+        title: "Good Afternoon 🌤️",
+        subtitle: "Need anything delivered right now?",
+        icon: "☀️"
+      });
     } else if (hour >= 17 && hour < 21) {
-      setTimeGreeting({ title: "Good Evening! 🌙", subtitle: "Fresh ingredients for your evening cooking" });
+      setTimeGreeting({
+        title: "Good Evening 🌆",
+        subtitle: "Get your evening snacks & dinner items ready",
+        icon: "🌙"
+      });
     } else {
-      setTimeGreeting({ title: "Good Night! ✨", subtitle: "Late night essentials delivered instantly" });
+      setTimeGreeting({
+        title: "Good Night 🌙",
+        subtitle: "Late night cravings? We've got you covered",
+        icon: "⭐"
+      });
     }
   }, []);
 
@@ -303,16 +334,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </div>
         </div>
 
-        {/* Time-based Greeting Header Section */}
-        <div className="el-location-row" style={{ background: "linear-gradient(135deg, #16803d15 0%, #16803d05 100%)", borderRadius: 12, padding: "10px 14px", margin: "8px 12px", border: "1px solid #16803d20" }}>
-          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", background: "transparent", padding: 0 }}>
-            <span className="el-location-pin" aria-hidden="true" style={{ background: "#16803d", color: "white", borderRadius: "50%", width: 34, height: 34, display: "grid", placeItems: "center", fontSize: 16 }}>⚡</span>
+        {/* Time-Based Dynamic Greeting Banner */}
+        <div className="el-location-row">
+          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", background: "linear-gradient(135deg, #eaf6ed 0%​, #f3fbf4 100%)", border: "1px solid #d5ead9" }}>
+            <span className="el-location-pin" aria-hidden="true" style={{ fontSize: "18px" }}>{timeGreeting.icon}</span>
             <span className="el-location-copy">
-              <strong style={{ fontSize: 14, color: "#16803d" }}>{timeGreeting.title}</strong>
-              <small style={{ fontSize: 11, color: "#55715c" }}>{timeGreeting.subtitle}</small>
+              <small style={{ color: "#16803d", fontWeight: "750" }}>{timeGreeting.title}</small>
+              <strong style={{ fontSize: "12px", color: "#33483a" }}>{timeGreeting.subtitle}</strong>
             </span>
           </div>
-          <div className="el-delivery-estimate" style={{ background: "white", padding: "6px 10px", borderRadius: 8, border: "1px solid #d5ead9" }}><span className="el-delivery-dot" /><span><strong style={{ color: "#16803d" }}>~15 min</strong><small>Superfast delivery</small></span></div>
+          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~15 min</strong><small>fast delivery</small></span></div>
         </div>
 
         <div className="el-search-row">
@@ -326,16 +357,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        {/* Enhanced Category Section with Maximum UI Craftsmanship */}
-        <section className="el-categories-section" id="el-categories" style={{ padding: "16px 12px", background: "#ffffff", borderRadius: 16, margin: "10px 12px", boxShadow: "0 2px 12px rgba(0,0,0,0.03)" }}>
-          <div className="el-section-heading el-category-heading" style={{ marginBottom: 12 }}>
+        {/* Redesigned & Enhanced Categories Section */}
+        <section className="el-categories-section" id="el-categories">
+          <div className="el-section-heading el-category-heading">
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#173b25" }}>Explore Categories</h2>
-              <p style={{ fontSize: 11, color: "#647568", margin: "2px 0 0" }}>Choose from our farm-fresh grocery selections</p>
+              <h2>Explore Categories</h2>
+              <p style={{ fontSize: "12px", color: "#647568", margin: "2px 0 0" }}>Choose a category to browse handpicked fresh essentials</p>
             </div>
-            <span className="el-swipe-hint" style={{ fontSize: 11, fontWeight: 700, color: "#16803d", background: "#eaf7ed", padding: "4px 8px", borderRadius: 6 }}>Swipe ➔</span>
+            <span className="el-swipe-hint">Swipe →</span>
           </div>
-          <div className="el-category-scroller" style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
+          <div className="el-category-scroller">
             {CATEGORIES.map((category) => (
               <button 
                 type="button" 
@@ -346,17 +377,17 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  minWidth: 84,
-                  padding: "10px 8px",
-                  borderRadius: 14,
+                  padding: "12px 14px",
+                  borderRadius: "14px",
                   border: activeCategory === category.id ? "2px solid #16803d" : "1px solid #e2ebe3",
-                  background: activeCategory === category.id ? "#eaf7ed" : "#f8fcf8",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
+                  background: activeCategory === category.id ? "#eaf7ed" : "#ffffff",
+                  transition: "all 0.2s ease",
+                  minWidth: "95px",
+                  boxShadow: activeCategory === category.id ? "0 4px 12px rgba(22, 128, 61, 0.12)" : "0 2px 6px rgba(0,0,0,0.02)"
                 }}
               >
-                <span className="el-category-icon" style={{ fontSize: 26, marginBottom: 4 }}>{category.emoji}</span>
-                <span style={{ fontSize: 12, fontWeight: 750, color: activeCategory === category.id ? "#16803d" : "#33483a", textAlign: "center", whiteSpace: "nowrap" }}>{category.name}</span>
+                <span className="el-category-icon" style={{ fontSize: "26px", marginBottom: "6px" }}>{category.emoji}</span>
+                <span style={{ fontWeight: "750", fontSize: "12px", color: activeCategory === category.id ? "#16803d" : "#173b25", textAlign: "center", whiteSpace: "nowrap" }}>{category.name}</span>
               </button>
             ))}
           </div>
@@ -368,6 +399,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
         </section>
 
+        {/* Updated Quick Links (Recently Viewed Removed) */}
         <section className="el-quick-links">
           <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
@@ -377,7 +409,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
-        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
+        ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", CATEGORIES.find((item) => item.id === activeCategory)?.subtitle || "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
         <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Product favourites and grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
