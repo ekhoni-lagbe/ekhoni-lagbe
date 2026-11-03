@@ -1,24 +1,16 @@
 import { useMemo, useState, useEffect } from "react";
 import "./CustomerHome.css";
 
-const SERVICE_ZONES = [
-  { id: "kamrangirchar-main", name: "Kamrangirchar, Dhaka", detail: "Main service area", minutes: 15 },
-  { id: "rasulpur", name: "Rasulpur, Kamrangirchar", detail: "Check availability at checkout", minutes: 15 },
-  { id: "companyghat", name: "Companyghat, Kamrangirchar", detail: "Check availability at checkout", minutes: 15 },
-  { id: "jhaugola", name: "Jhaougola, Kamrangirchar", detail: "Check availability at checkout", minutes: 15 },
-  { id: "other-zone", name: "Another address in Kamrangirchar", detail: "Availability must be confirmed", minutes: 15 },
-];
-
 const CATEGORIES = [
-  { id: "all", name: "All", emoji: "🛍️" },
-  { id: "vegetables", name: "Vegetables", emoji: "🥬" },
-  { id: "fruits", name: "Fruits", emoji: "🍎" },
-  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
-  { id: "rice", name: "Rice & Grains", emoji: "🍚" },
-  { id: "meat", name: "Meat & Fish", emoji: "🐟" },
-  { id: "snacks", name: "Snacks", emoji: "🍪" },
-  { id: "beverages", name: "Beverages", emoji: "🧃" },
-  { id: "household", name: "Household", emoji: "🧹" },
+  { id: "all", name: "All", emoji: "🛍️", desc: "Browse all everyday essentials" },
+  { id: "vegetables", name: "Vegetables", emoji: "🥬", desc: "Fresh farm vegetables" },
+  { id: "fruits", name: "Fruits", emoji: "🍎", desc: "Fresh & juicy seasonal fruits" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", desc: "Pure milk, butter & farm eggs" },
+  { id: "rice", name: "Rice & Grains", emoji: "🍚", desc: "Quality rice, flour & pulses" },
+  { id: "meat", name: "Meat & Fish", emoji: "🐟", desc: "Fresh local meat & fish" },
+  { id: "snacks", name: "Snacks", emoji: "🍪", desc: "Crispy snacks & biscuits" },
+  { id: "beverages", name: "Beverages", emoji: "🧃", desc: "Juices, soft drinks & water" },
+  { id: "household", name: "Household", emoji: "🧹", desc: "Cleaning & daily care items" },
 ];
 
 const PRODUCTS = [
@@ -45,19 +37,6 @@ const OFFERS = [
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
-// Helper function to calculate distance using Haversine formula
-function calculateDistanceInKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Radius of earth in km
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLon = (lon2 - lon1) * (Math.PI / 180);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -65,16 +44,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [cart, setCart] = useState({});
   const [wishlist, setWishlist] = useState([]);
   const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
   
-  // Auto Live Location State
-  const [autoLocation, setAutoLocation] = useState({
-    name: "Detecting location...",
-    minutes: 15,
-    status: "loading"
+  // Time-based Greeting State
+  const [timeGreeting, setTimeGreeting] = useState({
+    title: "Good Day!",
+    subtitle: "Delivery in 15 minutes"
   });
 
   const [cartOpen, setCartOpen] = useState(false);
@@ -125,43 +104,18 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
 
-  // Auto detect location on load
+  // Set time-based greeting on load
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setAutoLocation({
-        name: "Kamrangirchar, Dhaka",
-        minutes: 15,
-        status: "fallback"
-      });
-      return;
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 12) {
+      setTimeGreeting({ title: "Good Morning! ☀️", subtitle: "Fresh groceries delivered in 15 mins" });
+    } else if (hour >= 12 && hour < 17) {
+      setTimeGreeting({ title: "Good Afternoon! 🌤️", subtitle: "Quick delivery right to your hands" });
+    } else if (hour >= 17 && hour < 21) {
+      setTimeGreeting({ title: "Good Evening! 🌙", subtitle: "Evening essentials & fresh picks" });
+    } else {
+      setTimeGreeting({ title: "Late Night Shopping! ✨", subtitle: "Order now for instant delivery" });
     }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        // Central hub point (e.g. Kamrangirchar Main Hub)
-        const hubLat = 23.7153;
-        const hubLon = 90.3705;
-        const distKm = calculateDistanceInKm(latitude, longitude, hubLat, hubLon);
-        
-        // Estimated delivery time: base 10 mins + 4 mins per km
-        const estimatedMins = Math.max(10, Math.round(10 + distKm * 4));
-
-        setAutoLocation({
-          name: `Current Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`,
-          minutes: estimatedMins,
-          status: "success"
-        });
-      },
-      () => {
-        setAutoLocation({
-          name: "Kamrangirchar, Dhaka",
-          minutes: 15,
-          status: "denied"
-        });
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
   }, []);
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
@@ -232,7 +186,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "categories") {
-      document.getElementById("el-categories")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setCategoriesOpen(true);
       return;
     }
     if (destination === "popular") {
@@ -343,16 +297,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </div>
         </div>
 
-        {/* Auto Location Banner without Change Option */}
+        {/* Time-based Greeting Bar */}
         <div className="el-location-row">
           <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none" }}>
             <span className="el-location-pin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
             <span className="el-location-copy">
-              <small>DELIVERING TO YOUR LOCATION</small>
-              <strong>{autoLocation.name}</strong>
+              <small>{timeGreeting.title}</small>
+              <strong>{timeGreeting.subtitle}</strong>
             </span>
           </div>
-          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~{autoLocation.minutes} min</strong><small>estimated delivery</small></span></div>
+          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~15 min</strong><small>fast delivery</small></span></div>
         </div>
 
         <div className="el-search-row">
@@ -382,7 +336,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("wishlist")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("guide")}><span>☰</span><span>Guide</span><b>→</b></button>
-          <button type="button" onClick={() => showNotice("Recently viewed products will appear here.")}><span>◷</span><span>Recently Viewed</span><b>→</b></button>
         </section>
 
         {search.trim() ? (
@@ -400,6 +353,52 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("orders")}><span className="el-nav-icon">▤</span><span>My Orders</span></button>
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
       </nav>
+
+      {/* Premium Categories Modal */}
+      {categoriesOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "#f8faf8", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 760, margin: "10px auto 30px", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 12, background: "white", padding: "12px 15px", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+            <button type="button" onClick={() => setCategoriesOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "7px 14px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Explore Categories</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 12 }}>
+            {CATEGORIES.map((cat) => (
+              <button 
+                key={cat.id} 
+                type="button" 
+                onClick={() => {
+                  selectCategory(cat.id);
+                  setCategoriesOpen(false);
+                  goToProducts(cat.id);
+                }} 
+                style={{
+                  background: "white",
+                  border: "1px solid #e2ebe3",
+                  borderRadius: 14,
+                  padding: "16px 14px",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.02)"
+                }}
+              >
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f0f7f1", display: "grid", placeItems: "center", fontSize: 24 }}>
+                  {cat.emoji}
+                </div>
+                <div>
+                  <strong style={{ display: "block", fontSize: 15, color: "#173b25", marginBottom: 3 }}>{cat.name}</strong>
+                  <small style={{ color: "#647568", fontSize: 11, lineHeight: 1.3, display: "block" }}>{cat.desc}</small>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>}
 
       {/* Wishlist Page Modal */}
       {wishlistOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
