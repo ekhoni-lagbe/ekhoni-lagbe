@@ -44,7 +44,6 @@ const OFFERS = [
 
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
-
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
