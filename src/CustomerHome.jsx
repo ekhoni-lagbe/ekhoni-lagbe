@@ -10,7 +10,7 @@ const SERVICE_ZONES = [
 ];
 
 const CATEGORIES = [
-  { id: "all", name: "All Products", emoji: "🛍️" },
+  { id: "all", name: "All", emoji: "🛍️" },
   { id: "vegetables", name: "Vegetables", emoji: "🥬" },
   { id: "fruits", name: "Fruits", emoji: "🍎" },
   { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
@@ -56,12 +56,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
-  
-  // Time-based Greeting State
-  const [timeGreeting, setTimeGreeting] = useState({
-    title: "Welcome to EKHONI LAGBE",
-    subtitle: "15-minute quick delivery"
-  });
 
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -69,9 +63,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
 
-  // Account Page States
+  // Account Page States (Create Account / Login Separate Pages)
   const [accountOpen, setAccountOpen] = useState(false);
-  const [accountMode, setAccountMode] = useState("register");
+  const [accountMode, setAccountMode] = useState("register"); // 'register' or 'login'
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regOtp, setRegOtp] = useState("");
@@ -84,7 +78,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
   // Notification Page States
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]); // Empty by default as requested
 
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -110,20 +104,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [liveLocation, setLiveLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
-
-  // Set time-based greeting on load
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 4 && hour < 12) {
-      setTimeGreeting({ title: "Good Morning! ☀️", subtitle: "Start your day with fresh groceries in 15 mins" });
-    } else if (hour >= 12 && hour < 17) {
-      setTimeGreeting({ title: "Good Afternoon! 🌤️", subtitle: "Fast delivery right to your door" });
-    } else if (hour >= 17 && hour < 21) {
-      setTimeGreeting({ title: "Good Evening! 🌙", subtitle: "Fresh ingredients for your evening cooking" });
-    } else {
-      setTimeGreeting({ title: "Good Night! ✨", subtitle: "Late night essentials delivered instantly" });
-    }
-  }, []);
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
@@ -304,16 +284,11 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </div>
         </div>
 
-        {/* Time-based Greeting Header Section */}
-        <div className="el-location-row" style={{ background: "linear-gradient(135deg, #16803d15 0%, #16803d05 100%)", borderRadius: 12, padding: "10px 14px", margin: "8px 12px", border: "1px solid #16803d20" }}>
-          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", background: "transparent", padding: 0 }}>
-            <span className="el-location-pin" aria-hidden="true" style={{ background: "#16803d", color: "white", borderRadius: "50%", width: 34, height: 34, display: "grid", placeItems: "center", fontSize: 16 }}>⚡</span>
-            <span className="el-location-copy">
-              <strong style={{ fontSize: 14, color: "#16803d" }}>{timeGreeting.title}</strong>
-              <small style={{ fontSize: 11, color: "#55715c" }}>{timeGreeting.subtitle}</small>
-            </span>
+        {/* Welcome Banner */}
+        <div className="el-location-row" style={{ justifyContent: "center", background: "#f0f8f2", padding: "10px 15px", borderRadius: 10, margin: "8px 12px" }}>
+          <div style={{ textAlign: "center", color: "#16803d", fontWeight: 800, fontSize: 14 }}>
+            👋 Welcome to EKHONI LAGBE — Fast & Fresh Delivery!
           </div>
-          <div className="el-delivery-estimate" style={{ background: "white", padding: "6px 10px", borderRadius: 8, border: "1px solid #d5ead9" }}><span className="el-delivery-dot" /><span><strong style={{ color: "#16803d" }}>~15 min</strong><small>Superfast delivery</small></span></div>
         </div>
 
         <div className="el-search-row">
@@ -327,40 +302,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        {/* Enhanced Category Section with Maximum UI Craftsmanship */}
-        <section className="el-categories-section" id="el-categories" style={{ padding: "16px 12px", background: "#ffffff", borderRadius: 16, margin: "10px 12px", boxShadow: "0 2px 12px rgba(0,0,0,0.03)" }}>
-          <div className="el-section-heading el-category-heading" style={{ marginBottom: 12 }}>
-            <div>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#173b25" }}>Explore Categories</h2>
-              <p style={{ fontSize: 11, color: "#647568", margin: "2px 0 0" }}>Choose from our farm-fresh grocery selections</p>
-            </div>
-            <span className="el-swipe-hint" style={{ fontSize: 11, fontWeight: 700, color: "#16803d", background: "#eaf7ed", padding: "4px 8px", borderRadius: 6 }}>Swipe ➔</span>
-          </div>
-          <div className="el-category-scroller" style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
-            {CATEGORIES.map((category) => (
-              <button 
-                type="button" 
-                key={category.id} 
-                className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} 
-                onClick={() => selectCategory(category.id)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  minWidth: 84,
-                  padding: "10px 8px",
-                  borderRadius: 14,
-                  border: activeCategory === category.id ? "2px solid #16803d" : "1px solid #e2ebe3",
-                  background: activeCategory === category.id ? "#eaf7ed" : "#f8fcf8",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                <span className="el-category-icon" style={{ fontSize: 26, marginBottom: 4 }}>{category.emoji}</span>
-                <span style={{ fontSize: 12, fontWeight: 750, color: activeCategory === category.id ? "#16803d" : "#33483a", textAlign: "center", whiteSpace: "nowrap" }}>{category.name}</span>
-              </button>
-            ))}
-          </div>
+        <section className="el-categories-section" id="el-categories">
+          <div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div>
+          <div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div>
         </section>
 
         <section className="el-offers-section" id="el-offers">
@@ -416,7 +360,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
 
-      {/* Account Page Modal */}
+      {/* Account Page Modal (Create Account / Login Separate View) */}
       {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
         <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
@@ -434,6 +378,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             </div>
           ) : (
             <div>
+              {/* Mode Toggle Switch */}
               <div style={{ display: "flex", background: "#f5f8f5", borderRadius: 9, padding: 4, marginBottom: 20 }}>
                 <button type="button" onClick={() => { setAccountMode("register"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "register" ? "white" : "transparent", color: accountMode === "register" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "register" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Create Account</button>
                 <button type="button" onClick={() => { setAccountMode("login"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "login" ? "white" : "transparent", color: accountMode === "login" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "login" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Login</button>
