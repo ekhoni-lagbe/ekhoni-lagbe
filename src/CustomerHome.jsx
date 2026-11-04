@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import "./CustomerHome.css";
 
 const SERVICE_ZONES = [
@@ -10,7 +10,7 @@ const SERVICE_ZONES = [
 ];
 
 const CATEGORIES = [
-  { id: "all", name: "All", emoji: "🛍️" },
+  { id: "all", name: "All Products", emoji: "🛍️" },
   { id: "vegetables", name: "Vegetables", emoji: "🥬" },
   { id: "fruits", name: "Fruits", emoji: "🍎" },
   { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
@@ -43,7 +43,6 @@ const OFFERS = [
 ];
 
 const formatPrice = (price) => `৳${price}`;
-// Accept standard Bangladesh mobile numbers only: 013–019, exactly 11 digits.
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
@@ -52,19 +51,41 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [expandedSections, setExpandedSections] = useState({});
   const [cart, setCart] = useState({});
   const [wishlist, setWishlist] = useState([]);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
-  const [selectedZone, setSelectedZone] = useState(SERVICE_ZONES[0]);
-  const [locationOpen, setLocationOpen] = useState(false);
-  const [locationSearch, setLocationSearch] = useState("");
-  const [locationConfirmed, setLocationConfirmed] = useState(false);
+  
+  // Time-based Greeting State
+  const [timeGreeting, setTimeGreeting] = useState({
+    title: "Welcome to EKHONI LAGBE",
+    subtitle: "15-minute quick delivery"
+  });
+
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
+
+  // Account Page States
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [accountMode, setAccountMode] = useState("register");
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regOtp, setRegOtp] = useState("");
+  const [loginPhone, setLoginPhone] = useState("");
+  const [loginOtp, setLoginOtp] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [userProfile, setUserProfile] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem("el-user-profile")) || null; } catch { return null; }
+  });
+
+  // Notification Page States
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState([]);
+
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
   });
@@ -90,9 +111,24 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
 
+  // Set time-based greeting on load
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 12) {
+      setTimeGreeting({ title: "Good Morning! ☀️", subtitle: "Start your day with fresh groceries in 15 mins" });
+    } else if (hour >= 12 && hour < 17) {
+      setTimeGreeting({ title: "Good Afternoon! 🌤️", subtitle: "Fast delivery right to your door" });
+    } else if (hour >= 17 && hour < 21) {
+      setTimeGreeting({ title: "Good Evening! 🌙", subtitle: "Fresh ingredients for your evening cooking" });
+    } else {
+      setTimeGreeting({ title: "Good Night! ✨", subtitle: "Late night essentials delivered instantly" });
+    }
+  }, []);
+
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
   const cartProducts = PRODUCTS.filter((product) => (cart[product.id] || 0) > 0);
+  const wishlistProducts = PRODUCTS.filter((product) => wishlist.includes(product.id));
   const cartSubtotal = cartProducts.reduce((sum, product) => sum + product.price * cart[product.id], 0);
   const cartCompareTotal = cartProducts.reduce((sum, product) => sum + (product.oldPrice || product.price) * cart[product.id], 0);
   const cartSavings = Math.max(0, cartCompareTotal - cartSubtotal);
@@ -107,10 +143,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return matchesCategory && matchesSearch;
     });
   }, [search, activeCategory]);
-
-  const filteredZones = SERVICE_ZONES.filter((zone) =>
-    zone.name.toLowerCase().includes(locationSearch.trim().toLowerCase())
-  );
 
   const showNotice = (message) => {
     setNotice(message);
@@ -177,12 +209,21 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       return;
     }
     if (destination === "account") {
-      if (typeof onNavigate === "function") onNavigate("account");
+      setAccountOpen(true);
+      setAccountError("");
+      return;
+    }
+    if (destination === "notifications") {
+      setNotificationsOpen(true);
       return;
     }
     if (destination === "orders") {
       setOrdersOpen(true);
       setTrackingOrderId("");
+      return;
+    }
+    if (destination === "wishlist") {
+      setWishlistOpen(true);
       return;
     }
     if (destination === "guide") {
@@ -257,22 +298,22 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             <button type="button" className="el-header-icon" onClick={() => handleNavigation("account")} aria-label="Account">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></svg><span>Account</span>
             </button>
-            <button type="button" className="el-header-icon el-notification-button" onClick={() => showNotice("You have no new notifications.")} aria-label="Notifications">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg><span>Alerts</span>
+            <button type="button" className="el-header-icon el-notification-button" onClick={() => handleNavigation("notifications")} aria-label="Notifications">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg><span>Notification</span>
             </button>
           </div>
         </div>
 
-        <div className="el-location-row">
-          <button type="button" className="el-location-button" onClick={() => setLocationOpen(true)} aria-haspopup="dialog" aria-expanded={locationOpen}>
-            <span className="el-location-pin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
+        {/* Time-based Greeting Header Section */}
+        <div className="el-location-row" style={{ background: "linear-gradient(135deg, #16803d15 0%, #16803d05 100%)", borderRadius: 12, padding: "10px 14px", margin: "8px 12px", border: "1px solid #16803d20" }}>
+          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", background: "transparent", padding: 0 }}>
+            <span className="el-location-pin" aria-hidden="true" style={{ background: "#16803d", color: "white", borderRadius: "50%", width: 34, height: 34, display: "grid", placeItems: "center", fontSize: 16 }}>⚡</span>
             <span className="el-location-copy">
-              <small>{locationConfirmed ? "DELIVERING TO" : "SELECT DELIVERY LOCATION"}</small>
-              <strong>{selectedZone.name}</strong>
+              <strong style={{ fontSize: 14, color: "#16803d" }}>{timeGreeting.title}</strong>
+              <small style={{ fontSize: 11, color: "#55715c" }}>{timeGreeting.subtitle}</small>
             </span>
-            <span className="el-location-change">Change⌄</span>
-          </button>
-          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~{selectedZone.minutes} min</strong><small>estimated delivery</small></span></div>
+          </div>
+          <div className="el-delivery-estimate" style={{ background: "white", padding: "6px 10px", borderRadius: 8, border: "1px solid #d5ead9" }}><span className="el-delivery-dot" /><span><strong style={{ color: "#16803d" }}>~15 min</strong><small>Superfast delivery</small></span></div>
         </div>
 
         <div className="el-search-row">
@@ -286,9 +327,40 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        <section className="el-categories-section" id="el-categories">
-          <div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div>
-          <div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div>
+        {/* Enhanced Category Section with Maximum UI Craftsmanship */}
+        <section className="el-categories-section" id="el-categories" style={{ padding: "16px 12px", background: "#ffffff", borderRadius: 16, margin: "10px 12px", boxShadow: "0 2px 12px rgba(0,0,0,0.03)" }}>
+          <div className="el-section-heading el-category-heading" style={{ marginBottom: 12 }}>
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#173b25" }}>Explore Categories</h2>
+              <p style={{ fontSize: 11, color: "#647568", margin: "2px 0 0" }}>Choose from our farm-fresh grocery selections</p>
+            </div>
+            <span className="el-swipe-hint" style={{ fontSize: 11, fontWeight: 700, color: "#16803d", background: "#eaf7ed", padding: "4px 8px", borderRadius: 6 }}>Swipe ➔</span>
+          </div>
+          <div className="el-category-scroller" style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
+            {CATEGORIES.map((category) => (
+              <button 
+                type="button" 
+                key={category.id} 
+                className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} 
+                onClick={() => selectCategory(category.id)}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  minWidth: 84,
+                  padding: "10px 8px",
+                  borderRadius: 14,
+                  border: activeCategory === category.id ? "2px solid #16803d" : "1px solid #e2ebe3",
+                  background: activeCategory === category.id ? "#eaf7ed" : "#f8fcf8",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                <span className="el-category-icon" style={{ fontSize: 26, marginBottom: 4 }}>{category.emoji}</span>
+                <span style={{ fontSize: 12, fontWeight: 750, color: activeCategory === category.id ? "#16803d" : "#33483a", textAlign: "center", whiteSpace: "nowrap" }}>{category.name}</span>
+              </button>
+            ))}
+          </div>
         </section>
 
         <section className="el-offers-section" id="el-offers">
@@ -300,16 +372,15 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <section className="el-quick-links">
           <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
-          <button type="button" onClick={() => showNotice(wishlist.length ? `${wishlist.length} saved favourite product(s)` : "Your wishlist is empty yet.")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
+          <button type="button" onClick={() => handleNavigation("wishlist")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("guide")}><span>☰</span><span>Guide</span><b>→</b></button>
-          <button type="button" onClick={() => showNotice("Recently viewed products will appear here.")}><span>◷</span><span>Recently Viewed</span><b>→</b></button>
         </section>
 
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
         ) : <>{activeCategory !== "all" ? renderSection(CATEGORIES.find((item) => item.id === activeCategory)?.name || "Products", "Explore products in this category", filteredProducts, `category-${activeCategory}`) : <>{renderSection("Popular Products", "Everyday favourites for your home", PRODUCTS.filter((product) => [2, 4, 7, 1].includes(product.id)), "popular")}{renderSection("Fresh Vegetables", "Fresh picks for everyday cooking", PRODUCTS.filter((product) => product.category === "vegetables"), "vegetables")}{renderSection("Fruits & Dairy", "Everyday essentials for your family", PRODUCTS.filter((product) => ["fruits", "dairy"].includes(product.category)), "fruits-dairy")}{renderSection("Rice, Snacks & More", "More essentials to complete your basket", PRODUCTS.filter((product) => ["rice", "snacks", "beverages", "meat"].includes(product.category)), "other-products")}</>}</>}
 
-        <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Find your favourites and build your grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
+        <section className="el-bottom-promo"><div><span className="el-bottom-promo-kicker">YOUR DAILY SHOPPING</span><h2>Everything you need, in one place.</h2><p>Product favourites and grocery basket.</p></div><button type="button" onClick={() => goToProducts("all")}>Shop All <span>→</span></button></section>
       </main>
 
       <footer className="el-footer"><img src="/logo.png" alt="" /><span>EKHONI LAGBE</span><small>15-Minute Delivery — Right to Your Hands</small></footer>
@@ -320,6 +391,129 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         <button type="button" onClick={() => handleNavigation("orders")}><span className="el-nav-icon">▤</span><span>My Orders</span></button>
         <button type="button" onClick={() => handleNavigation("cart")}><span className="el-nav-icon">🛒</span><span>Cart</span>{visibleCartCount > 0 && <b className="el-nav-cart-count">{visibleCartCount}</b>}</button>
       </nav>
+
+      {/* Wishlist Page Modal */}
+      {wishlistOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 760, margin: "20px auto", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
+            <button type="button" onClick={() => setWishlistOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "6px 12px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18 }}>My Wishlist</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
+          {wishlistProducts.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "50px 15px" }}>
+              <div style={{ fontSize: 50, marginBottom: 15 }}>♡</div>
+              <h3 style={{ margin: "0 0 8px", fontSize: 18 }}>Your wishlist is empty</h3>
+              <p style={{ color: "#647568", fontSize: 13, margin: "0 0 25px" }}>Explore products and add your favourites to the wishlist.</p>
+              <button type="button" onClick={() => { setWishlistOpen(false); handleNavigation("home"); }} style={{ width: "100%", maxWidth: 300, border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Explore Products</button>
+            </div>
+          ) : (
+            <div className="el-product-grid">
+              {wishlistProducts.map(productCard)}
+            </div>
+          )}
+        </div>
+      </div>}
+
+      {/* Account Page Modal */}
+      {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
+            <button type="button" onClick={() => setAccountOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "6px 12px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18 }}>{accountMode === "register" ? "Create Account" : "Login"}</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
+          {userProfile ? (
+            <div style={{ textAlign: "center", padding: "30px 0" }}>
+              <div style={{ fontSize: 50, marginBottom: 10 }}>👤</div>
+              <h3 style={{ margin: "5px 0" }}>{userProfile.name}</h3>
+              <p style={{ color: "#647568", margin: "0 0 20px" }}>{userProfile.phone}</p>
+              <button type="button" onClick={() => { setUserProfile(null); window.localStorage.removeItem("el-user-profile"); showNotice("Logged out successfully."); }} style={{ width: "100%", border: 0, background: "#ffebee", color: "#c62828", borderRadius: 9, padding: 12, fontWeight: 800 }}>Log Out</button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: "flex", background: "#f5f8f5", borderRadius: 9, padding: 4, marginBottom: 20 }}>
+                <button type="button" onClick={() => { setAccountMode("register"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "register" ? "white" : "transparent", color: accountMode === "register" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "register" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Create Account</button>
+                <button type="button" onClick={() => { setAccountMode("login"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "login" ? "white" : "transparent", color: accountMode === "login" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "login" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Login</button>
+              </div>
+
+              {accountError && <p style={{ color: "#b42318", background: "#fff0ef", padding: 9, borderRadius: 8, fontSize: 12, marginBottom: 15 }}>{accountError}</p>}
+
+              {accountMode === "register" ? (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Name *</label>
+                  <input value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="আপনার নাম লিখুন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile number *</label>
+                  <input value={regPhone} onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP *</label>
+                  <input value={regOtp} onChange={(e) => setRegOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="৪ ডিজিটের ওটিপি দিন (যেমন: 1234)" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 20, fontSize: 13 }} />
+
+                  <button type="button" onClick={() => {
+                    if (!regName.trim()) { setAccountError("দয়া করে আপনার নাম লিখুন।"); return; }
+                    if (!isValidBangladeshMobile(regPhone)) { setAccountError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
+                    if (regOtp.length < 4) { setAccountError("৪ সংখ্যার ওটিপি (OTP) কোড দিন।"); return; }
+                    
+                    const profile = { name: regName.trim(), phone: regPhone };
+                    setUserProfile(profile);
+                    window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
+                    setAccountOpen(false);
+                    showNotice("Account created successfully!");
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Create Account</button>
+                </div>
+              ) : (
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>Mobile number *</label>
+                  <input value={loginPhone} onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 12, fontSize: 13 }} />
+                  
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 750, marginBottom: 5 }}>OTP *</label>
+                  <input value={loginOtp} onChange={(e) => setLoginOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="৪ ডিজিটের ওটিপি দিন" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 20, fontSize: 13 }} />
+
+                  <button type="button" onClick={() => {
+                    if (!isValidBangladeshMobile(loginPhone)) { setAccountError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
+                    if (loginOtp.length < 4) { setAccountError("৪ সংখ্যার ওটিপি (OTP) কোড দিন।"); return; }
+
+                    const profile = { name: "User (" + loginPhone.slice(-4) + ")", phone: loginPhone };
+                    setUserProfile(profile);
+                    window.localStorage.setItem("el-user-profile", JSON.stringify(profile));
+                    setAccountOpen(false);
+                    showNotice("Logged in successfully!");
+                  }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Login</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>}
+
+      {/* Notification Page Modal */}
+      {notificationsOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
+        <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
+            <button type="button" onClick={() => setNotificationsOpen(false)} style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 8, padding: "6px 12px", fontWeight: 750, fontSize: 13 }}>← Back</button>
+            <h2 style={{ margin: 0, fontSize: 18 }}>Notifications</h2>
+            <div style={{ width: 50 }}></div>
+          </div>
+
+          {notificationsList.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "50px 15px" }}>
+              <div style={{ fontSize: 50, marginBottom: 15 }}>🔔</div>
+              <h3 style={{ margin: "0 0 8px", fontSize: 18 }}>নোটিফিকেশন নেই</h3>
+              <p style={{ color: "#647568", fontSize: 13, margin: "0 0 25px" }}>এই মুহূর্তে আপনার কোনো নতুন নোটিফিকেশন নেই।</p>
+              <button type="button" onClick={() => { setNotificationsOpen(false); handleNavigation("home"); }} style={{ width: "100%", border: 0, background: "#16803d", color: "white", borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14 }}>Continue Shopping</button>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 10 }}>
+              {notificationsList.map((notif, idx) => (
+                <div key={idx} style={{ background: "#f5f8f5", padding: 12, borderRadius: 8, fontSize: 13, border: "1px solid #e8eee8" }}>{notif}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>}
 
       <style>{`
         .el-product-pricing{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:7px}
@@ -400,14 +594,14 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </header>
         <div style={{ maxWidth: 600, margin: "0 auto", padding: 10, paddingBottom: 18 }}>
           {!orderComplete && <div style={{ display: "flex", alignItems: "center", gap: 9, background: "#eaf7ed", border: "1px solid #d5ead9", borderRadius: 10, padding: "8px 10px", marginBottom: 8 }}><span aria-hidden="true" style={{ fontSize: 20 }}>💵</span><div style={{ flex: 1 }}><strong style={{ display: "block", fontSize: 12 }}>Cash on Delivery</strong><small style={{ color: "#55715c", fontSize: 10 }}>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small></div><span style={{ color: "#16803d", fontSize: 10, fontWeight: 800 }}>Selected</span></div>}
-          {orderComplete ? <section className="el-order-success" style={{ background: "white", borderRadius: 13, padding: "22px 16px", marginTop: 8, textAlign: "center", border: "1px solid #e8eee8" }}><div style={{ margin: "0 auto 10px", width: 48, height: 48, borderRadius: 50, background: "#e3f6e8", color: "#16803d", fontSize: 30, display: "grid", placeItems: "center" }}>✓</div><h2 style={{ margin: "0 0 8px", fontSize: 18 }}>Order Preview Complete</h2><p style={{ color: "#647568", lineHeight: 1.5 }}>Reference: <strong>{demoOrderNumber}</strong></p><p style={{ color: "#647568", lineHeight: 1.5, fontSize: 12 }}>Demo preview saved in this browser only. It has not been sent to a merchant or rider.</p><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setOrdersOpen(true); setTrackingOrderId(""); }} style={{ width: "100%", marginTop: 10, border: 0, borderRadius: 9, padding: 11, background: "#e8f5eb", color: "#176b36", fontWeight: 800 }}>View My Orders</button><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setCart({}); setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress(""); setCheckoutInstructions(""); setLocationConfirmed(false); setSelectedZone(SERVICE_ZONES[0]); setCouponInput(""); setAppliedCoupon(""); setCouponMessage(""); setLiveLocation(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ width: "100%", marginTop: 8, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Continue Shopping</button></section> : <>
+          {orderComplete ? <section className="el-order-success" style={{ background: "white", borderRadius: 13, padding: "22px 16px", marginTop: 8, textAlign: "center", border: "1px solid #e8eee8" }}><div style={{ margin: "0 auto 10px", width: 48, height: 48, borderRadius: 50, background: "#e3f6e8", color: "#16803d", fontSize: 30, display: "grid", placeItems: "center" }}>✓</div><h2 style={{ margin: "0 0 8px", fontSize: 18 }}>Order Preview Complete</h2><p style={{ color: "#647568", lineHeight: 1.5 }}>Reference: <strong>{demoOrderNumber}</strong></p><p style={{ color: "#647568", lineHeight: 1.5, fontSize: 12 }}>Demo preview saved in this browser only. It has not been sent to a merchant or rider.</p><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setOrdersOpen(true); setTrackingOrderId(""); }} style={{ width: "100%", marginTop: 10, border: 0, borderRadius: 9, padding: 11, background: "#e8f5eb", color: "#176b36", fontWeight: 800 }}>View My Orders</button><button type="button" onClick={() => { setOrderComplete(false); setCheckoutOpen(false); setCart({}); setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress(""); setCheckoutInstructions(""); setCouponInput(""); setAppliedCoupon(""); setCouponMessage(""); setLiveLocation(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ width: "100%", marginTop: 8, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800 }}>Continue Shopping</button></section> : <>
             <section style={{ background: "white", borderRadius: 12, padding: 11, marginTop: 2, border: "1px solid #e8eee8" }}>
               <h3 style={{ margin: "0 0 9px", fontSize: 14 }}>Delivery Details</h3>
               <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-name">Full Name *</label><input id="el-checkout-name" value={checkoutName} onChange={(e) => setCheckoutName(e.target.value)} placeholder="আপনার নাম লিখুন" autoComplete="name" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, marginBottom: 8, fontSize: 13 }} />
               <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-phone">Mobile Number *</label><input id="el-checkout-phone" value={checkoutPhone} onChange={(e) => setCheckoutPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" inputMode="numeric" autoComplete="tel" maxLength={11} pattern="01[3-9][0-9]{8}" aria-describedby="el-phone-help" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, marginBottom: 3, fontSize: 13 }} /><small id="el-phone-help" style={{ display: "block", color: "#718075", fontSize: 10, marginBottom: 8 }}>বাংলাদেশি নম্বর: ১১টি সংখ্যা, 013–019 দিয়ে শুরু হবে।</small>
               <label style={{ display: "block", fontWeight: 750, marginBottom: 4, fontSize: 12 }} htmlFor="el-checkout-address">Delivery Address *</label><textarea id="el-checkout-address" value={checkoutAddress} onChange={(e) => setCheckoutAddress(e.target.value)} placeholder="এলাকা/মহল্লা, রোড, বাড়ি/ফ্ল্যাট, দোকান বা কাছের পরিচিত স্থান লিখুন" rows={3} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d6e3d8", borderRadius: 8, padding: 9, resize: "vertical", fontSize: 13 }} />
               <small style={{ display: "block", color: "#16803d", fontSize: 11, lineHeight: 1.4, marginTop: 5 }}>ডেলিভারি বর্তমানে শুধু কামরাঙ্গীরচর, ঢাকা।</small>
-              <button type="button" className="el-location-action" disabled={locationLoading} onClick={() => { if (!navigator.geolocation) { setCheckoutError("এই Browser-এ Live Location ব্যবহার করা যাচ্ছে না। অনুগ্রহ করে ঠিকানা লিখুন।"); return; } setLocationLoading(true); setCheckoutError(""); navigator.geolocation.getCurrentPosition((position) => { setLiveLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }); setLocationLoading(false); setLocationConfirmed(true); setCheckoutError(""); setCheckoutAddress((previous) => previous.trim() ? `${previous.trim()} (GPS location attached)` : `GPS location: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`); }, () => { setLocationLoading(false); setCheckoutError("লোকেশন পাওয়া যায়নি। Location permission দিন অথবা ঠিকানা লিখুন।"); }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }); }}>{locationLoading ? "Getting location…" : liveLocation ? "✓ Location added" : "⌖ Share Current Location (Optional)"}</button>
+              <button type="button" className="el-location-action" disabled={locationLoading} onClick={() => { if (!navigator.geolocation) { setCheckoutError("এই Browser-এ Live Location ব্যবহার করা যাচ্ছে না। অনুগ্রহ করে ঠিকানা লিখুন।"); return; } setLocationLoading(true); setCheckoutError(""); navigator.geolocation.getCurrentPosition((position) => { setLiveLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }); setLocationLoading(false); setCheckoutError(""); setCheckoutAddress((previous) => previous.trim() ? `${previous.trim()} (GPS location attached)` : `GPS location: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`); }, () => { setLocationLoading(false); setCheckoutError("লোকেশন পাওয়া যায়নি। Location permission দিন অথবা ঠিকানা লিখুন।"); }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }); }}>{locationLoading ? "Getting location…" : liveLocation ? "✓ Location added" : "⌖ Share Current Location (Optional)"}</button>
               {liveLocation && <small style={{ display: "block", marginTop: 5, color: "#16803d", fontSize: 10 }}>Location: {liveLocation.latitude.toFixed(5)}, {liveLocation.longitude.toFixed(5)}</small>}
             </section>
             <section style={{ background: "#eff9f1", borderRadius: 12, padding: 10, marginTop: 8, border: "1px solid #d5ead9" }} aria-label="আপনার সাশ্রয়">
@@ -426,6 +620,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </>}
         </div>
       </div>}
+      
       {ordersOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-orders-title" style={{ position: "fixed", inset: 0, zIndex: 1200, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
@@ -472,16 +667,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </div>}
 
       {notice && <div className="el-toast" role="status"><span>✓</span>{notice}<button type="button" onClick={() => setNotice("")} aria-label="Dismiss message">×</button></div>}
-
-      {locationOpen && <div className="el-location-backdrop" role="presentation" onClick={() => setLocationOpen(false)}><section className="el-location-dialog" role="dialog" aria-modal="true" aria-labelledby="el-location-title" onClick={(event) => event.stopPropagation()}>
-        <button className="el-location-close" type="button" onClick={() => setLocationOpen(false)} aria-label="Close location selector">×</button>
-        <div className="el-location-dialog-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></div>
-        <h2 id="el-location-title">Where should we deliver?</h2><p className="el-location-help">Choose an address in Kamrangirchar. Delivery availability will be confirmed before checkout.</p>
-        <label className="el-location-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg><input value={locationSearch} onChange={(event) => setLocationSearch(event.target.value)} placeholder="Search area or address" /></label>
-        <div className="el-location-options">{filteredZones.map((zone) => <button type="button" key={zone.id} className={`el-location-option ${selectedZone.id === zone.id ? "is-selected" : ""}`} onClick={() => { setSelectedZone(zone); setLocationConfirmed(true); setLocationOpen(false); setLocationSearch(""); }}><span className="el-option-pin">⌖</span><span className="el-option-copy"><strong>{zone.name}</strong><small>{zone.detail}</small></span><span className="el-option-time">~{zone.minutes} min</span>{selectedZone.id === zone.id && <span className="el-option-check">✓</span>}</button>)}
-          {!filteredZones.length && <p className="el-no-zones">No matching area found. Please choose an address within Kamrangirchar.</p>}
-        </div><p className="el-location-disclaimer">15 minutes is an initial estimate, not a guaranteed delivery time. Actual time depends on address, stock and rider availability.</p>
-      </section></div>}
 
       {selectedProduct && <div className="el-gallery-backdrop" role="presentation" onClick={closeProduct}><section className="el-gallery-modal" role="dialog" aria-modal="true" aria-label={`${selectedProduct.name} product images`} onClick={(event) => event.stopPropagation()}>
         <button type="button" className="el-gallery-close" onClick={closeProduct} aria-label="Close product details">×</button>
