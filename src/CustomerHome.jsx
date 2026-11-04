@@ -10,15 +10,15 @@ const SERVICE_ZONES = [
 ];
 
 const CATEGORIES = [
-  { id: "all", name: "All", emoji: "🛍️", desc: "Browse all everyday essentials" },
-  { id: "vegetables", name: "Vegetables", emoji: "🥬", desc: "Farm-fresh & organic vegetables" },
-  { id: "fruits", name: "Fruits", emoji: "🍎", desc: "Fresh & seasonal delicious fruits" },
-  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", desc: "Fresh milk, eggs, butter & curd" },
-  { id: "rice", name: "Rice & Grains", emoji: "🍚", desc: "Premium rice, pulses & staples" },
-  { id: "meat", name: "Meat & Fish", emoji: "🐟", desc: "Fresh river fish & quality meats" },
-  { id: "snacks", name: "Snacks", emoji: "🍪", desc: "Biscuits, chips & evening treats" },
-  { id: "beverages", name: "Beverages", emoji: "🧃", desc: "Juices, cold drinks & tea/coffee" },
-  { id: "household", name: "Household", emoji: "🧹", desc: "Cleaning & daily household care" },
+  { id: "all", name: "All", emoji: "🛍️" },
+  { id: "vegetables", name: "Vegetables", emoji: "🥬" },
+  { id: "fruits", name: "Fruits", emoji: "🍎" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛" },
+  { id: "rice", name: "Rice & Grains", emoji: "🍚" },
+  { id: "meat", name: "Meat & Fish", emoji: "🐟" },
+  { id: "snacks", name: "Snacks", emoji: "🍪" },
+  { id: "beverages", name: "Beverages", emoji: "🧃" },
+  { id: "household", name: "Household", emoji: "🧹" },
 ];
 
 const PRODUCTS = [
@@ -45,16 +45,17 @@ const OFFERS = [
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
-// Helper function to get time-based greeting in English
-function getTimeBasedGreeting() {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) {
-    return { title: "Good morning ☀️", subtext: "Fresh groceries delivered in 15 minutes" };
-  } else if (hour >= 12 && hour < 17) {
-    return { title: "Good afternoon ☀️", subtext: "Get your afternoon essentials delivered fast" };
-  } else {
-    return { title: "Good evening 🌙", subtext: "Fresh groceries for your night essentials" };
-  }
+// Helper function to calculate distance using Haversine formula
+function calculateDistanceInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
@@ -68,8 +69,13 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
-
-  const [greeting, setGreeting] = useState(getTimeBasedGreeting());
+  
+  // Auto Live Location State
+  const [autoLocation, setAutoLocation] = useState({
+    name: "Detecting location...",
+    minutes: 15,
+    status: "loading"
+  });
 
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -77,9 +83,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState("");
 
-  // Account Page States
+  // Account Page States (Create Account / Login Separate Pages)
   const [accountOpen, setAccountOpen] = useState(false);
-  const [accountMode, setAccountMode] = useState("register");
+  const [accountMode, setAccountMode] = useState("register"); // 'register' or 'login'
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regOtp, setRegOtp] = useState("");
@@ -92,7 +98,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
   // Notification Page States
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]); // Empty by default as requested
 
   const [receivedOrderIds, setReceivedOrderIds] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem("el-received-order-ids") || "[]"); } catch { return []; }
@@ -119,12 +125,43 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
 
-  // Update greeting state periodically
+  // Auto detect location on load
   useEffect(() => {
-    const timer = setInterval(() => {
-      setGreeting(getTimeBasedGreeting());
-    }, 60000);
-    return () => clearInterval(timer);
+    if (!navigator.geolocation) {
+      setAutoLocation({
+        name: "Kamrangirchar, Dhaka",
+        minutes: 15,
+        status: "fallback"
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        // Central hub point (e.g. Kamrangirchar Main Hub)
+        const hubLat = 23.7153;
+        const hubLon = 90.3705;
+        const distKm = calculateDistanceInKm(latitude, longitude, hubLat, hubLon);
+        
+        // Estimated delivery time: base 10 mins + 4 mins per km
+        const estimatedMins = Math.max(10, Math.round(10 + distKm * 4));
+
+        setAutoLocation({
+          name: `Current Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`,
+          minutes: estimatedMins,
+          status: "success"
+        });
+      },
+      () => {
+        setAutoLocation({
+          name: "Kamrangirchar, Dhaka",
+          minutes: 15,
+          status: "denied"
+        });
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   }, []);
 
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
@@ -306,21 +343,16 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           </div>
         </div>
 
-        {/* Dynamic Time-Based Greeting Banner */}
-        <div className="el-location-row" style={{ background: "linear-gradient(135deg, #16803d 0%, #176b36 100%)", color: "white", padding: "10px 14px", borderRadius: 12, marginBottom: 10 }}>
-          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none", color: "white" }}>
+        {/* Auto Location Banner without Change Option */}
+        <div className="el-location-row">
+          <div className="el-location-button" style={{ cursor: "default", pointerEvents: "none" }}>
+            <span className="el-location-pin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
             <span className="el-location-copy">
-              <strong style={{ fontSize: 16, display: "block", color: "#ffffff" }}>{greeting.title}</strong>
-              <small style={{ color: "#d1fae5", fontSize: 11 }}>{greeting.subtext}</small>
+              <small>DELIVERING TO YOUR LOCATION</small>
+              <strong>{autoLocation.name}</strong>
             </span>
           </div>
-          <div className="el-delivery-estimate" style={{ background: "rgba(255, 255, 255, 0.15)", padding: "4px 10px", borderRadius: 8 }}>
-            <span className="el-delivery-dot" style={{ background: "#4ade80" }} />
-            <span style={{ color: "white" }}>
-              <strong style={{ color: "#ffffff" }}>~15 min</strong>
-              <small style={{ color: "#e2e8f0" }}>delivery</small>
-            </span>
-          </div>
+          <div className="el-delivery-estimate"><span className="el-delivery-dot" /><span><strong>~{autoLocation.minutes} min</strong><small>estimated delivery</small></span></div>
         </div>
 
         <div className="el-search-row">
@@ -334,28 +366,9 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
       </header>
 
       <main className="el-main">
-        {/* Enhanced Category Navigation */}
         <section className="el-categories-section" id="el-categories">
-          <div className="el-section-heading el-category-heading">
-            <div>
-              <h2>Shop by Category</h2>
-              <p style={{ fontSize: 11, color: "#647568", margin: "2px 0 0" }}>Explore all categories effortlessly</p>
-            </div>
-            <span className="el-swipe-hint">Swipe →</span>
-          </div>
-          <div className="el-category-scroller">
-            {CATEGORIES.map((category) => (
-              <button
-                type="button"
-                key={category.id}
-                className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`}
-                onClick={() => selectCategory(category.id)}
-              >
-                <span className="el-category-icon">{category.emoji}</span>
-                <span>{category.name}</span>
-              </button>
-            ))}
-          </div>
+          <div className="el-section-heading el-category-heading"><div><h2>Shop by Category</h2></div><span className="el-swipe-hint">Swipe →</span></div>
+          <div className="el-category-scroller">{CATEGORIES.map((category) => <button type="button" key={category.id} className={`el-category-item ${activeCategory === category.id ? "is-active" : ""}`} onClick={() => selectCategory(category.id)}><span className="el-category-icon">{category.emoji}</span><span>{category.name}</span></button>)}</div>
         </section>
 
         <section className="el-offers-section" id="el-offers">
@@ -364,7 +377,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <div className="el-offer-dots" aria-label="Offer banners">{OFFERS.map((offer, index) => <button type="button" key={offer.id} className={activeOffer === index ? "is-active" : ""} onClick={() => { setActiveOffer(index); document.querySelectorAll(".el-offer-banner")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} aria-label={`Offer ${index + 1}`} />)}</div>
         </section>
 
-        {/* Quick Links Section (Recently Viewed Deleted) */}
         <section className="el-quick-links">
           <button type="button" onClick={() => handleNavigation("offers")}><span>🏷️</span><span>My Offers</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
@@ -412,7 +424,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
 
-      {/* Account Page Modal */}
+      {/* Account Page Modal (Create Account / Login Separate View) */}
       {accountOpen && <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 1300, background: "white", overflowY: "auto", color: "#173b25", padding: 15 }}>
         <div style={{ maxWidth: 420, margin: "20px auto", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, borderBottom: "1px solid #e2ebe3", paddingBottom: 10 }}>
@@ -430,6 +442,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
             </div>
           ) : (
             <div>
+              {/* Mode Toggle Switch */}
               <div style={{ display: "flex", background: "#f5f8f5", borderRadius: 9, padding: 4, marginBottom: 20 }}>
                 <button type="button" onClick={() => { setAccountMode("register"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "register" ? "white" : "transparent", color: accountMode === "register" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "register" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Create Account</button>
                 <button type="button" onClick={() => { setAccountMode("login"); setAccountError(""); }} style={{ flex: 1, border: 0, background: accountMode === "login" ? "white" : "transparent", color: accountMode === "login" ? "#16803d" : "#718075", borderRadius: 7, padding: 9, fontWeight: 800, fontSize: 13, boxShadow: accountMode === "login" ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>Login</button>
@@ -449,7 +462,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
                   <input value={regOtp} onChange={(e) => setRegOtp(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="৪ ডিজিটের ওটিপি দিন (যেমন: 1234)" style={{ width: "100%", boxSizing: "border-box", padding: 10, borderRadius: 8, border: "1px solid #d6e3d8", marginBottom: 20, fontSize: 13 }} />
 
                   <button type="button" onClick={() => {
-                    if (!regName.trim()) { setAccountError("দয়া করে আপনার নাম লিখুন।"); return; }
+                    if (!regName.trim()) { setAccountError("দয়া করে আপনার নাম লিখুন। শহর"); return; }
                     if (!isValidBangladeshMobile(regPhone)) { setAccountError("সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (013–019)।"); return; }
                     if (regOtp.length < 4) { setAccountError("৪ সংখ্যার ওটিপি (OTP) কোড দিন।"); return; }
                     
@@ -550,7 +563,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         @media(max-width:679px){[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom){padding:7px 9px 14px!important}[aria-labelledby="el-checkout-title"]>div:not(.el-checkout-bottom)>section{margin-top:7px!important}[aria-labelledby="el-cart-title"]>div:not(.el-cart-bottom){padding-bottom:22px!important}}
       `}</style>
 
-      {/* Cart Modal */}
       {cartOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-cart-title" style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => setCartOpen(false)} aria-label="Continue shopping" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
@@ -583,7 +595,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
 
-      {/* Checkout Modal */}
       {checkoutOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-checkout-title" style={{ position: "fixed", inset: 0, zIndex: 1100, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => { setCheckoutOpen(false); setCartOpen(true); }} aria-label="কার্টে ফিরে যান" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
@@ -619,7 +630,6 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
         </div>
       </div>}
       
-      {/* My Orders Modal */}
       {ordersOpen && <div role="dialog" aria-modal="true" aria-labelledby="el-orders-title" style={{ position: "fixed", inset: 0, zIndex: 1200, background: "#f5f8f5", overflowY: "auto", color: "#173b25" }}>
         <header style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", borderBottom: "1px solid #e2ebe3" }}>
           <button type="button" onClick={() => trackingOrderId ? setTrackingOrderId("") : setOrdersOpen(false)} aria-label="Back" style={{ border: 0, background: "#eaf6ed", color: "#176b36", borderRadius: 9, width: 34, height: 34, fontSize: 22 }}>‹</button>
