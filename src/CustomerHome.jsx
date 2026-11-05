@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./CustomerHome.css";
 
 const SERVICE_ZONES = [
@@ -45,15 +45,39 @@ const OFFERS = [
 const formatPrice = (price) => `৳${price}`;
 const isValidBangladeshMobile = (value) => /^(013|014|015|016|017|018|019)\d{8}$/.test(value);
 
-function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
+const readStoredValue = (key, fallback, validate) => {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return validate(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+function CustomerHome({ onNavigate }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedSections, setExpandedSections] = useState({});
-  const [cart, setCart] = useState({});
-  const [wishlist, setWishlist] = useState([]);
+  const [cart, setCart] = useState(() => readStoredValue("el-cart", {}, (value) =>
+    value && typeof value === "object" && !Array.isArray(value) && Object.entries(value).every(([id, quantity]) =>
+      PRODUCTS.some((product) => String(product.id) === id) && Number.isInteger(quantity) && quantity > 0
+    )
+  ));
+  const [savedForLater, setSavedForLater] = useState(() => readStoredValue("el-saved-for-later", [], (value) =>
+    Array.isArray(value) && value.every((id) => PRODUCTS.some((product) => product.id === id))
+  ));
+  const [wishlist, setWishlist] = useState(() => readStoredValue("el-wishlist", [], (value) =>
+    Array.isArray(value) && value.every((id) => PRODUCTS.some((product) => product.id === id))
+  ));
+  const [recentlyViewed, setRecentlyViewed] = useState(() => readStoredValue("el-recently-viewed", [], (value) =>
+    Array.isArray(value) && value.every((id) => PRODUCTS.some((product) => product.id === id))
+  ));
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [detailQuantity, setDetailQuantity] = useState(1);
   const [activeOffer, setActiveOffer] = useState(0);
   const [notice, setNotice] = useState("");
 
@@ -105,10 +129,28 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const demoDeliveryFee = 20;
 
+  useEffect(() => {
+    try { window.localStorage.setItem("el-cart", JSON.stringify(cart)); } catch {}
+  }, [cart]);
+
+  useEffect(() => {
+    try { window.localStorage.setItem("el-saved-for-later", JSON.stringify(savedForLater)); } catch {}
+  }, [savedForLater]);
+
+  useEffect(() => {
+    try { window.localStorage.setItem("el-wishlist", JSON.stringify(wishlist)); } catch {}
+  }, [wishlist]);
+
+  useEffect(() => {
+    try { window.localStorage.setItem("el-recently-viewed", JSON.stringify(recentlyViewed)); } catch {}
+  }, [recentlyViewed]);
+
   const cartQuantity = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
-  const visibleCartCount = Math.max(cartQuantity, Number(externalCartCount) || 0);
+  const visibleCartCount = cartQuantity;
   const cartProducts = PRODUCTS.filter((product) => (cart[product.id] || 0) > 0);
+  const savedLaterProducts = savedForLater.map((id) => PRODUCTS.find((product) => product.id === id)).filter(Boolean);
   const wishlistProducts = PRODUCTS.filter((product) => wishlist.includes(product.id));
+  const recentlyViewedProducts = recentlyViewed.map((id) => PRODUCTS.find((product) => product.id === id)).filter(Boolean);
   const cartSubtotal = cartProducts.reduce((sum, product) => sum + product.price * cart[product.id], 0);
   const cartCompareTotal = cartProducts.reduce((sum, product) => sum + (product.oldPrice || product.price) * cart[product.id], 0);
   const cartSavings = Math.max(0, cartCompareTotal - cartSubtotal);
@@ -130,6 +172,7 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   };
 
   const changeQuantity = (productId, change) => {
+    if (change > 0) setSavedForLater((previous) => previous.filter((id) => id !== productId));
     setCart((previous) => {
       const nextQuantity = (previous[productId] || 0) + change;
       const next = { ...previous };
@@ -140,6 +183,31 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
     showNotice(change > 0 ? "Added to your cart" : "Cart updated");
   };
 
+  const removeCartItem = (productId) => {
+    setCart((previous) => {
+      const next = { ...previous };
+      delete next[productId];
+      return next;
+    });
+    showNotice("Product removed from cart");
+  };
+
+  const saveCartItemForLater = (productId) => {
+    setCart((previous) => {
+      const next = { ...previous };
+      delete next[productId];
+      return next;
+    });
+    setSavedForLater((previous) => previous.includes(productId) ? previous : [...previous, productId]);
+    showNotice("Saved for later");
+  };
+
+  const moveSavedItemToCart = (productId) => {
+    setSavedForLater((previous) => previous.filter((id) => id !== productId));
+    setCart((previous) => ({ ...previous, [productId]: (previous[productId] || 0) + 1 }));
+    showNotice("Moved to cart");
+  };
+
   const toggleWishlist = (productId) => setWishlist((previous) =>
     previous.includes(productId) ? previous.filter((id) => id !== productId) : [...previous, productId]
   );
@@ -147,6 +215,8 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
   const openProduct = (product) => {
     setSelectedProduct(product);
     setActiveImageIndex(0);
+    setDetailQuantity(1);
+    setRecentlyViewed((previous) => [product.id, ...previous.filter((id) => id !== product.id)].slice(0, 8));
   };
 
   const closeProduct = () => {
@@ -204,6 +274,12 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
     }
     if (destination === "wishlist") {
       setWishlistOpen(true);
+      return;
+    }
+    if (destination === "recently-viewed") {
+      setActiveCategory("all");
+      setSearch("");
+      window.setTimeout(() => document.getElementById("el-recently-viewed")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
       return;
     }
     if (destination === "guide") {
@@ -318,7 +394,14 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <button type="button" onClick={() => handleNavigation("popular")}><span>🔥</span><span>Popular</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("wishlist")}><span>♡</span><span>My Wishlist</span><b>→</b></button>
           <button type="button" onClick={() => handleNavigation("guide")}><span>☰</span><span>Guide</span><b>→</b></button>
+          <button type="button" onClick={() => handleNavigation("recently-viewed")}><span>◷</span><span>Recently Viewed</span><b>→</b></button>
         </section>
+
+        {!search.trim() && activeCategory === "all" && recentlyViewedProducts.length > 0 && (
+          <div id="el-recently-viewed">
+            {renderSection("Recently Viewed", "Products you opened recently", recentlyViewedProducts, "recently-viewed")}
+          </div>
+        )}
 
         {search.trim() ? (
           <section className="el-section" id="el-products"><div className="el-section-heading"><div><h2>Search Results</h2><p>{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} found</p></div></div>{filteredProducts.length ? <div className="el-product-grid">{filteredProducts.map(productCard)}</div> : <div className="el-empty-state"><span>🔎</span><h3>No products found</h3><p>Try another product name or category.</p><button type="button" onClick={() => { setSearch(""); setActiveCategory("all"); }}>Clear Search</button></div>}</section>
@@ -506,27 +589,35 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
           <button type="button" onClick={() => { setCartOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ border: 0, borderRadius: 9, padding: "8px 10px", color: "#176b36", background: "#eaf6ed", fontWeight: 750, fontSize: 12 }}>+ Add more</button>
         </header>
         <div style={{ maxWidth: 760, margin: "0 auto", padding: 10, paddingBottom: 22 }}>
-          {cartProducts.length === 0 ? <section style={{ textAlign: "center", background: "white", borderRadius: 13, padding: "30px 16px", marginTop: 10 }}><div style={{ fontSize: 40 }}>🛒</div><h3 style={{ margin: "8px 0" }}>Your cart is empty</h3><p style={{ color: "#647568", margin: "0 0 14px" }}>Add groceries to get started.</p><button type="button" onClick={() => setCartOpen(false)} style={{ background: "#16803d", color: "white", border: 0, borderRadius: 9, padding: "10px 15px", fontWeight: 750 }}>Browse groceries</button></section> : <>
+          {cartProducts.length === 0 && savedLaterProducts.length === 0 ? <section style={{ textAlign: "center", background: "white", borderRadius: 13, padding: "30px 16px", marginTop: 10 }}><div style={{ fontSize: 40 }}>🛒</div><h3 style={{ margin: "8px 0" }}>Your cart is empty</h3><p style={{ color: "#647568", margin: "0 0 14px" }}>Add groceries to get started.</p><button type="button" onClick={() => setCartOpen(false)} style={{ background: "#16803d", color: "white", border: 0, borderRadius: 9, padding: "10px 15px", fontWeight: 750 }}>Browse groceries</button></section> : <>
+            {cartProducts.length === 0 && <section style={{ textAlign: "center", background: "white", borderRadius: 12, padding: "18px 12px", marginTop: 4 }}><h3 style={{ margin: "0 0 5px", fontSize: 14 }}>Your cart is empty</h3><p style={{ margin: 0, color: "#718075", fontSize: 11 }}>Your saved products are waiting below.</p></section>}
             <div style={{ display: "grid", gap: 7, marginTop: 2 }}>
               {cartProducts.map((product) => <article key={product.id} style={{ display: "flex", alignItems: "center", gap: 9, padding: 8, borderRadius: 11, background: "white", border: "1px solid #e8eee8" }}>
                 <img src={product.image} alt={product.name} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 8, background: "#f1f5f1" }} />
-                <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", lineHeight: 1.25, fontSize: 13 }}>{product.name}</strong><small style={{ color: "#718075", fontSize: 11 }}>{product.unit}</small><div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 5, marginTop: 3 }}><strong style={{ color: "#16803d", fontSize: 13 }}>৳{product.price}</strong><small style={{ color: "#77847a", textDecoration: "line-through", fontSize: 11 }}>৳{product.oldPrice}</small><small style={{ color: "#16803d", fontSize: 10 }}>Save ৳{product.oldPrice-product.price}</small></div></div>
+                <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", lineHeight: 1.25, fontSize: 13 }}>{product.name}</strong><small style={{ color: "#718075", fontSize: 11 }}>{product.unit}</small><div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 5, marginTop: 3 }}><strong style={{ color: "#16803d", fontSize: 13 }}>৳{product.price}</strong><small style={{ color: "#77847a", textDecoration: "line-through", fontSize: 11 }}>৳{product.oldPrice}</small><small style={{ color: "#16803d", fontSize: 10 }}>Save ৳{product.oldPrice-product.price}</small></div><div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 3 }}><button type="button" onClick={() => saveCartItemForLater(product.id)} style={{ border: 0, background: "transparent", color: "#176b36", padding: "3px 0", fontSize: 11, fontWeight: 700 }}>♡ Save for later</button><button type="button" onClick={() => removeCartItem(product.id)} style={{ border: 0, background: "transparent", color: "#9a3b36", padding: "3px 0", fontSize: 11, fontWeight: 700 }}>Remove</button></div></div>
                 <div style={{ textAlign: "right", minWidth: 92 }}><strong style={{ display: "block", marginBottom: 5, fontSize: 13 }}>৳{product.price * cart[product.id]}</strong><div style={{ display: "inline-flex", alignItems: "center", gap: 10, border: "1px solid #cfe2d2", background: "#f8fcf8", borderRadius: 8, padding: "3px 6px" }}><button type="button" onClick={() => changeQuantity(product.id, -1)} aria-label={`Remove one ${product.name}`} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 20, width: 18, lineHeight: 1 }}>−</button><span style={{ fontWeight: 800, fontSize: 12 }}>{cart[product.id]}</span><button type="button" onClick={() => changeQuantity(product.id, 1)} aria-label={`Add one ${product.name}`} style={{ border: 0, background: "transparent", color: "#16803d", fontSize: 20, width: 18, lineHeight: 1 }}>+</button></div></div>
+
               </article>)}
             </div>
+            {savedLaterProducts.length > 0 && <section style={{ background: "white", border: "1px solid #e8eee8", borderRadius: 12, padding: 11, marginTop: 9 }}><h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Saved for later ({savedLaterProducts.length})</h3><div style={{ display: "grid", gap: 8 }}>{savedLaterProducts.map((product) => <div key={product.id} style={{ display: "flex", alignItems: "center", gap: 9, borderTop: "1px solid #edf1ed", paddingTop: 8 }}><img src={product.image} alt="" style={{ width: 42, height: 42, borderRadius: 7, objectFit: "cover" }} /><div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: "block", fontSize: 12 }}>{product.name}</strong><small style={{ color: "#718075" }}>{product.unit} · ৳{product.price}</small></div><button type="button" onClick={() => moveSavedItemToCart(product.id)} style={{ border: 0, borderRadius: 8, padding: "7px 9px", background: "#eaf6ed", color: "#176b36", fontWeight: 750, fontSize: 11 }}>Move to cart</button><button type="button" onClick={() => setSavedForLater((previous) => previous.filter((id) => id !== product.id))} aria-label={`Remove ${product.name} from saved items`} style={{ border: 0, background: "transparent", color: "#9a3b36", fontSize: 17 }}>×</button></div>)}</div></section>}
+            <p style={{ color: "#718075", fontSize: 10, lineHeight: 1.4, margin: "8px 2px 0" }}>Product availability and final stock are not connected to live inventory yet. They must be checked again by the server before a real order is accepted.</p>
+            {cartProducts.length > 0 && <>
             <section style={{ background: "#eff9f1", borderRadius: 12, padding: 11, marginTop: 9, border: "1px solid #d5ead9" }} aria-label="Your savings">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}><div><strong style={{ fontSize: 13 }}>Your savings</strong><small style={{ display: "block", color: "#55715c", marginTop: 3, fontSize: 11 }}>You save by buying from EKHONI LAGBE</small></div><strong style={{ color: "#16803d", fontSize: 18 }}>৳{cartSavings}</strong></div>
             </section>
             <section style={{ background: "white", borderRadius: 12, padding: 12, marginTop: 8, border: "1px solid #e8eee8" }}>
               <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Bill summary</h3>
-              <div className="el-summary-line"><span>Items total</span><strong>৳{cartSubtotal}</strong></div>
-              <div className="el-summary-line"><span>Delivery charge</span><strong>৳{demoDeliveryFee}</strong></div>
+              <div className="el-summary-line"><span>Items subtotal</span><strong>৳{cartCompareTotal}</strong></div>
+              {cartSavings > 0 && <div className="el-summary-line" style={{ color: "#16803d" }}><span>Product discount</span><strong>−৳{cartSavings}</strong></div>}
+              <div className="el-summary-line"><span>After product discount</span><strong>৳{cartSubtotal}</strong></div>
+              <div className="el-summary-line"><span>Delivery charge</span><strong>৳{cartProducts.length ? demoDeliveryFee : 0}</strong></div>
               <div className="el-coupon-row"><input aria-label="Coupon or referral code" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} placeholder="Coupon / referral code (optional)" /><button type="button" onClick={() => { const code=couponInput.trim().toUpperCase(); if (code === "SAVE10" || code === "SAVE20") { setAppliedCoupon(code); setCouponMessage(`${code} applied successfully.`); } else if (!code) { setAppliedCoupon(""); setCouponMessage("No coupon added."); } else { setAppliedCoupon(""); setCouponMessage("This demo code is not valid. Try SAVE10 or SAVE20."); } }}>Apply</button></div>
               {couponMessage && <p role="status" style={{ margin: "5px 0", color: appliedCoupon ? "#16803d" : "#8a5b13", fontSize: 11 }}>{couponMessage}</p>}
               {couponDiscount > 0 && <div className="el-summary-line" style={{ color: "#16803d" }}><span>Coupon discount</span><strong>−৳{couponDiscount}</strong></div>}
               <div className="el-summary-line el-summary-total"><span>Total payable</span><strong>৳{finalTotal}</strong></div>
               <button type="button" onClick={() => { if (!cartProducts.length) { showNotice("Please add groceries first."); return; } setCartOpen(false); setCheckoutError(""); setCheckoutOpen(true); }} style={{ width: "100%", marginTop: 9, border: 0, borderRadius: 9, padding: 11, background: "#16803d", color: "white", fontWeight: 800, fontSize: 14 }}>অর্ডার করতে এগিয়ে যান →</button>
             </section>
+            </>}
           </>}
         </div>
       </div>}
@@ -613,11 +704,17 @@ function CustomerHome({ onNavigate, cartCount: externalCartCount = 0 }) {
 
       {notice && <div className="el-toast" role="status"><span>✓</span>{notice}<button type="button" onClick={() => setNotice("")} aria-label="Dismiss message">×</button></div>}
 
-      {selectedProduct && <div className="el-gallery-backdrop" role="presentation" onClick={closeProduct}><section className="el-gallery-modal" role="dialog" aria-modal="true" aria-label={`${selectedProduct.name} product images`} onClick={(event) => event.stopPropagation()}>
+      {selectedProduct && <div className="el-gallery-backdrop" role="presentation" onClick={closeProduct}><section className="el-gallery-modal el-product-detail-modal" role="dialog" aria-modal="true" aria-label={`${selectedProduct.name} product details`} onClick={(event) => event.stopPropagation()}>
         <button type="button" className="el-gallery-close" onClick={closeProduct} aria-label="Close product details">×</button>
-        <div className="el-gallery-main-image"><img src={selectedProduct.images[activeImageIndex]} alt={selectedProduct.name} />{selectedProduct.images.length > 1 && <><button type="button" className="el-gallery-arrow el-gallery-prev" onClick={() => setActiveImageIndex((previous) => previous === 0 ? selectedProduct.images.length - 1 : previous - 1)} aria-label="Previous image">‹</button><button type="button" className="el-gallery-arrow el-gallery-next" onClick={() => setActiveImageIndex((previous) => (previous + 1) % selectedProduct.images.length)} aria-label="Next image">›</button></>}<span className="el-gallery-counter">{activeImageIndex + 1} / {selectedProduct.images.length}</span></div>
-        <div className="el-gallery-thumbnails">{selectedProduct.images.map((image, index) => <button type="button" key={image} className={activeImageIndex === index ? "is-active" : ""} onClick={() => setActiveImageIndex(index)} aria-label={`View image ${index + 1}`}><img src={image} alt="" /></button>)}</div>
-        <div className="el-gallery-info"><div><h2>{selectedProduct.name}</h2><p>{selectedProduct.unit}</p><strong>{formatPrice(selectedProduct.price)}</strong> <small style={{ color: "#77847a", textDecoration: "line-through" }}>{formatPrice(selectedProduct.oldPrice)}</small> <small style={{ color: "#16803d" }}>Save ৳{selectedProduct.oldPrice-selectedProduct.price}</small><p>Product details and verified customer ratings will be added when real product data is connected.</p></div>{(cart[selectedProduct.id] || 0) === 0 ? <button type="button" className="el-add-button el-gallery-add" onClick={() => changeQuantity(selectedProduct.id, 1)}>+ Add to Cart</button> : <div className="el-quantity-control"><button type="button" onClick={() => changeQuantity(selectedProduct.id, -1)} aria-label="Remove one">−</button><span>{cart[selectedProduct.id]}</span><button type="button" onClick={() => changeQuantity(selectedProduct.id, 1)} aria-label="Add one">+</button></div>}</div>
+        <div className="el-gallery-main-image"><img src={selectedProduct.images[activeImageIndex] || selectedProduct.image} alt={selectedProduct.name} />{selectedProduct.images.length > 1 && <><button type="button" className="el-gallery-arrow el-gallery-prev" onClick={() => setActiveImageIndex((previous) => previous === 0 ? selectedProduct.images.length - 1 : previous - 1)} aria-label="Previous image">‹</button><button type="button" className="el-gallery-arrow el-gallery-next" onClick={() => setActiveImageIndex((previous) => (previous + 1) % selectedProduct.images.length)} aria-label="Next image">›</button></>}<span className="el-gallery-counter">{activeImageIndex + 1} / {selectedProduct.images.length}</span><button type="button" className={`el-detail-favourite ${wishlist.includes(selectedProduct.id) ? "is-favourite" : ""}`} onClick={() => toggleWishlist(selectedProduct.id)} aria-label={wishlist.includes(selectedProduct.id) ? "Remove from favourites" : "Add to favourites"}>{wishlist.includes(selectedProduct.id) ? "♥" : "♡"}</button></div>
+        {selectedProduct.images.length > 1 && <div className="el-gallery-thumbnails">{selectedProduct.images.map((image, index) => <button type="button" key={image} className={activeImageIndex === index ? "is-active" : ""} onClick={() => setActiveImageIndex(index)} aria-label={`View image ${index + 1}`}><img src={image} alt="" /></button>)}</div>}
+        <div className="el-detail-content">
+          <div className="el-detail-heading"><div><span className="el-detail-category">{CATEGORIES.find((category) => category.id === selectedProduct.category)?.name || "Grocery"}</span><h2>{selectedProduct.name}</h2><p>{selectedProduct.unit}</p></div>{selectedProduct.badge && <span className="el-detail-badge">{selectedProduct.badge}</span>}</div>
+          <div className="el-detail-price-row"><strong>{formatPrice(selectedProduct.price)}</strong>{selectedProduct.oldPrice > selectedProduct.price && <><del>{formatPrice(selectedProduct.oldPrice)}</del><span>Save ৳{selectedProduct.oldPrice - selectedProduct.price}</span></>}</div>
+          <div className="el-detail-info-card"><strong>Product information</strong><div><span>Category</span><b>{CATEGORIES.find((category) => category.id === selectedProduct.category)?.name || "Grocery"}</b></div><div><span>Pack / Size</span><b>{selectedProduct.unit}</b></div><div><span>Price</span><b>{formatPrice(selectedProduct.price)}</b></div></div>
+          <p className="el-detail-data-note">পণ্যের বিস্তারিত বিবরণ, Brand, Stock availability এবং customer reviews বাস্তব product data যুক্ত হলে এখানে দেখানো হবে।</p>
+          <div className="el-detail-buy-row"><div className="el-detail-quantity"><span>Quantity</span><div className="el-quantity-control"><button type="button" onClick={() => setDetailQuantity((quantity) => Math.max(1, quantity - 1))} aria-label="Decrease quantity">−</button><span>{detailQuantity}</span><button type="button" onClick={() => setDetailQuantity((quantity) => quantity + 1)} aria-label="Increase quantity">+</button></div></div><div className="el-detail-actions"><button type="button" className="el-detail-cart-button" onClick={() => { changeQuantity(selectedProduct.id, detailQuantity); }}>Add to Cart</button><button type="button" className="el-detail-buy-button" onClick={() => { changeQuantity(selectedProduct.id, detailQuantity); closeProduct(); setCheckoutOpen(true); setCheckoutError(""); }}>Buy Now</button></div></div>
+        </div>
       </section></div>}
     </div>
   );
